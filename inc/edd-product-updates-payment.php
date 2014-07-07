@@ -1,7 +1,5 @@
 <?php
 /*
-Plugin Name: Easy Digital Downloads - Product Update Payments
-Plugin URL: http://easydigitaldownloads.com/extension/
 Description: Send product update emails in batch
 Version: 0.1
 Author: Evan Luzi

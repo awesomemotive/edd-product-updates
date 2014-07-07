@@ -36,11 +36,11 @@ jQuery(document).ready(function ($) {
 		};
 		
 	 	$.post(ajaxurl, data, function(response) {
-	 		alert('here comes the update...');
-			$('#ajax-test-edd').html(response);
-			$('#prod-updates-email-preview-wrap-confirm').html(response);
+	 		//alert('here comes the update...');
+			//$('#ajax-test-edd').html(response);
+			//$('#prod-updates-email-preview-wrap-confirm').html(response);
 			//alert('here comes the colorbox');
-			//$.colorbox({html:response});
+			$.colorbox({html:response});
 		});
  }
  	
