@@ -179,7 +179,7 @@ function edd_prod_updates_email_template_buttons() {
 							<li><strong>Recipients:</strong> <?php echo $customercount;?> customers will receive this email and have their downloads reset</li>
 						</ul>
 						<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'prod_updates_send_emails' ) ), 'edd_prod_updates_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd' ); ?></a>
-						<button class="closebutton button button-secondary">Cancel</button>
+						<button class="closebutton button button-secondary">Close without sending</button>
 					</div>
 				</div><!-- end message -->
 				
