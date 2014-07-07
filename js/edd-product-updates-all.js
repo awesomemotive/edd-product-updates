@@ -36,22 +36,23 @@ jQuery(document).ready(function ($) {
 		};
 		
 	 	$.post(ajaxurl, data, function(response) {
-	 		//alert('here comes the update...');
-			//$('#ajax-test-edd').html(response);
-			//$('#prod-updates-email-preview-wrap-confirm').html(response);
-			alert('here comes the colorbox');
 			$.colorbox({html:response});
+			$('.edd-pu-spin').toggleClass('loading');
+			$('#send-prod-updates').prop("disabled", false);			
 		});
  }
  	
 	 function save_main_options_ajax() {
            $('#send-prod-updates').click( function () {
+           		$(this).prop("disabled", true);
+           		$('.edd-pu-spin').toggleClass('loading');
                 var b =  $('#tab_container form').serialize();
                 $.post( 'options.php', b ).error( 
                     function() {
                         alert('error');
-                    }).success( function() {
-                        alert('success');   
+						$('.edd-pu-spin').toggleClass('loading');
+						$('#send-prod-updates').prop("disabled", false);					
+                    }).success( function() { 
                         email_confirm_get_preview_html();
                     });
                     return false;    

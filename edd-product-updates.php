@@ -144,7 +144,7 @@ function edd_prod_updates_email_template_buttons() {
 	<a href="#prod-updates-email-preview" id="prod-updates-open-email-preview" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Preview Email', 'edd' ); ?></a>
 	<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'send_prod_update_test_email' ) ), 'edd-prod-update-test-email' ); ?>" title="<?php _e( 'This will send a demo product update email to the From Email listed above.', 'edd' ); ?>" class="button-secondary"><?php _e( 'Send Test Email', 'edd' ); ?></a>
 	<div style="margin:10px 0;">
-	<?php echo submit_button('Send Product Update Emails', 'primary', 'send-prod-updates');?>
+	<?php echo submit_button('Send Product Update Emails', 'primary', 'send-prod-updates', false);?><span class="edd-pu-spin spinner"></span>
 	</div>
 
 	<div id="prod-updates-email-preview-wrap" style="display:none;">

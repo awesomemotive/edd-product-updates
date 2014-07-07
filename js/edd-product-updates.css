@@ -58,3 +58,12 @@ right: 0;
 margin-top:28px;
 margin-bottom:0;
 }
+
+.edd-pu-spin {
+	margin: 5px 0 0 10px;
+	float: none;
+}
+
+.edd-pu-spin.loading {
+	display: inline-block;
+}
