@@ -1,0 +1,60 @@
+/*
+	Description: Style for email confirmation preview on Easy Digital Downloads - Product Updates Extension
+	Author: Evan Luzi
+	Version: 1.0
+*/
+#prod-updates-email-confirm-titles,
+#prod-updates-email-preview-confirm h3,
+#prod-updates-email-preview-footer {
+	text-align:center;
+}
+
+#prod-updates-email-confirm-titles h2 {
+	font-size:28px;
+}
+
+#prod-updates-email-preview-confirm h3 {
+	margin-top:0;
+	color:#999;
+}
+
+#prod-updates-email-preview-message {
+	margin:0 auto;
+	padding: 20px;
+	max-width: 560px;
+	border:1px solid #e6e6e6;
+}
+
+#prod-updates-email-preview-header {
+	padding:0 0 10px;
+	border-bottom:1px solid #e6e6e6;
+}
+
+#prod-updates-email-preview-footer {
+	padding:20px 0 0;
+	border-top:1px solid #e6e6e6;
+}
+
+#prod-updates-email-preview-footer ul {
+	padding-bottom:10px;
+}
+
+#prod-updates-email-confirm-prod-list {
+	list-style-type: disc;
+	margin-left:25px;
+}
+
+.prod-updates-email-confirm-info {
+	margin:0;
+	text-align:left;
+}
+
+#colorbox #cboxClose
+{
+top: 0;
+right: 0;
+}
+#cboxLoadedContent{
+margin-top:28px;
+margin-bottom:0;
+}
