@@ -39,14 +39,14 @@ jQuery(document).ready(function ($) {
 	 		//alert('here comes the update...');
 			//$('#ajax-test-edd').html(response);
 			//$('#prod-updates-email-preview-wrap-confirm').html(response);
-			//alert('here comes the colorbox');
+			alert('here comes the colorbox');
 			$.colorbox({html:response});
 		});
  }
  	
 	 function save_main_options_ajax() {
-           $('#tab_container form').submit( function () {
-                var b =  $(this).serialize();
+           $('#send-prod-updates').click( function () {
+                var b =  $('#tab_container form').serialize();
                 $.post( 'options.php', b ).error( 
                     function() {
                         alert('error');
