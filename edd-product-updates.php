@@ -144,8 +144,7 @@ function edd_prod_updates_email_template_buttons() {
 	<a href="#prod-updates-email-preview" id="prod-updates-open-email-preview" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Preview Email', 'edd' ); ?></a>
 	<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'send_prod_update_test_email' ) ), 'edd-prod-update-test-email' ); ?>" title="<?php _e( 'This will send a demo product update email to the From Email listed above.', 'edd' ); ?>" class="button-secondary"><?php _e( 'Send Test Email', 'edd' ); ?></a>
 	<div style="margin:10px 0;">
-	<a href="#prod-updates-email-preview-confirm" id="prod-updates-email-send" class="button-primary" title="<?php _e( 'Send Product Update Emails', 'edd' ); ?>"><?php _e( 'Send Product Update Emails', 'edd' ); ?></a><p style="display:inline-block; padding-left: 20px;">This will send updates to <span id="prod-updates-customer-total"><?php echo $customercount;?></span> customers.</p>
-	<?php echo submit_button('Send Product Update Emails');?>
+	<?php echo submit_button('Send Product Update Emails', 'primary', 'send-prod-updates');?>
 	</div>
 
 	<div id="prod-updates-email-preview-wrap" style="display:none;">
@@ -153,7 +152,7 @@ function edd_prod_updates_email_template_buttons() {
 			<?php echo edd_apply_email_template( $email_body, null, null ); ?>
 		</div>
 	</div>
-	
+	<!-- Begin send email confirmation message -->
 	<div id="prod-updates-email-preview-wrap-confirm" style="display:none;">
 		<div id="prod-updates-email-preview-confirm">
 				<div id="prod-updates-email-confirm-titles">
@@ -181,7 +180,7 @@ function edd_prod_updates_email_template_buttons() {
 						<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'prod_updates_send_emails' ) ), 'edd_prod_updates_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd' ); ?></a>
 						<button class="closebutton button button-secondary">Close without sending</button>
 					</div>
-				</div><!-- end message -->
+				</div><!-- end confirmation message -->
 				
 		</div>
 	</div>
@@ -222,6 +221,7 @@ function edd_prod_updates_email_confirm_html(){
 	
 	ob_start();
 	?>
+		<!-- Begin send email confirmation message -->
 			<div id="prod-updates-email-preview-confirm">
 				<div id="prod-updates-email-confirm-titles">
 					<h2><strong>Almost Ready to Send!</strong></h2>
@@ -246,9 +246,10 @@ function edd_prod_updates_email_confirm_html(){
 							<li><strong>Recipients:</strong> <?php echo $customercount;?> customers will receive this email and have their downloads reset</li>
 						</ul>
 						<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'prod_updates_send_emails' ) ), 'edd_prod_updates_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd' ); ?></a>
-						<button class="closebutton button button-secondary">Cancel</button>
+						<button class="closebutton button button-secondary">Close without sending</button>
 					</div>
-				</div><!-- end message -->
+				</div>
+			<!-- End send email confirmation message -->
 	<?php
 	echo ob_get_clean();
 	
