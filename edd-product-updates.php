@@ -98,7 +98,7 @@ function edd_settings_prod_update ( $edd_settings ) {
 			array(
 				'id' => 'prod_updates_message',
 				'name' => __( 'Product Update Message', 'edd-prod-updates' ),
-				'desc' => __('Enter the email that is sent to users after completing a successful purchase. HTML is accepted. Available template tags:', 'edd') . '<br><br>' . edd_get_emails_tags_list() . '' . edd_prod_updates_get_tags(),
+				'desc' => __('Enter the email that is sent to users after completing a successful purchase. HTML is accepted. Available template tags:', 'edd') . '<br><br>' . edd_get_emails_tags_list(),
 				'type' => 'rich_editor',
 				'std'  => __( "Dear", "edd" ) . " {name},\n\n" . __( "Thank you for your purchase. Please click on the link(s) below to download your files.", "edd" ) . "\n\n{download_list}\n\n{sitename}"
 			),
@@ -184,9 +184,6 @@ function edd_prod_updates_email_template_buttons() {
 				
 		</div>
 	</div>
-	<!--<div id="ajax-test-edd">
-	<p> here is the content before</p>
-	</div>-->
 	<?php
 	echo ob_get_clean();
 }
