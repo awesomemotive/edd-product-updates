@@ -49,11 +49,90 @@ function edd_prod_updates_products_tag($payment_id) {
 
 function edd_prod_updates_products_links_tag($payment_id) {
 
-	$purchase_data = get_post_meta( $payment_id, '_edd_payment_meta', true );
+	$products = $edd_options['prod_updates_products'];
 
-	$product_links = 'replace me with links';
-	
-	return $product_links;
+	$payment_data  = edd_get_payment_meta( $payment_id );
+	$download_list = '<ul>';
+	$cart_items    = edd_get_payment_meta_cart_details( $payment_id );
+	$email         = edd_get_payment_user_email( $payment_id );
+
+	if ( $cart_items ) {
+		$show_names = apply_filters( 'edd_email_show_names', true );
+
+		foreach ( $cart_items as $item ) {
+			
+			if (array_key_exists($item['id'], $products)) {
+				return;
+			}
+			
+			if ( edd_use_skus() ) {
+				$sku = edd_get_download_sku( $item['id'] );
+			}
+
+			$price_id = edd_get_cart_item_price_id( $item );
+
+			if ( $show_names ) {
+
+				$title = get_the_title( $item['id'] );
+
+				if ( ! empty( $sku ) ) {
+					$title .= "&nbsp;&ndash;&nbsp;" . __( 'SKU', 'edd' ) . ': ' . $sku;
+				}
+
+				if ( $price_id !== false ) {
+					$title .= "&nbsp;&ndash;&nbsp;" . edd_get_price_option_name( $item['id'], $price_id );
+				}
+
+				$download_list .= '<li>' . apply_filters( 'edd_email_receipt_download_title', $title, $item, $price_id, $payment_id ) . '<br/>';
+				$download_list .= '<ul>';
+			}
+
+			$files = edd_get_download_files( $item['id'], $price_id );
+
+			if ( $files ) {
+				foreach ( $files as $filekey => $file ) {
+					$download_list .= '<li>';
+					$file_url = edd_get_download_file_url( $payment_data['key'], $email, $filekey, $item['id'], $price_id );
+					$download_list .= '<a href="' . esc_url( $file_url ) . '">' . edd_get_file_name( $file ) . '</a>';
+					$download_list .= '</li>';
+				}
+			}
+			elseif ( edd_is_bundled_product( $item['id'] ) ) {
+
+				$bundled_products = edd_get_bundled_products( $item['id'] );
+
+				foreach ( $bundled_products as $bundle_item ) {
+
+					$download_list .= '<li class="edd_bundled_product"><strong>' . get_the_title( $bundle_item ) . '</strong></li>';
+
+					$files = edd_get_download_files( $bundle_item );
+
+					foreach ( $files as $filekey => $file ) {
+						$download_list .= '<li>';
+						$file_url = edd_get_download_file_url( $payment_data['key'], $email, $filekey, $bundle_item, $price_id );
+						$download_list .= '<a href="' . esc_url( $file_url ) . '">' . $file['name'] . '</a>';
+						$download_list .= '</li>';
+					}
+				}
+			}
+
+			if ( $show_names ) {
+				$download_list .= '</ul>';
+			}
+
+			if ( '' != edd_get_product_notes( $item['id'] ) ) {
+				$download_list .= ' &mdash; <small>' . edd_get_product_notes( $item['id'] ) . '</small>';
+			}
+
+
+			if ( $show_names ) {
+				$download_list .= '</li>';
+			}
+		}
+	}
+	$download_list .= '</ul>';
+
+	return $download_list;
 }
 
 function edd_prod_updates_verify_unsub_link() {
