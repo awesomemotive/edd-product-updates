@@ -12,9 +12,8 @@ Contributors: Evan Luzi
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-require_once( 'edd-product-updates-submenu.php');
-require_once( 'inc/edd-product-updates-payment.php');
-require_once( 'inc/edd-product-updates-tags.php');
+require( 'inc/edd-product-updates-payment.php');
+require( 'inc/edd-product-updates-tags.php');
 
 
 add_action( 'init', 'edd_prod_updates_verify_unsub_link');
@@ -142,7 +141,7 @@ function edd_prod_updates_email_template_buttons() {
 	ob_start();
 	?>
 	<a href="#prod-updates-email-preview" id="prod-updates-open-email-preview" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Preview Email', 'edd' ); ?></a>
-	<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'send_prod_update_test_email' ) ), 'edd-prod-update-test-email' ); ?>" title="<?php _e( 'This will send a demo product update email to the From Email listed above.', 'edd' ); ?>" class="button-secondary"><?php _e( 'Send Test Email', 'edd' ); ?></a>
+	<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'send_prod_update_test_email' ) ), 'edd-prod-update-test-email' ); ?>" title="<?php _e( 'This will send a demo product update email to the From Email listed above.', 'edd-prod-updates' ); ?>" class="button-secondary"><?php _e( 'Send Test Email', 'edd' ); ?></a>
 	<div style="margin:10px 0;">
 	<?php echo submit_button('Send Product Update Emails', 'primary', 'send-prod-updates', false);?><span class="edd-pu-spin spinner"></span>
 	</div>
@@ -177,7 +176,7 @@ function edd_prod_updates_email_template_buttons() {
 								</ul>
 							<li><strong>Recipients:</strong> <?php echo $customercount;?> customers will receive this email and have their downloads reset</li>
 						</ul>
-						<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'prod_updates_send_emails' ) ), 'edd_prod_updates_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd' ); ?></a>
+						<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'prod_updates_send_emails' ) ), 'edd_prod_updates_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?></a>
 						<button class="closebutton button button-secondary">Close without sending</button>
 					</div>
 				</div><!-- end confirmation message -->
@@ -244,7 +243,7 @@ function edd_prod_updates_email_confirm_html(){
 								</ul>
 							<li><strong>Recipients:</strong> <?php echo $customercount;?> customers will receive this email and have their downloads reset</li>
 						</ul>
-						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_prod_updates_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd' ); ?></a>
+						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_prod_updates_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?></a>
 						<button class="closebutton button button-secondary">Close without sending</button>
 					</div>
 				</div>
@@ -497,9 +496,6 @@ function edd_email_product_update( $payment_id ) {
 	$message = edd_get_email_body_header();
 	$message .= apply_filters( 'edd_purchase_receipt', edd_email_template_tags( $edd_options['prod_updates_message'], $payment_data, $payment_id ), $payment_id, $payment_data );
 	$message .= edd_get_email_body_footer();
-	
-	// Remove downloads that aren't updated
-	// some code goes here
 
 	$from_name = isset( $edd_options['prod_updates_from_name'] ) ? $edd_options['prod_updates_from_name'] : get_bloginfo('name');
 	$from_name = apply_filters( 'edd_prod_updates_from_name', $from_name, $payment_id, $payment_data );
