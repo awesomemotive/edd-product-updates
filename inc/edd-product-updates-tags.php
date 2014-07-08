@@ -33,21 +33,27 @@ function edd_prod_updates_unsub_tag($payment_id) {
 }
 
 function edd_prod_updates_products_tag($payment_id) {
-
-	$purchase_data = get_post_meta( $payment_id, '_edd_payment_meta', true );
-
-	$unsubscribe = 'replace me with the list';
+	global $edd_options;
 	
-	return $unsubscribe;
+	$products = $edd_options['prod_updates_products'];
+	$productlist = '<ul>';
+	
+	foreach ($products as $product) {
+		$productlist .= '<li>'.$product.'</li>';
+	}
+
+	$productlist .= '</ul>';
+	
+	return $productlist;
 }
 
 function edd_prod_updates_products_links_tag($payment_id) {
 
 	$purchase_data = get_post_meta( $payment_id, '_edd_payment_meta', true );
 
-	$unsubscribe = 'replace me with links';
+	$product_links = 'replace me with links';
 	
-	return $unsubscribe;
+	return $product_links;
 }
 
 function edd_prod_updates_verify_unsub_link() {
@@ -196,9 +202,3 @@ function edd_prod_updates_unsub_status( $payment_id = null ) {
 }
 add_filter('edd_email_template_tags', 'edd_prod_updates_email_tags', 10, 3);
 add_filter('edd_email_preview_template_tags', 'edd_prod_updates_email_tags', 10, 3);*/
-
-function edd_prod_updates_get_tags(){
-	$test = 'this is a test';
-	
-	return $test;
-}
