@@ -25,10 +25,10 @@ add_action( 'init', 'edd_prod_updates_verify_unsub_link');
  * @return void
  */
 function edd_prod_updates_scripts() {
-        wp_register_script( 'edd_prod_updates_js', plugins_url(). '/edd-product-updates/assets/edd-pup-min.js', false, '1.0.0' );
+        wp_register_script( 'edd_prod_updates_js', plugins_url(). '/edd-product-updates/assets/edd-pup.min.js', false, '1.0.0' );
         wp_enqueue_script( 'edd_prod_updates_js' );
 
-        wp_register_style( 'edd_prod_updates_css', plugins_url(). '/edd-product-updates/assets/edd-pup-min.css', false, '1.0.0' );
+        wp_register_style( 'edd_prod_updates_css', plugins_url(). '/edd-product-updates/assets/edd-pup.min.css', false, '1.0.0' );
         wp_enqueue_style( 'edd_prod_updates_css' );
 }
 add_action( 'admin_enqueue_scripts', 'edd_prod_updates_scripts' );
