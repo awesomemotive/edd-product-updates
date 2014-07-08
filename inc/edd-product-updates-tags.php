@@ -49,7 +49,7 @@ function edd_prod_updates_products_tag($payment_id) {
 
 function edd_prod_updates_products_links_tag($payment_id) {
 
-	$products = $edd_options['prod_updates_products'];
+	$updated_products = $edd_options['prod_updates_products'];
 
 	$payment_data  = edd_get_payment_meta( $payment_id );
 	$download_list = '<ul>';
@@ -61,7 +61,7 @@ function edd_prod_updates_products_links_tag($payment_id) {
 
 		foreach ( $cart_items as $item ) {
 			
-			if (array_key_exists($item['id'], $products)) {
+			if (array_key_exists($item['id'], $updated_products)) {
 				return;
 			}
 			
