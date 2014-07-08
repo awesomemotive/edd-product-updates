@@ -12,37 +12,43 @@ jQuery(document).ready(function ($) {
 		$('#cboxContent .closebutton').live('click', function(){
 			$.fn.colorbox.close();
 		});
-
-	function email_confirm_get_preview_html(url) {
-		var data = {
-			'action': 'edd_prod_updates_confirm_ajax',
-			'url' : url
-		};
+	
+	function emailConfirmPreview() {
+	
+		var	button = $('#send-prod-updates'),
+			spinner = $('.edd-pu-spin');
 		
-		$.post(ajaxurl, data, function(response) {
-			$.colorbox({html:response});
-			$('.edd-pu-spin').toggleClass('loading');
-			$('#send-prod-updates').prop("disabled", false);			
-		});
-	}
+           button.click( function () {
+           		var url = document.URL,
+           			form = $('#tab_container form').serialize();
 
-	function save_main_options_ajax() {
-		var url = document.URL;
-           $('#send-prod-updates').click( function () {
 				$(this).prop("disabled",true);
-				$('.edd-pu-spin').toggleClass('loading');
-                var b =  $('#tab_container form').serialize();
-                $.post( 'options.php', b ).error( 
-                    function() {
-                        alert('error');
-						$('.edd-pu-spin').toggleClass('loading');
-						$('#send-prod-updates').prop("disabled", false);					
-                    }).success( function() { 
-                        email_confirm_get_preview_html(url);
+				spinner.toggleClass('loading');                
+                $.post( 'options.php', form ).error( function() {
+                
+                        alert('Could not process emails. Please try again.');
+						spinner.toggleClass('loading');
+						button.prop("disabled", false);
+											
+                    }).success( function() {
+                    
+						var data = {
+							'action': 'edd_prod_updates_confirm_ajax',
+							'url' : url
+						};
+						
+						$.post(ajaxurl, data, function(response) {
+							$.colorbox({html:response});
+							spinner.toggleClass('loading');
+							button.prop("disabled", false);			
+						});
                     });
+                    
                     return false;    
+                    
                 });
             }
-	save_main_options_ajax();
+            
+	emailConfirmPreview();
 
 });
