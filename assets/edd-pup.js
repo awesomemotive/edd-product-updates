@@ -9,45 +9,28 @@ jQuery(document).ready(function ($) {
 			height: 'auto'
 		});
 	}
-	
-	if( $('#prod-updates-email-preview-wrap-confirm').length ) {
-		var emailPreview = $('#prod-updates-email-preview-confirm');
-		// Uncomment to show automatically on page load
-		//$.colorbox({
-		$('#prod-updates-email-send').colorbox({
-			inline: true,
-			href: emailPreview,
-			width: '80%',
-			height: 'auto'
-		});
 		$('#cboxContent .closebutton').live('click', function(){
 			$.fn.colorbox.close();
 		});
-	}
- function email_confirm_preview() {
-	 var message = $('#edd_settings_prod_updates_message').html();
-	 
-	 $('#ajax-test-edd').html(message);
- }
- 
- function email_confirm_get_preview_html(url) {
-	 	var data = {
+
+	function email_confirm_get_preview_html(url) {
+		var data = {
 			'action': 'edd_prod_updates_confirm_ajax',
 			'url' : url
 		};
 		
-	 	$.post(ajaxurl, data, function(response) {
+		$.post(ajaxurl, data, function(response) {
 			$.colorbox({html:response});
 			$('.edd-pu-spin').toggleClass('loading');
 			$('#send-prod-updates').prop("disabled", false);			
 		});
- }
- 	
-	 function save_main_options_ajax() {
-	 var url = document.URL;
+	}
+
+	function save_main_options_ajax() {
+		var url = document.URL;
            $('#send-prod-updates').click( function () {
-           		$(this).prop("disabled", true);
-           		$('.edd-pu-spin').toggleClass('loading');
+				$(this).prop("disabled",true);
+				$('.edd-pu-spin').toggleClass('loading');
                 var b =  $('#tab_container form').serialize();
                 $.post( 'options.php', b ).error( 
                     function() {
@@ -60,6 +43,6 @@ jQuery(document).ready(function ($) {
                     return false;    
                 });
             }
- save_main_options_ajax();
+	save_main_options_ajax();
 
 });
