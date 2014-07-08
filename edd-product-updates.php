@@ -189,7 +189,6 @@ function edd_prod_updates_email_template_buttons() {
 }
 add_action( 'edd_prod_updates_email_settings', 'edd_prod_updates_email_template_buttons' );
 
-add_action( 'wp_ajax_edd_prod_updates_confirm_ajax', 'edd_prod_updates_email_confirm_html' );
 function my_action_callback() {
 	global $edd_options;
 	
@@ -199,6 +198,7 @@ function my_action_callback() {
 
 	die(); // this is required to return a proper result
 }
+add_action( 'wp_ajax_edd_prod_updates_confirm_ajax', 'edd_prod_updates_email_confirm_html' );
 
 function edd_prod_updates_email_confirm_html(){
 
@@ -209,6 +209,8 @@ function edd_prod_updates_email_confirm_html(){
 	foreach ($products as $product) {
 		$productlist .= '<li>'.$product.'</li>';
 	}
+	
+	$nonceurl = add_query_arg( array( 'edd_action' => 'prod_updates_send_emails' ), $_POST['url'] );
 	
 	$customercount = edd_prod_updates_customer_count();
 	
@@ -242,7 +244,7 @@ function edd_prod_updates_email_confirm_html(){
 								</ul>
 							<li><strong>Recipients:</strong> <?php echo $customercount;?> customers will receive this email and have their downloads reset</li>
 						</ul>
-						<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'prod_updates_send_emails' ) ), 'edd_prod_updates_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd' ); ?></a>
+						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_prod_updates_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd' ); ?></a>
 						<button class="closebutton button button-secondary">Close without sending</button>
 					</div>
 				</div>

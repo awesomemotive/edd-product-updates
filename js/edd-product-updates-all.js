@@ -30,9 +30,10 @@ jQuery(document).ready(function ($) {
 	 $('#ajax-test-edd').html(message);
  }
  
- function email_confirm_get_preview_html() {
+ function email_confirm_get_preview_html(url) {
 	 	var data = {
-			'action': 'edd_prod_updates_confirm_ajax'
+			'action': 'edd_prod_updates_confirm_ajax',
+			'url' : url
 		};
 		
 	 	$.post(ajaxurl, data, function(response) {
@@ -43,6 +44,7 @@ jQuery(document).ready(function ($) {
  }
  	
 	 function save_main_options_ajax() {
+	 var url = document.URL;
            $('#send-prod-updates').click( function () {
            		$(this).prop("disabled", true);
            		$('.edd-pu-spin').toggleClass('loading');
@@ -53,7 +55,7 @@ jQuery(document).ready(function ($) {
 						$('.edd-pu-spin').toggleClass('loading');
 						$('#send-prod-updates').prop("disabled", false);					
                     }).success( function() { 
-                        email_confirm_get_preview_html();
+                        email_confirm_get_preview_html(url);
                     });
                     return false;    
                 });
