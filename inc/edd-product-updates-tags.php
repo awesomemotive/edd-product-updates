@@ -10,14 +10,14 @@ Contributors: Evan Luzi
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-function edd_prod_updates_email_tags( $payment_id ) {
-	 edd_add_email_tag( 'updated_products', 'Display a list of updated products without links', 'edd_prod_updates_products_tag' );
-	 edd_add_email_tag( 'updated_products_links', 'Display a list of updated products with links', 'edd_prod_updates_products_links_tag' );
-	 edd_add_email_tag( 'unsubscribe_link', 'Output an unsubscribe link so users no longer receive product update emails', 'edd_prod_updates_unsub_tag' );
+function edd_pup_email_tags( $payment_id ) {
+	 edd_add_email_tag( 'updated_products', 'Display a list of updated products without links', 'edd_pup_products_tag' );
+	 edd_add_email_tag( 'updated_products_links', 'Display a list of updated products with links', 'edd_pup_products_links_tag' );
+	 edd_add_email_tag( 'unsubscribe_link', 'Output an unsubscribe link so users no longer receive product update emails', 'edd_pup_unsub_tag' );
 }
-add_action( 'edd_add_email_tags', 'edd_prod_updates_email_tags' );
+add_action( 'edd_add_email_tags', 'edd_pup_email_tags' );
 
-function edd_prod_updates_unsub_tag($payment_id) {
+function edd_pup_unsub_tag($payment_id) {
 
 	$purchase_data = get_post_meta( $payment_id, '_edd_payment_meta', true );
 	$unsub_link_params = array(
@@ -32,7 +32,7 @@ function edd_prod_updates_unsub_tag($payment_id) {
 	return $unsubscribe;
 }
 
-function edd_prod_updates_products_tag($payment_id) {
+function edd_pup_products_tag($payment_id) {
 	global $edd_options;
 	
 	$products = $edd_options['prod_updates_products'];
@@ -47,7 +47,7 @@ function edd_prod_updates_products_tag($payment_id) {
 	return $productlist;
 }
 
-function edd_prod_updates_products_links_tag($payment_id) {
+function edd_pup_products_links_tag($payment_id) {
 
 	$updated_products = $edd_options['prod_updates_products'];
 
@@ -135,7 +135,7 @@ function edd_prod_updates_products_links_tag($payment_id) {
 	return $download_list;
 }
 
-function edd_prod_updates_verify_unsub_link() {
+function edd_pup_verify_unsub_link() {
 		if ( isset( $_GET['order_id'] )  && isset( $_GET['email'] ) && isset( $_GET['purchase_key'] ) && isset( $_GET['edd_action'] ) ) {
 			
 			if ( ! ( ($_GET['edd_action'] == 'prod_update_unsub') || ($_GET['edd_action'] == 'prod_update_resub') ) ) {
@@ -165,17 +165,20 @@ function edd_prod_updates_verify_unsub_link() {
 			) );
 			
 			if ( $payments ) {
-				edd_prod_updates_unsub_page($order_id, $key, $email, $action);
+				edd_pup_unsub_page($order_id, $key, $email, $action);
 			} else {
 				wp_die( 'The email you requested to be removed was not found.' , 'Email Not Found');
 			}
 		}
 }
+add_action( 'init', 'edd_pup_verify_unsub_link');
 
-function edd_prod_updates_unsub_page($payment_id, $purchase_key, $email, $action) {
+function edd_pup_unsub_page($payment_id, $purchase_key, $email, $action) {
  
+    $payment_meta = edd_get_payment_meta( $payment_id );
+    
     // Only update payment info if user is currently subscribed for updates
-    if ( edd_prod_updates_unsub_status($payment_id) && $action == 'prod_update_unsub' ) {
+    if ( edd_pup_unsub_status($payment_id) && $action == 'prod_update_unsub' ) {
     	
     	// Unsubscribe customer from futurue updates
 	    $payment_meta['edd_send_prod_updates'] = false;
@@ -186,7 +189,7 @@ function edd_prod_updates_unsub_page($payment_id, $purchase_key, $email, $action
 	    // Update customer log with note about unsubscribing
 		edd_insert_payment_note($payment_id, 'User unsubscribed from product update emails');	
 	    	
-    } else if (!edd_prod_updates_unsub_status($payment_id) && $action == 'prod_update_resub' ) {
+    } else if (!edd_pup_unsub_status($payment_id) && $action == 'prod_update_resub' ) {
     	// Unsubscribe customer from futurue updates
 	    $payment_meta['edd_send_prod_updates'] = true;
 	
@@ -197,10 +200,10 @@ function edd_prod_updates_unsub_page($payment_id, $purchase_key, $email, $action
 		edd_insert_payment_note($payment_id, 'User re-subscribed to product update emails');		    
     }
     	
-    edd_prod_updates_unsub_message($payment_id, $purchase_key, $email, $action);
+    edd_pup_unsub_message($payment_id, $purchase_key, $email, $action);
 }
 
-function edd_prod_updates_unsub_message($payment_id, $purchase_key, $email, $action){
+function edd_pup_unsub_message($payment_id, $purchase_key, $email, $action){
 
 	$resub_link_params = array(
 		'order_id'  => $payment_id,
@@ -240,7 +243,7 @@ function edd_prod_updates_unsub_message($payment_id, $purchase_key, $email, $act
 		
 }
 
-function edd_prod_updates_unsub_status( $payment_id = null ) {
+function edd_pup_unsub_status( $payment_id = null ) {
     
     $status = true;
     $payment_meta = edd_get_payment_meta( $payment_id );
