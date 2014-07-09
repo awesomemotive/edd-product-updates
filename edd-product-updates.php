@@ -1,12 +1,10 @@
 <?php
 /*
 Plugin Name: Easy Digital Downloads - Product Update Emails
-Plugin URL: http://easydigitaldownloads.com/extension/mail-chimp
-Description: Send product update emails in batch
+Description: Batch send product update emails to EDD customers
 Version: 0.1
 Author: Evan Luzi
 Author URI: http://evanluzi.com
-Contributors: Evan Luzi
 */
 
 // Exit if accessed directly
@@ -15,22 +13,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 require( 'inc/edd-product-updates-payment.php');
 require( 'inc/edd-product-updates-tags.php');
 
-
-add_action( 'init', 'edd_prod_updates_verify_unsub_link');
 /**
  * Add javascript file to admin for colorbox email preview, etc.
  * 
  * @access public
  * @return void
  */
-function edd_prod_updates_scripts() {
+function edd_pup_scripts() {
         wp_register_script( 'edd_prod_updates_js', plugins_url(). '/edd-product-updates/assets/edd-pup.min.js', false, '1.0.0' );
         wp_enqueue_script( 'edd_prod_updates_js' );
 
         wp_register_style( 'edd_prod_updates_css', plugins_url(). '/edd-product-updates/assets/edd-pup.min.css', false, '1.0.0' );
         wp_enqueue_style( 'edd_prod_updates_css' );
 }
-add_action( 'admin_enqueue_scripts', 'edd_prod_updates_scripts' );
+add_action( 'admin_enqueue_scripts', 'edd_pup_scripts' );
 
     /**
      * Add settings to EDD Settings
@@ -39,7 +35,7 @@ add_action( 'admin_enqueue_scripts', 'edd_prod_updates_scripts' );
      *
      * @return array EDD Settings
      */
-function edd_settings_prod_update ( $edd_settings ) {
+function edd_pup_settings ( $edd_settings ) {
         $products = array();
 
         $downloads = get_posts( array( 'post_type' => 'download', 'posts_per_page' => -1 ) );
@@ -111,7 +107,7 @@ function edd_settings_prod_update ( $edd_settings ) {
 
         return array_merge( $edd_settings, $settings );
 }
-add_filter( 'edd_settings_emails', 'edd_settings_prod_update' );
+add_filter( 'edd_settings_emails', 'edd_pup_settings' );
 
 /**
  * Email Action Buttons
@@ -121,27 +117,17 @@ add_filter( 'edd_settings_emails', 'edd_settings_prod_update' );
  * @since 1.0.8.2
 */
 
-function edd_prod_updates_email_template_buttons() {
+function edd_pup_email_template_buttons() {
 	
 	global $edd_options;
-	
-	$products = $edd_options['prod_updates_products'];
-	$productlist = '';
-	
-	foreach ($products as $product) {
-		$productlist .= '<li>'.$product.'</li>';
-	}
-	
-	$customercount = edd_prod_updates_customer_count();
-	
+
 	$default_email_body = 'This is the default body';
-	
-	$email_body = isset( $edd_options['prod_updates_message'] ) ? stripslashes( $edd_options['prod_updates_message'] ) : $default_email_body;
+	$email_body = isset( $edd_options['prod_updates_message'] ) ? stripslashes( $edd_options['prod_updates_message'] ) : $default_email_body;	
 	
 	ob_start();
 	?>
 	<a href="#prod-updates-email-preview" id="prod-updates-open-email-preview" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Preview Email', 'edd' ); ?></a>
-	<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'send_prod_update_test_email' ) ), 'edd-prod-update-test-email' ); ?>" title="<?php _e( 'This will send a demo product update email to the From Email listed above.', 'edd-prod-updates' ); ?>" class="button-secondary"><?php _e( 'Send Test Email', 'edd' ); ?></a>
+	<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'pup_send_test_email' ) ), 'edd-pup-test-email' ); ?>" title="<?php _e( 'This will send a demo product update email to the From Email listed above.', 'edd-prod-updates' ); ?>" class="button-secondary"><?php _e( 'Send Test Email', 'edd' ); ?></a>
 	<div style="margin:10px 0;">
 	<?php echo submit_button('Send Product Update Emails', 'primary', 'send-prod-updates', false);?><span class="edd-pu-spin spinner"></span>
 	</div>
@@ -151,55 +137,12 @@ function edd_prod_updates_email_template_buttons() {
 			<?php echo edd_apply_email_template( $email_body, null, null ); ?>
 		</div>
 	</div>
-	<!-- Begin send email confirmation message -->
-	<div id="prod-updates-email-preview-wrap-confirm" style="display:none;">
-		<div id="prod-updates-email-preview-confirm">
-				<div id="prod-updates-email-confirm-titles">
-					<h2><strong>Almost Ready to Send!</strong></h2>
-					<p>Please carefully check the information below before sending your emails.</p>
-				</div>
-					<div id="prod-updates-email-preview-message">
-						<div id="prod-updates-email-preview-header">
-							<h3>Email Message Preview</h3>
-							<ul class="prod-updates-email-confirm-info">
-								<li><strong>From:</strong> <?php echo $edd_options['prod_updates_from_name'];?> (<?php echo $edd_options['prod_updates_from_email'];?>)</li>
-								<li><strong>Subject:</strong> <?php echo $edd_options['prod_updates_subject'];?></li>
-							</ul>
-						</div>
-				<?php echo edd_apply_email_template( $email_body, null, null ); ?>
-				<div id="prod-updates-email-preview-footer">
-					<h3>Additional Information</h3>
-						<ul class="prod-updates-email-confirm-info">
-							<li><strong>Updated Products:</strong></li>
-								<ul id="prod-updates-email-confirm-prod-list">
-									<?php echo $productlist;?>
-								</ul>
-							<li><strong>Recipients:</strong> <?php echo $customercount;?> customers will receive this email and have their downloads reset</li>
-						</ul>
-						<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'prod_updates_send_emails' ) ), 'edd_prod_updates_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?></a>
-						<button class="closebutton button button-secondary">Close without sending</button>
-					</div>
-				</div><!-- end confirmation message -->
-				
-		</div>
-	</div>
 	<?php
 	echo ob_get_clean();
 }
-add_action( 'edd_prod_updates_email_settings', 'edd_prod_updates_email_template_buttons' );
+add_action( 'edd_prod_updates_email_settings', 'edd_pup_email_template_buttons' );
 
-function my_action_callback() {
-	global $edd_options;
-	
-	$email_body = isset( $edd_options['prod_updates_message'] ) ? stripslashes( $edd_options['prod_updates_message'] ) : $default_email_body;	
-
-    echo edd_apply_email_template( $email_body, null, null );
-
-	die(); // this is required to return a proper result
-}
-add_action( 'wp_ajax_edd_prod_updates_confirm_ajax', 'edd_prod_updates_email_confirm_html' );
-
-function edd_prod_updates_email_confirm_html(){
+function edd_pup_email_confirm_html(){
 
 	global $edd_options;
 	$products = $edd_options['prod_updates_products'];
@@ -209,9 +152,9 @@ function edd_prod_updates_email_confirm_html(){
 		$productlist .= '<li>'.$product.'</li>';
 	}
 	
-	$nonceurl = add_query_arg( array( 'edd_action' => 'prod_updates_send_emails' ), $_POST['url'] );
+	$nonceurl = add_query_arg( array( 'edd_action' => 'pup_send_emails' ), $_POST['url'] );
 	
-	$customercount = edd_prod_updates_customer_count();
+	$customercount = edd_pup_customer_count();
 	
 	$default_email_body = 'This is the default body';
 	
@@ -243,7 +186,7 @@ function edd_prod_updates_email_confirm_html(){
 								</ul>
 							<li><strong>Recipients:</strong> <?php echo $customercount;?> customers will receive this email and have their downloads reset</li>
 						</ul>
-						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_prod_updates_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?></a>
+						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?></a>
 						<button class="closebutton button button-secondary">Close without sending</button>
 					</div>
 				</div>
@@ -253,6 +196,7 @@ function edd_prod_updates_email_confirm_html(){
 	
 	die();
 }
+add_action( 'wp_ajax_edd_pup_confirm_ajax', 'edd_pup_email_confirm_html' );
 
 /**
  * Trigger the sending of a Product Update Test Email
@@ -261,17 +205,17 @@ function edd_prod_updates_email_confirm_html(){
  * @param array $data Parameters sent from Settings page
  * @return void
  */
-function edd_send_prod_update_test_email( $data ) {
-	if ( ! wp_verify_nonce( $data['_wpnonce'], 'edd-prod-update-test-email' ) )
+function edd_pup_send_test_email( $data ) {
+	if ( ! wp_verify_nonce( $data['_wpnonce'], 'edd-pup-test-email' ) )
 		return;
 
 	// Send a test email
-    edd_email_test_prod_update_receipt();
+    edd_pup_test_email();
 
     // Remove the test email query arg
     wp_redirect( remove_query_arg( 'edd_action' ) ); exit;
 }
-add_action( 'edd_send_prod_update_test_email', 'edd_send_prod_update_test_email' );
+add_action( 'edd_pup_send_test_email', 'edd_pup_send_test_email' );
 
 /**
  * Email the download link(s) and payment confirmation to the admin accounts for testing.
@@ -280,7 +224,7 @@ add_action( 'edd_send_prod_update_test_email', 'edd_send_prod_update_test_email'
  * @global $edd_options Array of all the EDD Options
  * @return void
  */
-function edd_email_test_prod_update_receipt() {
+function edd_pup_test_email() {
 	global $edd_options;
 
 	$default_email_body = __( "Dear", "edd" ) . " {name},\n\n";
@@ -318,17 +262,17 @@ function edd_email_test_prod_update_receipt() {
  * @param array $data Parameters sent from Settings page
  * @return void
  */
-function edd_prod_updates_send_emails( $data ) {
-	if ( ! wp_verify_nonce( $data['_wpnonce'], 'edd_prod_updates_send_emails' ) )
+function edd_pup_send_emails( $data ) {
+	if ( ! wp_verify_nonce( $data['_wpnonce'], 'edd_pup_send_emails' ) )
 		return;
 
 	// Send emails
-    edd_email_product_update_loop();
+    edd_pup_email_loop();
 
     // Remove the test email query arg
     wp_redirect( remove_query_arg( 'edd_action' ) ); exit;
 }
-add_action( 'edd_prod_updates_send_emails', 'edd_prod_updates_send_emails' );
+add_action( 'edd_pup_send_emails', 'edd_pup_send_emails' );
 
 /**
  * Batch send the Product Update Emails
@@ -337,7 +281,7 @@ add_action( 'edd_prod_updates_send_emails', 'edd_prod_updates_send_emails' );
  * @param array $data Payment Data
  * @return void
  */
-function edd_prod_updates_send_batch( $data ) {
+function edd_pup_send_batch( $data ) {
 	$purchase_id = $data['purchase_id'];
 	edd_email_purchase_receipt( $purchase_id, false );
 
@@ -356,23 +300,9 @@ function edd_prod_updates_send_batch( $data ) {
 	wp_redirect( add_query_arg( array( 'edd-message' => 'email_sent', 'edd-action' => false, 'purchase_id' => false ) ) );
 	exit;
 }
-add_action( 'edd_email_links', 'edd_prod_updates_send_batch' );
+add_action( 'edd_email_links', 'edd_pup_send_batch' );
 
-
-/**
- * edd_email_product_update_loop function.
- * 
- * @access public
- * @return void
- */
-function edd_email_product_update_loop(){
-	global $edd_options;
-
-	$downloads = get_posts( array( 'post_type' => 'download', 'posts_per_page' => -1 ) );
-	$upgraded_products = $edd_options['prod_updates_products'];
-
-	$thing = edd_get_payment_status($payments[0], true);
-
+function edd_pup_get_all_customers(){
 	$queryargs = array(
 		'posts_per_page'   => -1,
 		'offset'           => 0,
@@ -390,12 +320,28 @@ function edd_email_product_update_loop(){
 		'suppress_filters' => true
 		);
 	
-	$payments = get_posts($queryargs);
+	return get_posts($queryargs);
+}
+/**
+ * edd_pup_email_loop function.
+ * 
+ * @access public
+ * @return void
+ */
+function edd_pup_email_loop(){
+	global $edd_options;
+
+	$downloads = get_posts( array( 'post_type' => 'download', 'posts_per_page' => -1 ) );
+	$upgraded_products = $edd_options['prod_updates_products'];
+
+	$thing = edd_get_payment_status($payments[0], true);
+	
+	$payments = edd_pup_get_all_customers();
 	
 	foreach ($payments as $customer){
 		
 		// Don't send to customers who have unsubscribed from updates
-		if (edd_prod_updates_user_send_updates($customer->ID)){
+		if (edd_pup_user_send_updates($customer->ID)){
 	
 		$cart_items = edd_get_payment_meta_cart_details($customer->ID, true);
 		
@@ -406,7 +352,7 @@ function edd_email_product_update_loop(){
 				// Check to see if purchased products match updated products
 				if ((array_key_exists($item['id'], $upgraded_products)) && ($i === 0)){
 					
-					edd_email_product_update($customer->ID);
+					edd_pup_trigger_email($customer->ID);
 					
 					// Increment so only one email is sent per customer
 					$i++;
@@ -417,34 +363,17 @@ function edd_email_product_update_loop(){
 	}
 }
 
-function edd_prod_updates_customer_count(){
+function edd_pup_customer_count(){
 	global $edd_options;
 	$customercount = 0;
 	
 	$upgraded_products = $edd_options['prod_updates_products'];
-
-	$queryargs = array(
-		'posts_per_page'   => -1,
-		'offset'           => 0,
-		'category'         => '',
-		'orderby'          => 'ID',
-		'order'            => 'DESC',
-		'include'          => '',
-		'exclude'          => '',
-		'meta_key'         => '',
-		'meta_value'       => '',
-		'post_type'        => 'edd_payment',
-		'post_mime_type'   => '',
-		'post_parent'      => '',
-		'post_status'      => 'publish',
-		'suppress_filters' => true
-		);
 	
-	$payments = get_posts($queryargs);
+	$payments = edd_pup_get_all_customers();
 	
 	foreach ($payments as $customer){
 	
-		if (edd_prod_updates_user_send_updates($customer->ID)){
+		if (edd_pup_user_send_updates($customer->ID)){
 		
 		$cart_items = edd_get_payment_meta_cart_details($customer->ID, true);
 		$i = 0;
@@ -476,7 +405,7 @@ function edd_prod_updates_customer_count(){
  * @param bool $admin_notice Whether to send the admin email notification or not (default: true)
  * @return void
  */
-function edd_email_product_update( $payment_id ) {
+function edd_pup_trigger_email( $payment_id ) {
 	global $edd_options;
 
 	$payment_data = edd_get_payment_meta( $payment_id );

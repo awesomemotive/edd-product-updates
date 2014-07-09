@@ -10,7 +10,7 @@ Contributors: Evan Luzi
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-function edd_prod_update_order_history($payment_id){
+function edd_pup_order_history($payment_id){
 
 	$payment_meta = edd_get_payment_meta($payment_id);
 	$sendupdates = isset( $payment_meta['edd_send_prod_updates'] ) ? $payment_meta['edd_send_prod_updates'] : true ;
@@ -28,25 +28,24 @@ function edd_prod_update_order_history($payment_id){
 
 	echo ob_get_clean();
 }
-add_action('edd_view_order_details_update_inner','edd_prod_update_order_history');
+add_action('edd_view_order_details_update_inner','edd_pup_order_history');
 
 
 /**
  * Store the custom field data into EDD's payment meta
  */
-function edd_prod_update_store_field( $payment_meta ) {
+function edd_pup_store_field( $payment_meta ) {
 
 	$payment_meta['edd_send_prod_updates'] = isset( $_POST['edd-send-product-updates'] ) ? true : false ;
-    //$payment_meta['edd_send_prod_updates'] = true;
     
     return $payment_meta;
 }
-add_filter( 'edd_payment_meta', 'edd_prod_update_store_field');
+add_filter( 'edd_payment_meta', 'edd_pup_store_field');
 
 /**
  * Save the phone field when it's modified via view order details
  */
-function sumobi_edd_updated_edited_purchase( $payment_id ) {
+function edd_pup_updated_edited_purchase( $payment_id ) {
  
     // get the payment meta
     $payment_meta = edd_get_payment_meta( $payment_id );
@@ -57,16 +56,16 @@ function sumobi_edd_updated_edited_purchase( $payment_id ) {
     // update the payment meta with the new array 
     update_post_meta( $payment_id, '_edd_payment_meta', $payment_meta );
 }
-add_action( 'edd_updated_edited_purchase', 'sumobi_edd_updated_edited_purchase' );
+add_action( 'edd_updated_edited_purchase', 'edd_pup_updated_edited_purchase' );
 
 /**
- * edd_prod_updates_user_send_updates function.
+ * edd_pup_user_send_updates function.
  * 
  * @access public
  * @param mixed $payment_id
  * @return void
  */
-function edd_prod_updates_user_send_updates($payment_id){
+function edd_pup_user_send_updates($payment_id){
     
     $payment_meta = edd_get_payment_meta( $payment_id );
     

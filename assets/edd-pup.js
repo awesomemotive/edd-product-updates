@@ -33,7 +33,7 @@ jQuery(document).ready(function ($) {
                     }).success( function() {
                     
 						var data = {
-							'action': 'edd_prod_updates_confirm_ajax',
+							'action': 'edd_pup_confirm_ajax',
 							'url' : url
 						};
 						
