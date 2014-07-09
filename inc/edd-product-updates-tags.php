@@ -101,7 +101,7 @@ function edd_pup_products_links_tag($payment_id) {
 					$bundled_products = edd_get_bundled_products( $item['id'] );
 	
 					foreach ( $bundled_products as $bundle_item ) {
-						if (array_key_exists($bundle_item['id'], $updated_products)) {	
+						if (array_key_exists($bundle_item, $updated_products)) {	
 						
 							$download_list .= '<li class="edd_bundled_product"><strong>' . get_the_title( $bundle_item ) . '</strong></li>';
 		
