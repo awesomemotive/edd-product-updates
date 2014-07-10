@@ -30,9 +30,9 @@ function edd_pup_order_history($payment_id){
 	?>
 			<div class="edd-admin-box-inside edd-send-updates">
 				<p>
-					<span class="label" title="<?php _e( 'When checked, customer will receive product update emails.', 'edd_pup' ); ?>"><i data-code="f463" class="dashicons dashicons-update"></i></span>&nbsp;
+					<span class="label" title="<?php _e( 'When checked, customer will receive product update emails.', 'edd-pup' ); ?>"><i data-code="f463" class="dashicons dashicons-update"></i></span>&nbsp;
 					<input type="checkbox" name="edd-send-product-updates" id="edd_send_product_updates" value="1"<?php checked( true, $sendupdates, true ); ?>/>
-					<label class="description" for="edd_send_product_updates"><?php _e( 'Send Product Updates', 'edd_pup' ); ?></label>
+					<label class="description" for="edd_send_product_updates"><?php _e( 'Send Product Updates', 'edd-pup' ); ?></label>
 				</p>
 			</div>
 			<?php

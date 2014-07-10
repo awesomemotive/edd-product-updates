@@ -5,7 +5,7 @@
  * Author: Evan Luzi
  * Author URI: http://evanluzi.com
  * Version: 0.9
- * Text Domain: edd_pup
+ * Text Domain: edd-pup
  *
  * @package EDD_PUP
  * @author Evan Luzi
@@ -57,51 +57,51 @@ function edd_pup_settings ( $edd_settings ) {
         $settings = array(
             array(
                 'id' => 'prod_updates',
-                'name' => '<strong>' . __( 'Product Update Settings', 'edd-prod-updates' ) . '</strong>',
-                'desc' => __( 'Configure the Product Update settings', 'edd-prod-updates' ),
+                'name' => '<strong>' . __( 'Product Update Settings', 'edd-pup' ) . '</strong>',
+                'desc' => __( 'Configure the Product Update settings', 'edd-pup' ),
                 'type' => 'header'
             ),
             array(
                 'id' => 'prod_updates_products',
-                'name' => __( 'Choose products being updated', 'edd-prod-updates' ),
-                'desc' => __( 'Which products are being updated?', 'edd-prod-updates' ),
+                'name' => __( 'Choose products being updated', 'edd-pup' ),
+                'desc' => __( 'Which products are being updated?', 'edd-pup' ),
                 'type' => 'multicheck',
                 'options' => $products
             ),
 			array(
 				'id' => 'prod_updates_email_template',
-				'name' => __( 'Email Template', 'edd' ),
-				'desc' => __( 'Choose a template. Click "Save Changes" then "Preview Purchase Receipt" to see the new template.', 'edd' ),
+				'name' => __( 'Email Template', 'edd-pup' ),
+				'desc' => __( 'Choose an email template. Click "Save Changes" then "Preview Email" to see the new template.', 'edd-pup' ),
 				'type' => 'select',
 				'options' => edd_get_email_templates()
 				),
 			array(
 				'id' => 'prod_updates_from_name',
-				'name' => __( 'From Name', 'edd-prod-updates' ),
-				'desc' => __( 'The name product updates are said to come from.', 'edd' ),
+				'name' => __( 'From Name', 'edd-pup' ),
+				'desc' => __( 'The name product updates are said to come from.', 'edd-pup' ),
 				'type' => 'text',
 				'std'  => get_bloginfo( 'name' )
 			),
 			array(
 				'id' => 'prod_updates_from_email',
-				'name' => __( 'From Email', 'edd-prod-updates' ),
-				'desc' => __( 'Email to send product updates from.', 'edd' ),
+				'name' => __( 'From Email', 'edd-pup' ),
+				'desc' => __( 'Email to send product updates from.', 'edd-pup' ),
 				'type' => 'text',
 				'std'  => get_bloginfo( 'admin_email' )
 			),
 			array(
 				'id' => 'prod_updates_subject',
-				'name' => __( 'Product Update Subject', 'edd-prod-updates' ),
-				'desc' => __( 'Enter the subject line for the product update email.', 'edd' ),
+				'name' => __( 'Product Update Subject', 'edd-pup' ),
+				'desc' => __( 'Enter the subject line for the product update email.', 'edd-pup' ),
 				'type' => 'text',
-				'std'  => __( 'Update available for your product.', 'edd' )
+				'std'  => __( 'Update available for your product.', 'edd-pup' )
 			),
 			array(
 				'id' => 'prod_updates_message',
-				'name' => __( 'Product Update Message', 'edd-prod-updates' ),
-				'desc' => __('Enter the email that is sent to users after completing a successful purchase. HTML is accepted. Available template tags:', 'edd') . '<br><br>' . edd_get_emails_tags_list(),
+				'name' => __( 'Product Update Message', 'edd-pup' ),
+				'desc' => __('Enter the email that is sent to users after completing a successful purchase. HTML is accepted. Available template tags:', 'edd-pup') . '<br><br>' . edd_get_emails_tags_list(),
 				'type' => 'rich_editor',
-				'std'  => __( "Dear", "edd" ) . " {name},\n\n" . __( "Thank you for your purchase. Please click on the link(s) below to download your files.", "edd" ) . "\n\n{download_list}\n\n{sitename}"
+				'std'  => __( "Dear", "edd-pup" ) . " {name},\n\n" . __( "Thank you for your purchase. Please click on the link(s) below to download your files.", "edd-pup" ) . "\n\n{updated_products_links}\n\n{sitename}"
 			),
 			array(
 				'id' => 'prod_updates_email_settings',
@@ -130,8 +130,8 @@ function edd_pup_email_template_buttons() {
 	
 	ob_start();
 	?>
-	<a href="#prod-updates-email-preview" id="prod-updates-open-email-preview" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Preview Email', 'edd' ); ?></a>
-	<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'pup_send_test_email' ) ), 'edd-pup-test-email' ); ?>" title="<?php _e( 'This will send a demo product update email to the From Email listed above.', 'edd-prod-updates' ); ?>" class="button-secondary"><?php _e( 'Send Test Email', 'edd' ); ?></a>
+	<a href="#prod-updates-email-preview" id="prod-updates-open-email-preview" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd-pup' ); ?> "><?php _e( 'Preview Email', 'edd-pup' ); ?></a>
+	<a href="<?php echo wp_nonce_url( add_query_arg( array( 'edd_action' => 'pup_send_test_email' ) ), 'edd-pup-test-email' ); ?>" title="<?php _e( 'This will send a demo product update email to the From Email listed above.', 'edd-pup' ); ?>" class="button-secondary"><?php _e( 'Send Test Email', 'edd-pup' ); ?></a>
 	<div style="margin:10px 0;">
 	<?php echo submit_button('Send Product Update Emails', 'primary', 'send-prod-updates', false);?><span class="edd-pu-spin spinner"></span>
 	</div>
@@ -196,7 +196,7 @@ function edd_pup_email_confirm_html(){
 								</ul>
 							<li><strong>Recipients:</strong> <?php echo $customercount;?> customers will receive this email and have their downloads reset</li>
 						</ul>
-						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?></a>
+						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
 						<button class="closebutton button button-secondary">Close without sending</button>
 					</div>
 				</div>
@@ -235,8 +235,8 @@ add_action( 'edd_pup_send_test_email', 'edd_pup_send_test_email' );
 function edd_pup_test_email() {
 	global $edd_options;
 
-	$default_email_body = __( "Dear", "edd" ) . " {name},\n\n";
-	$default_email_body .= __( "Thank you for your purchase. Please click on the link(s) below to download your files.", "edd" ) . "\n\n";
+	$default_email_body = __( "Dear", "edd-pup" ) . " {name},\n\n";
+	$default_email_body .= __( "Thank you for your purchase. Please click on the link(s) below to download your files.", "edd-pup" ) . "\n\n";
 	$default_email_body .= "{download_list}\n\n";
 	$default_email_body .= "{sitename}";
 
@@ -251,7 +251,7 @@ function edd_pup_test_email() {
 
 	$subject = apply_filters( 'edd_prod_updates_subject', isset( $edd_options['prod_updates_subject'] )
 		? trim( $edd_options['prod_updates_subject'] )
-		: __( 'Purchase Receipt', 'edd' ), 0 );
+		: __( 'Product Updates Available', 'edd-pup' ), 0 );
 
 	$headers = "From: " . stripslashes_deep( html_entity_decode( $from_name, ENT_COMPAT, 'UTF-8' ) ) . " <$from_email>\r\n";
 	$headers .= "Reply-To: ". $from_email . "\r\n";
@@ -365,7 +365,7 @@ function edd_pup_trigger_email( $payment_id ) {
 
 	$subject = apply_filters( 'edd_purchase_subject', ! empty( $edd_options['prod_updates_subject'] )
 		? wp_strip_all_tags( $edd_options['prod_updates_subject'], true )
-		: __( 'New Product Update', 'edd' ), $payment_id );
+		: __( 'New Product Update', 'edd-pup' ), $payment_id );
 
 	$subject = edd_do_email_tags( $subject, $payment_id );
 
