@@ -16,8 +16,8 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 // Includes
-require( 'inc/edd-product-updates-payment.php');
-require( 'inc/edd-product-updates-tags.php');
+require( 'inc/edd-pup-payment.php');
+require( 'inc/edd-pup-tags.php');
 
 /**
  * Register and enqueue necessary JS and CSS files
