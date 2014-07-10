@@ -263,33 +263,6 @@ function edd_pup_test_email() {
 }
 
 /**
- * Batch send the Product Update Emails
- *
- * @param array $data Payment Data
- * @return void
- */
-function edd_pup_send_batch( $data ) {
-	$purchase_id = $data['purchase_id'];
-	edd_email_purchase_receipt( $purchase_id, false );
-
-	// Grab all downloads of the purchase and update their file download limits
-	$downloads = edd_get_payment_meta_downloads( $purchase_id );
-
-	if ( is_array( $downloads ) ) {
-		foreach ( $downloads as $download ) {
-			$limit = edd_get_file_download_limit( $download['id'] );
-			if ( ! empty( $limit ) ) {
-				edd_set_file_download_limit_override( $download['id'], $purchase_id );
-			}
-		}
-	}
-
-	wp_redirect( add_query_arg( array( 'edd-message' => 'email_sent', 'edd-action' => false, 'purchase_id' => false ) ) );
-	exit;
-}
-add_action( 'edd_email_links', 'edd_pup_send_batch' );
-
-/**
  * Trigger the sending of a Product Update Email
  *
  * @param array $data Parameters sent from Settings page
@@ -317,11 +290,7 @@ add_action( 'edd_pup_send_emails', 'edd_pup_send_emails' );
 function edd_pup_email_loop(){
 	global $edd_options;
 
-	$downloads = get_posts( array( 'post_type' => 'download', 'posts_per_page' => -1 ) );
 	$upgraded_products = $edd_options['prod_updates_products'];
-
-	$thing = edd_get_payment_status($payments[0], true);
-	
 	$payments = edd_pup_get_all_customers();
 	
 	foreach ($payments as $customer){
@@ -343,6 +312,18 @@ function edd_pup_email_loop(){
 					// Increment so only one email is sent per customer
 					$i++;
 	
+				}
+			}
+			// Reset download links
+			// Grab all downloads of the purchase and update their file download limits
+			$downloads = edd_get_payment_meta_downloads( $customer->ID );
+		
+			if ( is_array( $downloads ) ) {
+				foreach ( $downloads as $download ) {
+					$limit = edd_get_file_download_limit( $download['id'] );
+					if ( ! empty( $limit ) ) {
+						edd_set_file_download_limit_override( $download['id'], $customer->ID );
+					}
 				}
 			}
 		}
