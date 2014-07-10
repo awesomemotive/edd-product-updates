@@ -1,20 +1,26 @@
 <?php
-/*
-Plugin Name: Easy Digital Downloads - Product Update Emails
-Description: Batch send product update emails to EDD customers
-Version: 0.1
-Author: Evan Luzi
-Author URI: http://evanluzi.com
-*/
+/**
+ * Plugin Name: Easy Digital Downloads - Product Update Emails
+ * Description: Batch send product update emails to EDD customers
+ * Author: Evan Luzi
+ * Author URI: http://evanluzi.com
+ * Version: 0.9
+ * Text Domain: edd_pup
+ *
+ * @package EDD_PUP
+ * @author Evan Luzi
+ * @version 0.9
+ */
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+// Includes
 require( 'inc/edd-product-updates-payment.php');
 require( 'inc/edd-product-updates-tags.php');
 
 /**
- * Add javascript file to admin for colorbox email preview, etc.
+ * Register and enqueue necessary JS and CSS files
  * 
  * @access public
  * @return void
@@ -28,13 +34,13 @@ function edd_pup_scripts() {
 }
 add_action( 'admin_enqueue_scripts', 'edd_pup_scripts' );
 
-    /**
-     * Add settings to EDD Settings
-     *
-     * @param array $edd_settings
-     *
-     * @return array EDD Settings
-     */
+/**
+ * Add Product Update Settings to EDD Settings -> Emails
+ * 
+ * @access public
+ * @param mixed $edd_settings
+ * @return array EDD Settings
+ */
 function edd_pup_settings ( $edd_settings ) {
         $products = array();
 
@@ -110,13 +116,11 @@ function edd_pup_settings ( $edd_settings ) {
 add_filter( 'edd_settings_emails', 'edd_pup_settings' );
 
 /**
- * Email Action Buttons
+ * Product Update Email Action Buttons (Preview, Test, Send)
  *
  * @access private
  * @global $edd_options Array of all the EDD Options
- * @since 1.0.8.2
 */
-
 function edd_pup_email_template_buttons() {
 	
 	global $edd_options;
@@ -142,6 +146,12 @@ function edd_pup_email_template_buttons() {
 }
 add_action( 'edd_prod_updates_email_settings', 'edd_pup_email_template_buttons' );
 
+/**
+ * Generates HTML for email confirmation via AJAX on send button press
+ * 
+ * @access public
+ * @return void
+ */
 function edd_pup_email_confirm_html(){
 
 	global $edd_options;
@@ -201,7 +211,6 @@ add_action( 'wp_ajax_edd_pup_confirm_ajax', 'edd_pup_email_confirm_html' );
 /**
  * Trigger the sending of a Product Update Test Email
  *
- * @since 1.5
  * @param array $data Parameters sent from Settings page
  * @return void
  */
@@ -218,9 +227,8 @@ function edd_pup_send_test_email( $data ) {
 add_action( 'edd_pup_send_test_email', 'edd_pup_send_test_email' );
 
 /**
- * Email the download link(s) and payment confirmation to the admin accounts for testing.
+ * Email the product update test email to the admin account
  *
- * @since 1.5
  * @global $edd_options Array of all the EDD Options
  * @return void
  */
@@ -254,30 +262,9 @@ function edd_pup_test_email() {
 	wp_mail( edd_get_admin_notice_emails(), $subject, $message, $headers );
 }
 
-
-/**
- * Trigger the sending of a Product Update Email
- *
- * @since 1.5
- * @param array $data Parameters sent from Settings page
- * @return void
- */
-function edd_pup_send_emails( $data ) {
-	if ( ! wp_verify_nonce( $data['_wpnonce'], 'edd_pup_send_emails' ) )
-		return;
-
-	// Send emails
-    edd_pup_email_loop();
-
-    // Remove the test email query arg
-    wp_redirect( remove_query_arg( 'edd_action' ) ); exit;
-}
-add_action( 'edd_pup_send_emails', 'edd_pup_send_emails' );
-
 /**
  * Batch send the Product Update Emails
  *
- * @since 1.0
  * @param array $data Payment Data
  * @return void
  */
@@ -302,28 +289,27 @@ function edd_pup_send_batch( $data ) {
 }
 add_action( 'edd_email_links', 'edd_pup_send_batch' );
 
-function edd_pup_get_all_customers(){
-	$queryargs = array(
-		'posts_per_page'   => -1,
-		'offset'           => 0,
-		'category'         => '',
-		'orderby'          => 'ID',
-		'order'            => 'DESC',
-		'include'          => '',
-		'exclude'          => '',
-		'meta_key'         => '',
-		'meta_value'       => '',
-		'post_type'        => 'edd_payment',
-		'post_mime_type'   => '',
-		'post_parent'      => '',
-		'post_status'      => 'publish',
-		'suppress_filters' => true
-		);
-	
-	return get_posts($queryargs);
-}
 /**
- * edd_pup_email_loop function.
+ * Trigger the sending of a Product Update Email
+ *
+ * @param array $data Parameters sent from Settings page
+ * @return void
+ */
+function edd_pup_send_emails( $data ) {
+	if ( ! wp_verify_nonce( $data['_wpnonce'], 'edd_pup_send_emails' ) )
+		return;
+
+	// Send emails
+    edd_pup_email_loop();
+
+    // Remove the test email query arg
+    wp_redirect( remove_query_arg( 'edd_action' ) ); exit;
+}
+add_action( 'edd_pup_send_emails', 'edd_pup_send_emails' );
+
+/**
+ * Loop through customers and trigger email if they purchased updated product
+ * 
  * 
  * @access public
  * @return void
@@ -363,46 +349,10 @@ function edd_pup_email_loop(){
 	}
 }
 
-function edd_pup_customer_count(){
-	global $edd_options;
-	$customercount = 0;
-	
-	$upgraded_products = $edd_options['prod_updates_products'];
-	
-	$payments = edd_pup_get_all_customers();
-	
-	foreach ($payments as $customer){
-	
-		if (edd_pup_user_send_updates($customer->ID)){
-		
-		$cart_items = edd_get_payment_meta_cart_details($customer->ID, true);
-		$i = 0;
-			
-			foreach ($cart_items as $item){
-			
-				if ((array_key_exists($item['id'], $upgraded_products)) && ($i === 0)){
-					
-					$customercount++;
-					
-					// Increment so each customer is only counted once
-					$i++;
-	
-				}
-			}
-		}
-	}
-	
-	return $customercount;
-		
-}
-
 /**
- * Email the download link(s) and payment confirmation to the buyer in a
- * customizable Purchase Receipt
+ * Email the product update to the customer in a customizable message
  *
- * @since 1.0
  * @param int $payment_id Payment ID
- * @param bool $admin_notice Whether to send the admin email notification or not (default: true)
  * @return void
  */
 function edd_pup_trigger_email( $payment_id ) {
@@ -454,4 +404,70 @@ function edd_pup_trigger_email( $payment_id ) {
 	$payment_note = 'Sent product update email "'. $subject .'"';
 	
 	edd_insert_payment_note($payment_id, $payment_note);
+}
+
+/**
+ * Count number of customers who will receive product update emails
+ *
+ * 
+ * @access public
+ * @return $customercount (number of customers eligible for product updates)
+ */
+function edd_pup_customer_count(){
+	global $edd_options;
+	$customercount = 0;
+	
+	$upgraded_products = $edd_options['prod_updates_products'];
+	
+	$payments = edd_pup_get_all_customers();
+	
+	foreach ($payments as $customer){
+	
+		if (edd_pup_user_send_updates($customer->ID)){
+		
+		$cart_items = edd_get_payment_meta_cart_details($customer->ID, true);
+		$i = 0;
+			
+			foreach ($cart_items as $item){
+			
+				if ((array_key_exists($item['id'], $upgraded_products)) && ($i === 0)){
+					
+					$customercount++;
+					
+					// Increment so each customer is only counted once
+					$i++;
+	
+				}
+			}
+		}
+	}
+	
+	return $customercount;	
+}
+
+/**
+ * Returns all payment history posts / customers
+ * 
+ * @access public
+ * @return object (all edd_payment post types)
+ */
+function edd_pup_get_all_customers(){
+	$queryargs = array(
+		'posts_per_page'   => -1,
+		'offset'           => 0,
+		'category'         => '',
+		'orderby'          => 'ID',
+		'order'            => 'DESC',
+		'include'          => '',
+		'exclude'          => '',
+		'meta_key'         => '',
+		'meta_value'       => '',
+		'post_type'        => 'edd_payment',
+		'post_mime_type'   => '',
+		'post_parent'      => '',
+		'post_status'      => 'publish',
+		'suppress_filters' => true
+		);
+	
+	return get_posts($queryargs);
 }
