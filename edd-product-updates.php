@@ -9,7 +9,7 @@
  *
  * @package EDD_PUP
  * @author Evan Luzi
- * @version 0.9
+ * @version 0.9.1
  */
 
 // Exit if accessed directly
