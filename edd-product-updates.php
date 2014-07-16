@@ -5,7 +5,7 @@
  * Author: Evan Luzi
  * Author URI: http://evanluzi.com
  * Version: 0.9
- * Text Domain: edd_pup
+ * Text Domain: edd-pup
  *
  * @package EDD_PUP
  * @author Evan Luzi
@@ -54,14 +54,28 @@ function edd_pup_settings ( $edd_settings ) {
 	        }
 	    }
 
-        $settings = array(
+        $settings[] =
             array(
                 'id' => 'prod_updates',
                 'name' => '<strong>' . __( 'Product Update Settings', 'edd-prod-updates' ) . '</strong>',
                 'desc' => __( 'Configure the Product Update settings', 'edd-prod-updates' ),
                 'type' => 'header'
-            ),
+            );
+	            
+       if ( is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
+       
+        $settings[] =
             array(
+                'id' => 'prod_updates_license',
+                'name' => __( 'Easy Digital Downloads Software Licensing Integration', 'edd-prod-updates' ),
+                'desc' => __( 'If enabled, only customers with active software licenses will receive update emails', 'edd-prod-updates' ),
+                'type' => 'checkbox'
+            );
+	            
+        }
+        
+        $settings2 = array(
+           	array(
                 'id' => 'prod_updates_products',
                 'name' => __( 'Choose products being updated', 'edd-prod-updates' ),
                 'desc' => __( 'Which products are being updated?', 'edd-prod-updates' ),
@@ -74,7 +88,7 @@ function edd_pup_settings ( $edd_settings ) {
 				'desc' => __( 'Choose a template. Click "Save Changes" then "Preview Purchase Receipt" to see the new template.', 'edd' ),
 				'type' => 'select',
 				'options' => edd_get_email_templates()
-				),
+			),
 			array(
 				'id' => 'prod_updates_from_name',
 				'name' => __( 'From Name', 'edd-prod-updates' ),
@@ -107,11 +121,11 @@ function edd_pup_settings ( $edd_settings ) {
 				'id' => 'prod_updates_email_settings',
 				'name' => '',
 				'desc' => '',
-				'type' => 'hook',
+				'type' => 'hook'
 			)
-        );
-
-        return array_merge( $edd_settings, $settings );
+		);
+		
+        return array_merge( $edd_settings, $settings, $settings2 );
 }
 add_filter( 'edd_settings_emails', 'edd_pup_settings' );
 
