@@ -307,10 +307,10 @@ function edd_pup_email_loop(){
 	$upgraded_products = $edd_options['prod_updates_products'];
 	$payments = edd_pup_get_all_customers();
 	
-	foreach ($payments as $customer){
+	foreach ( $payments as $customer ){
 		
 		// Don't send to customers who have unsubscribed from updates
-		if (edd_pup_user_send_updates($customer->ID)){
+		if ( edd_pup_user_send_updates( $customer->ID ) ){
 	
 		$cart_items = edd_get_payment_meta_cart_details($customer->ID, true);
 		
@@ -328,6 +328,7 @@ function edd_pup_email_loop(){
 	
 				}
 			}
+			
 			// Reset download links
 			// Grab all downloads of the purchase and update their file download limits
 			$downloads = edd_get_payment_meta_downloads( $customer->ID );
