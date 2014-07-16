@@ -66,19 +66,32 @@ function edd_pup_products_links_tag($payment_id) {
 	global $edd_options;
 
 	$updated_products = $edd_options['prod_updates_products'];
-
+	$customer_updates = '';
+	$customer_updates_id = '';
 	$payment_data  = edd_get_payment_meta( $payment_id );
 	$download_list = '<ul>';
 	$cart_items    = edd_get_payment_meta_cart_details( $payment_id );
 	$email         = edd_get_payment_user_email( $payment_id );
-
+	
 	if ( $cart_items ) {
 		$show_names = apply_filters( 'edd_email_show_names', true );
 
 		foreach ( $cart_items as $item ) {
 
 			if (array_key_exists($item['id'], $updated_products)) {
-
+			
+				$customer_updates[] = $item;
+				$customer_updates_id[] = $item['id'];
+			}
+		}
+		
+		/*if ( $edd_options['prod_updates_license'] ){
+				$customer_updates = apply_filters( 'edd_pup_license_check', $customer_updates, $customer->ID );
+		
+		}*/
+		
+		foreach ( $customer_updates as $item ) {
+		
 				if ( edd_use_skus() ) {
 					$sku = edd_get_download_sku( $item['id'] );
 				}
@@ -114,9 +127,10 @@ function edd_pup_products_links_tag($payment_id) {
 				elseif ( edd_is_bundled_product( $item['id'] ) ) {
 
 					$bundled_products = edd_get_bundled_products( $item['id'] );
-
+					
 					foreach ( $bundled_products as $bundle_item ) {
-						if (array_key_exists($bundle_item, $updated_products)) {
+					
+						if (in_array($bundle_item, $customer_updates_id)) {
 
 							$download_list .= '<li class="edd_bundled_product"><strong>' . get_the_title( $bundle_item ) . '</strong></li>';
 
@@ -146,9 +160,8 @@ function edd_pup_products_links_tag($payment_id) {
 				}
 			}
 		}
-	}
+	
 	$download_list .= '</ul>';
-
 	return $download_list;
 }
 
