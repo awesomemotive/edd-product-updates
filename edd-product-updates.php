@@ -304,7 +304,7 @@ add_action( 'edd_pup_send_emails', 'edd_pup_send_emails' );
 function edd_pup_email_loop(){
 	global $edd_options;
 
-	$upgraded_products = $edd_options['prod_updates_products'];
+	$updated_products = $edd_options['prod_updates_products'];
 	$payments = edd_pup_get_all_customers();
 	
 	foreach ( $payments as $customer ){
@@ -319,12 +319,23 @@ function edd_pup_email_loop(){
 			foreach ($cart_items as $item){
 				
 				// Check to see if purchased products match updated products
-				if ((array_key_exists($item['id'], $upgraded_products)) && ($i === 0)){
+				if ((array_key_exists($item['id'], $updated_products)) && ($i === 0)){
+				
+					if( $edd_options['prod_updates_licensing'] ) {
+						
+						//This function should return an array of eligible upgrades for customer
+						//edd_pup_eligible_updates( $customer->ID, $updated_products );
+						
+						edd_pup_trigger_email($customer->ID);
+						
+					} else {
 					
-					edd_pup_trigger_email($customer->ID);
+						edd_pup_trigger_email($customer->ID);
+						
+						// Increment so only one email is sent per customer
+						$i++;
 					
-					// Increment so only one email is sent per customer
-					$i++;
+					}
 	
 				}
 			}
@@ -466,4 +477,21 @@ function edd_pup_get_all_customers(){
 		);
 	
 	return get_posts($queryargs);
+}
+
+function edd_pup_eligible_updates( $payment_id, $updated_products ){
+	
+	$customer_updates = '';
+	$cart_items = edd_get_payment_meta_cart_details( $payment_id, true );
+	
+	foreach ( $cart_items as $item ){
+	
+		if ( array_key_exists( $item['id'], $updated_products ) ){
+		
+			$customer_updates[] = $item['id'];
+			
+		}	
+	}
+	
+	return $customer_updates;
 }
