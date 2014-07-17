@@ -311,33 +311,15 @@ function edd_pup_email_loop(){
 		
 		// Don't send to customers who have unsubscribed from updates
 		if ( edd_pup_user_send_updates( $customer->ID ) ){
-	
-		$cart_items = edd_get_payment_meta_cart_details($customer->ID, true);
-		
-		$i = 0;
 			
-			foreach ($cart_items as $item){
+			// Check what products customers are eligible for updates
+			$customer_updates = edd_pup_eligible_updates( $customer->ID, $updated_products );	
+			
+			// Don't send if customers have no eligible updates available				
+			if ( ! empty( $customer_updates ) ) {
 				
-				// Check to see if purchased products match updated products
-				if ((array_key_exists($item['id'], $updated_products)) && ($i === 0)){
-				
-					if( $edd_options['prod_updates_licensing'] ) {
-						
-						//This function should return an array of eligible upgrades for customer
-						//edd_pup_eligible_updates( $customer->ID, $updated_products );
-						
-						edd_pup_trigger_email($customer->ID);
-						
-					} else {
-					
-						edd_pup_trigger_email($customer->ID);
-						
-						// Increment so only one email is sent per customer
-						$i++;
-					
-					}
-	
-				}
+				edd_pup_trigger_email($customer->ID);				
+			
 			}
 			
 			// Reset download links
@@ -424,7 +406,7 @@ function edd_pup_customer_count(){
 	global $edd_options;
 	$customercount = 0;
 	
-	$upgraded_products = $edd_options['prod_updates_products'];
+	$updated_products = $edd_options['prod_updates_products'];
 	
 	$payments = edd_pup_get_all_customers();
 	
@@ -432,19 +414,10 @@ function edd_pup_customer_count(){
 	
 		if (edd_pup_user_send_updates($customer->ID)){
 		
-		$cart_items = edd_get_payment_meta_cart_details($customer->ID, true);
-		$i = 0;
+			$customer_updates = edd_pup_eligible_updates( $customer->ID, $updated_products );
 			
-			foreach ($cart_items as $item){
-			
-				if ((array_key_exists($item['id'], $upgraded_products)) && ($i === 0)){
-					
-					$customercount++;
-					
-					// Increment so each customer is only counted once
-					$i++;
-	
-				}
+			if ( ! empty( $customer_updates ) ) {
+				$customercount++;
 			}
 		}
 	}
@@ -479,6 +452,16 @@ function edd_pup_get_all_customers(){
 	return get_posts($queryargs);
 }
 
+/**
+ * Returns products that a customer is eligible to receive updates for 
+ * 
+ * @access public
+ * @param mixed $payment_id
+ * @param mixed $updated_products	array of products selected to update stored
+ * in $edd_options['prod_updates_products']
+ *
+ * @return array $customer_updates
+ */
 function edd_pup_eligible_updates( $payment_id, $updated_products ){
 	
 	$customer_updates = '';
