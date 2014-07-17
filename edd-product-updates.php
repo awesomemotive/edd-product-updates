@@ -320,17 +320,12 @@ function edd_pup_email_loop(){
 				
 				edd_pup_trigger_email($customer->ID);				
 			
-			}
-			
-			// Reset download links
-			// Grab all downloads of the purchase and update their file download limits
-			$downloads = edd_get_payment_meta_downloads( $customer->ID );
-		
-			if ( is_array( $downloads ) ) {
-				foreach ( $downloads as $download ) {
-					$limit = edd_get_file_download_limit( $download['id'] );
+				// Reset download links
+				// Grab all downloads of the purchase and update their file download limits
+				foreach ( $customer_updates as $download ) {
+					$limit = edd_get_file_download_limit( $download );
 					if ( ! empty( $limit ) ) {
-						edd_set_file_download_limit_override( $download['id'], $customer->ID );
+						edd_set_file_download_limit_override( $download, $customer->ID );
 					}
 				}
 			}
