@@ -463,18 +463,51 @@ function edd_pup_get_all_customers(){
  * @return array $customer_updates
  */
 function edd_pup_eligible_updates( $payment_id, $updated_products ){
-	
+	global $edd_options;
+
 	$customer_updates = '';
 	$cart_items = edd_get_payment_meta_cart_details( $payment_id, true );
+		
+	if ( isset($edd_options['prod_updates_license']) ) {
+		$licenses = edd_pup_get_license_keys($payment_id);
+	}
 	
 	foreach ( $cart_items as $item ){
 	
 		if ( array_key_exists( $item['id'], $updated_products ) ){
-		
-			$customer_updates[] = $item['id'];
 			
+			if ( isset($edd_options['prod_updates_license']) && get_post_meta( $item['id'], '_edd_sl_enabled', true ) ) {
+				
+				$checkargs = array(
+					'key'        => $licenses[$item['id']],
+					'item_name'  => $item['name']
+				);
+				
+				$check = edd_software_licensing()->check_license($checkargs);
+				
+				if ( $check === 'valid' ) {				
+					$customer_updates[] = $item['id'];			
+				}
+				
+			} else {
+						
+					$customer_updates[] = $item['id'];		
+			}
 		}	
 	}
-	
 	return $customer_updates;
+}
+
+function edd_pup_get_license_keys( $payment_id ){
+	$key = '';
+	$licenses = edd_software_licensing()->get_licenses_of_purchase( $payment_id );
+	
+	if ( $licenses ) {	
+		foreach ( $licenses as $license ){
+			$id = get_post_meta( $license->ID, '_edd_sl_download_id', true );
+			$key[$id] = get_post_meta( $license->ID, '_edd_sl_key', true );
+		}
+	}
+	
+	return $key;
 }
