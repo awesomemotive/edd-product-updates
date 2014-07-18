@@ -315,13 +315,12 @@ function edd_pup_email_loop(){
 			// Check what products customers are eligible for updates
 			$customer_updates = edd_pup_eligible_updates( $customer->ID, $updated_products );	
 			
-			// Don't send if customers have no eligible updates available				
+			// Send email if customers have eligible updates available				
 			if ( ! empty( $customer_updates ) ) {
 				
 				edd_pup_trigger_email($customer->ID);				
 			
-				// Reset download links
-				// Grab all downloads of the purchase and update their file download limits
+				// Reset file download limits for customers' eligible updates
 				foreach ( $customer_updates as $download ) {
 					$limit = edd_get_file_download_limit( $download );
 					if ( ! empty( $limit ) ) {
@@ -493,6 +492,14 @@ function edd_pup_eligible_updates( $payment_id, $updated_products ){
 	return $customer_updates;
 }
 
+/**
+ * Return array of license keys matched with download ID for payment/customer
+ * 
+ * @access public
+ * @param mixed $payment_id
+ *
+ * @return array $key
+ */
 function edd_pup_get_license_keys( $payment_id ){
 	$key = '';
 	$licenses = edd_software_licensing()->get_licenses_of_purchase( $payment_id );
