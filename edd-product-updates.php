@@ -452,11 +452,12 @@ function edd_pup_get_all_customers(){
  * @access public
  * @param mixed $payment_id
  * @param mixed $updated_products	array of products selected to update stored
+ * @param bool $object	determines whether to return array of item IDs or item objects
  * in $edd_options['prod_updates_products']
  *
  * @return array $customer_updates
  */
-function edd_pup_eligible_updates( $payment_id, $updated_products ){
+function edd_pup_eligible_updates( $payment_id, $updated_products, $object = false ){
 	global $edd_options;
 
 	$customer_updates = '';
@@ -480,12 +481,19 @@ function edd_pup_eligible_updates( $payment_id, $updated_products ){
 				$check = edd_software_licensing()->check_license($checkargs);
 				
 				if ( $check === 'valid' ) {				
-					$customer_updates[] = $item['id'];			
+					if ( $object ){
+						$customer_updates[] = $item;
+					} else {
+						$customer_updates[] = $item['id'];
+					}		
 				}
 				
 			} else {
-						
-					$customer_updates[] = $item['id'];		
+					if ( $object ){
+						$customer_updates[] = $item;
+					} else {
+						$customer_updates[] = $item['id'];
+					}		
 			}
 		}	
 	}
