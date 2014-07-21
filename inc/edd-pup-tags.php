@@ -47,7 +47,24 @@ function edd_pup_products_tag($payment_id) {
 	$productlist = '<ul>';
 
 	foreach ($customer_updates as $product) {
-		$productlist .= '<li>'.get_the_title($product).'</li>';
+		
+		if ( edd_is_bundled_product( $product ) ) {
+		
+			$bundled_products = edd_get_bundled_products( $product );
+			
+			$productlist .= '<li>'. get_the_title($product) .'</li>';
+			$productlist .= '<ul>';		
+			
+			foreach ( $bundled_products as $bundle_item ) {
+				$productlist .= '<li><em>'. get_the_title($bundle_item) .'</em></li>';
+			}
+			
+			$productlist .= '</ul>';
+			
+		} else {
+			
+			$productlist .= '<li>'.get_the_title($product).'</li>';
+		}
 	}
 
 	$productlist .= '</ul>';
