@@ -463,7 +463,7 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = fal
 	$customer_updates = '';
 	$cart_items = edd_get_payment_meta_cart_details( $payment_id, false );
 		
-	if ( isset($edd_options['prod_updates_license']) ) {
+	if ( isset($edd_options['prod_updates_license']) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
 		$licenses = edd_pup_get_license_keys($payment_id);
 	}
 	
@@ -471,7 +471,7 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = fal
 	
 		if ( array_key_exists( $item['id'], $updated_products ) ){
 			
-			if ( isset($edd_options['prod_updates_license']) && get_post_meta( $item['id'], '_edd_sl_enabled', true ) ) {
+			if ( ! empty($licenses) && isset($edd_options['prod_updates_license']) && get_post_meta( $item['id'], '_edd_sl_enabled', true ) ) {
 				
 				$checkargs = array(
 					'key'        => $licenses[$item['id']],
