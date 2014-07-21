@@ -461,7 +461,7 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = fal
 	global $edd_options;
 
 	$customer_updates = '';
-	$cart_items = edd_get_payment_meta_cart_details( $payment_id, true );
+	$cart_items = edd_get_payment_meta_cart_details( $payment_id, false );
 		
 	if ( isset($edd_options['prod_updates_license']) ) {
 		$licenses = edd_pup_get_license_keys($payment_id);
@@ -497,6 +497,7 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = fal
 			}
 		}	
 	}
+	
 	return $customer_updates;
 }
 
