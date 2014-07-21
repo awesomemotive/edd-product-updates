@@ -1,7 +1,7 @@
 EDD Product Updates Extension
 ===================
 
-Version 0.9 – *This is a very early version that has been tested in a limited WordPress environment*
+Version 0.9.1 – *This is a very early version that has been tested in a limited WordPress environment*
 
 This extension allows you to send specialized product update emails to your customers when using [Easy Digital Downloads](http://easydigitaldownloads.com/). For instance, if you release an updated edition of an eBook, instead of confusing customers by resending their purchase receipts – with purchase language, downloads to all the products they bought, and no context for the email – you can use this extension to send them an email with a message tailored to the update while taking full advantage of Easy Digital Download's powerful download link expiration system.
 
@@ -15,6 +15,8 @@ This extension allows you to send specialized product update emails to your cust
 **Customer History Logs**. Major actions are logged to each customer's payment history page. This includes log notes when they are sent an update email and when they unsubscribe/resubscribe from updates.
 
 **Email Preview Confirmation**. The "Send Emails" button triggers an AJAX call that saves any changes made to your email message and then shows you a preview of it along with essential info like products slated for updates and number of recipients. This ensures you don't accidentally send an email blast before it's ready!
+
+**EDD Software Licensing Integration**. Choose whether to send product update emails to those customers who have active subscription licenses for those products in which EDD Software Licensing is being used. Customers with expired or inactive licenses won't receive update emails when enabled.
 
 ## Installation
 1. Download plugin as .zip
