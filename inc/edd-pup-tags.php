@@ -42,11 +42,12 @@ add_action( 'edd_add_email_tags', 'edd_pup_email_tags' );
 function edd_pup_products_tag($payment_id) {
 	global $edd_options;
 
-	$products = $edd_options['prod_updates_products'];
+	$updated_products = $edd_options['prod_updates_products'];	
+	$customer_updates = edd_pup_eligible_updates( $payment_id, $updated_products );
 	$productlist = '<ul>';
 
-	foreach ($products as $product) {
-		$productlist .= '<li>'.$product.'</li>';
+	foreach ($customer_updates as $product) {
+		$productlist .= '<li>'.get_the_title($product).'</li>';
 	}
 
 	$productlist .= '</ul>';
@@ -66,29 +67,15 @@ function edd_pup_products_links_tag($payment_id) {
 	global $edd_options;
 
 	$updated_products = $edd_options['prod_updates_products'];
-	$customer_updates = '';
-	$customer_updates_id = '';
+	$customer_updates = edd_pup_eligible_updates( $payment_id, $updated_products, true );
+
 	$payment_data  = edd_get_payment_meta( $payment_id );
 	$download_list = '<ul>';
-	$cart_items    = edd_get_payment_meta_cart_details( $payment_id );
+	//$cart_items    = edd_get_payment_meta_cart_details( $payment_id );
 	$email         = edd_get_payment_user_email( $payment_id );
 	
-	if ( $cart_items ) {
+	if ( $customer_updates ) {
 		$show_names = apply_filters( 'edd_email_show_names', true );
-
-		foreach ( $cart_items as $item ) {
-
-			if (array_key_exists($item['id'], $updated_products)) {
-			
-				$customer_updates[] = $item;
-				$customer_updates_id[] = $item['id'];
-			}
-		}
-		
-		/*if ( $edd_options['prod_updates_license'] ){
-				$customer_updates = apply_filters( 'edd_pup_license_check', $customer_updates, $customer->ID );
-		
-		}*/
 		
 		foreach ( $customer_updates as $item ) {
 		
@@ -130,7 +117,7 @@ function edd_pup_products_links_tag($payment_id) {
 					
 					foreach ( $bundled_products as $bundle_item ) {
 					
-						if (in_array($bundle_item, $customer_updates_id)) {
+						if (array_key_exists($bundle_item, $customer_updates)) {
 
 							$download_list .= '<li class="edd_bundled_product"><strong>' . get_the_title( $bundle_item ) . '</strong></li>';
 
