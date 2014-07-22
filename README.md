@@ -3,6 +3,11 @@ EDD Product Updates Extension
 
 Version 0.9.1 – *This is a very early version that has been tested in a limited WordPress environment*
 
+**Testing Environment:**
+* **Wordpress:** 3.9.1
+* **EDD:** 2.0.4
+* **PHP:** 5.4.26
+
 This extension allows you to send specialized product update emails to your customers when using [Easy Digital Downloads](http://easydigitaldownloads.com/). For instance, if you release an updated edition of an eBook, instead of confusing customers by resending their purchase receipts – with purchase language, downloads to all the products they bought, and no context for the email – you can use this extension to send them an email with a message tailored to the update while taking full advantage of Easy Digital Download's powerful download link expiration system.
 
 ## Features
