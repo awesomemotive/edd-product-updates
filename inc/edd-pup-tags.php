@@ -48,22 +48,22 @@ function edd_pup_products_tag($payment_id) {
 
 	foreach ($customer_updates as $product) {
 		
-		if ( edd_is_bundled_product( $product ) ) {
+		if ( edd_is_bundled_product( $product['id'] ) ) {
 		
-			$bundled_products = edd_get_bundled_products( $product );
+			$bundled_products = edd_get_bundled_products( $product['id'] );
 			
-			$productlist .= '<li>'. get_the_title($product) .'</li>';
+			$productlist .= '<li>'. get_the_title( $product['id'] ) .'</li>';
 			$productlist .= '<ul>';		
 			
 			foreach ( $bundled_products as $bundle_item ) {
-				$productlist .= '<li><em>'. get_the_title($bundle_item) .'</em></li>';
+				$productlist .= '<li><em>'. get_the_title( $bundle_item ) .'</em></li>';
 			}
 			
 			$productlist .= '</ul>';
 			
 		} else {
 			
-			$productlist .= '<li>'.get_the_title($product).'</li>';
+			$productlist .= '<li>'.get_the_title( $product['id'] ).'</li>';
 		}
 	}
 
@@ -95,7 +95,7 @@ function edd_pup_products_links_tag($payment_id) {
 		$show_names = apply_filters( 'edd_email_show_names', true );
 		
 		foreach ( $customer_updates as $item ) {
-		
+				
 				if ( edd_use_skus() ) {
 					$sku = edd_get_download_sku( $item['id'] );
 				}

@@ -322,13 +322,15 @@ function edd_pup_email_loop(){
 			
 				// Reset file download limits for customers' eligible updates
 				foreach ( $customer_updates as $download ) {
-					$limit = edd_get_file_download_limit( $download );
+					$limit = edd_get_file_download_limit( $download['id'] );
 					if ( ! empty( $limit ) ) {
-						edd_set_file_download_limit_override( $download, $customer->ID );
+						edd_set_file_download_limit_override( $download['id'], $customer->ID );
 					}
 				}
 			}
 		}
+		// Flush all transients
+		delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
 	}
 }
 
@@ -387,6 +389,7 @@ function edd_pup_trigger_email( $payment_id ) {
 	$payment_note = 'Sent product update email "'. $subject .'"';
 	
 	edd_insert_payment_note($payment_id, $payment_note);
+	
 }
 
 /**
@@ -405,10 +408,10 @@ function edd_pup_customer_count(){
 	$payments = edd_pup_get_all_customers();
 	
 	foreach ($payments as $customer){
-	
-		if (edd_pup_user_send_updates($customer->ID)){
 		
-			$customer_updates = edd_pup_eligible_updates( $customer->ID, $updated_products );
+		$customer_updates = edd_pup_eligible_updates( $customer->ID, $updated_products );	
+		
+		if ( edd_pup_user_send_updates($customer->ID) ){
 			
 			if ( ! empty( $customer_updates ) ) {
 				$customercount++;
@@ -457,45 +460,52 @@ function edd_pup_get_all_customers(){
  *
  * @return array $customer_updates
  */
-function edd_pup_eligible_updates( $payment_id, $updated_products, $object = false ){
-	global $edd_options;
-
-	$customer_updates = '';
-	$cart_items = edd_get_payment_meta_cart_details( $payment_id, false );
+function edd_pup_eligible_updates( $payment_id, $updated_products, $object = true ){
+	
+	$customer_updates = get_transient( 'edd_pup_eligible_updates_'.$payment_id );
+	
+	if ( false === $customer_updates ) {
+		global $edd_options;
 		
-	if ( isset($edd_options['prod_updates_license']) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
-		$licenses = edd_pup_get_license_keys($payment_id);
-	}
-	
-	foreach ( $cart_items as $item ){
-	
-		if ( array_key_exists( $item['id'], $updated_products ) ){
+		$customer_updates = '';
+		$cart_items = edd_get_payment_meta_cart_details( $payment_id, false );
 			
-			if ( ! empty($licenses) && isset($edd_options['prod_updates_license']) && get_post_meta( $item['id'], '_edd_sl_enabled', true ) ) {
+		if ( isset($edd_options['prod_updates_license']) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
+			$licenses = edd_pup_get_license_keys($payment_id);
+		}
+		
+		foreach ( $cart_items as $item ){
+		
+			if ( array_key_exists( $item['id'], $updated_products ) ){
 				
-				$checkargs = array(
-					'key'        => $licenses[$item['id']],
-					'item_name'  => $item['name']
-				);
-				
-				$check = edd_software_licensing()->check_license($checkargs);
-				
-				if ( $check === 'valid' ) {				
-					if ( $object ){
-						$customer_updates[] = $item;
-					} else {
-						$customer_updates[] = $item['id'];
-					}		
+				if ( ! empty($licenses) && isset($edd_options['prod_updates_license']) && get_post_meta( $item['id'], '_edd_sl_enabled', true ) ) {
+					
+					$checkargs = array(
+						'key'        => $licenses[$item['id']],
+						'item_name'  => $item['name']
+					);
+					
+					$check = edd_software_licensing()->check_license($checkargs);
+					
+					if ( $check === 'valid' ) {				
+						if ( $object ){
+							$customer_updates[] = $item;
+						} else {
+							$customer_updates[] = $item['id'];
+						}		
+					}
+					
+				} else {
+						if ( $object ){
+							$customer_updates[] = $item;
+						} else {
+							$customer_updates[] = $item['id'];
+						}		
 				}
-				
-			} else {
-					if ( $object ){
-						$customer_updates[] = $item;
-					} else {
-						$customer_updates[] = $item['id'];
-					}		
-			}
-		}	
+			}	
+		}
+	
+		set_transient( 'edd_pup_eligible_updates_'.$payment_id, $customer_updates, 60*60 );
 	}
 	
 	return $customer_updates;
