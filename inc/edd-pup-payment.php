@@ -55,7 +55,28 @@ function edd_pup_store_field( $payment_meta ) {
     return $payment_meta;
 }
 add_filter( 'edd_payment_meta', 'edd_pup_store_field');
+
+/**
+ * Check "Send Product Updates?" option by default on payment completion
+ * 
+ * @access public
+ * @param mixed $payment_id
+ * @return void
+ */
+function edd_pup_send_updates_default( $payment_id ) {
+
+    // get the payment meta
+    $payment_meta = edd_get_payment_meta( $payment_id );
  
+    // update our checkbox
+    $payment_meta['edd_send_prod_updates'] = true;
+ 
+    // update the payment meta with the new array 
+    update_post_meta( $payment_id, '_edd_payment_meta', $payment_meta );
+
+}
+add_action( 'edd_complete_purchase', 'edd_pup_send_updates_default' );
+
 /**
  * Save unsubscribe field when modified on payment history page
  * 
@@ -68,7 +89,7 @@ function edd_pup_updated_edited_purchase( $payment_id ) {
     // get the payment meta
     $payment_meta = edd_get_payment_meta( $payment_id );
  
-    // update our phone number
+    // update our checkbox
     $payment_meta['edd_send_prod_updates'] = isset( $_POST['edd-send-product-updates'] ) ? true : false;
  
     // update the payment meta with the new array 
