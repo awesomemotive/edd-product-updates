@@ -40,6 +40,7 @@ add_action( 'edd_add_email_tags', 'edd_pup_email_tags' );
  * @return void
  */
 function edd_pup_products_tag($payment_id) {
+    $start = microtime(TRUE);
 	global $edd_options;
 
 	$updated_products = $edd_options['prod_updates_products'];	
@@ -68,6 +69,10 @@ function edd_pup_products_tag($payment_id) {
 	}
 
 	$productlist .= '</ul>';
+	
+    $finish = microtime(TRUE);
+    $totaltime = $finish - $start; 
+    write_log('edd_pup_products_tag took '.$totaltime.' seconds to execute.');
 
 	return $productlist;
 }
@@ -81,6 +86,7 @@ function edd_pup_products_tag($payment_id) {
  * @return void
  */
 function edd_pup_products_links_tag($payment_id) {
+    $start = microtime(TRUE);
 	global $edd_options;
 
 	$updated_products = $edd_options['prod_updates_products'];
@@ -166,6 +172,11 @@ function edd_pup_products_links_tag($payment_id) {
 		}
 	
 	$download_list .= '</ul>';
+	
+    $finish = microtime(TRUE);
+    $totaltime = $finish - $start; 
+    write_log('edd_pup_products_links_tag took '.$totaltime.' seconds to execute.');
+    
 	return $download_list;
 }
 

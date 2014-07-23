@@ -283,6 +283,8 @@ function edd_pup_test_email() {
  * @return void
  */
 function edd_pup_send_emails( $data ) {
+	$start = microtime(TRUE); 
+	
 	if ( ! wp_verify_nonce( $data['_wpnonce'], 'edd_pup_send_emails' ) )
 		return;
 
@@ -290,7 +292,12 @@ function edd_pup_send_emails( $data ) {
     edd_pup_email_loop();
 
     // Remove the test email query arg
-    wp_redirect( remove_query_arg( 'edd_action' ) ); exit;
+    wp_redirect( remove_query_arg( 'edd_action' ) );
+    $finish = microtime(TRUE);
+    $totaltime = $finish - $start; 
+    write_log('edd_pup_send_emails took '.$totaltime.' seconds to execute.');
+    
+    exit;
 }
 add_action( 'edd_pup_send_emails', 'edd_pup_send_emails' );
 
@@ -302,6 +309,7 @@ add_action( 'edd_pup_send_emails', 'edd_pup_send_emails' );
  * @return void
  */
 function edd_pup_email_loop(){
+    $start = microtime(TRUE);
 	global $edd_options;
 
 	$updated_products = $edd_options['prod_updates_products'];
@@ -332,6 +340,10 @@ function edd_pup_email_loop(){
 		// Flush all transients
 		delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
 	}
+	
+    $finish = microtime(TRUE);
+    $totaltime = $finish - $start; 
+    write_log('edd_pup_email_loop took '.$totaltime.' seconds to execute.');
 }
 
 /**
@@ -341,6 +353,7 @@ function edd_pup_email_loop(){
  * @return void
  */
 function edd_pup_trigger_email( $payment_id ) {
+    $start = microtime(TRUE);
 	global $edd_options;
 
 	$payment_data = edd_get_payment_meta( $payment_id );
@@ -358,14 +371,14 @@ function edd_pup_trigger_email( $payment_id ) {
 	}
 
 	$message = edd_get_email_body_header();
-	$message .= apply_filters( 'edd_purchase_receipt', edd_email_template_tags( $edd_options['prod_updates_message'], $payment_data, $payment_id ), $payment_id, $payment_data );
+	$message .= edd_email_template_tags( $edd_options['prod_updates_message'], $payment_data, $payment_id );
 	$message .= edd_get_email_body_footer();
 
 	$from_name = isset( $edd_options['prod_updates_from_name'] ) ? $edd_options['prod_updates_from_name'] : get_bloginfo('name');
-	$from_name = apply_filters( 'edd_prod_updates_from_name', $from_name, $payment_id, $payment_data );
+	//$from_name = apply_filters( 'edd_prod_updates_from_name', $from_name, $payment_id, $payment_data );
 
 	$from_email = isset( $edd_options['prod_updates_from_email'] ) ? $edd_options['prod_updates_from_email'] : get_option('admin_email');
-	$from_email = apply_filters( 'edd_purchase_from_address', $from_email, $payment_id, $payment_data );
+	//$from_email = apply_filters( 'edd_purchase_from_address', $from_email, $payment_id, $payment_data );
 
 	$subject = apply_filters( 'edd_purchase_subject', ! empty( $edd_options['prod_updates_subject'] )
 		? wp_strip_all_tags( $edd_options['prod_updates_subject'], true )
@@ -377,19 +390,22 @@ function edd_pup_trigger_email( $payment_id ) {
 	$headers .= "Reply-To: ". $from_email . "\r\n";
 	//$headers .= "MIME-Version: 1.0\r\n";
 	$headers .= "Content-Type: text/html; charset=utf-8\r\n";
-	$headers = apply_filters( 'edd_receipt_headers', $headers, $payment_id, $payment_data );
+	//$headers = apply_filters( 'edd_receipt_headers', $headers, $payment_id, $payment_data );
 
 	// Allow add-ons to add file attachments
 	$attachments = apply_filters( 'edd_receipt_attachments', array(), $payment_id, $payment_data );
 	if ( apply_filters( 'edd_email_purchase_receipt', true ) ) {
-		wp_mail( $email, $subject, $message, $headers, $attachments );
+		//wp_mail( $email, $subject, $message, $headers, $attachments );
 	}
 	
 	// Update payment notes to log this email being sent
 	$payment_note = 'Sent product update email "'. $subject .'"';
 	
 	edd_insert_payment_note($payment_id, $payment_note);
-	
+
+    $finish = microtime(TRUE);
+    $totaltime = $finish - $start; 
+    write_log('edd_pup_trigger_email took '.$totaltime.' seconds to execute.');
 }
 
 /**
@@ -400,6 +416,7 @@ function edd_pup_trigger_email( $payment_id ) {
  * @return $customercount (number of customers eligible for product updates)
  */
 function edd_pup_customer_count(){
+    $start = microtime(TRUE);
 	global $edd_options;
 	$customercount = 0;
 	
@@ -419,7 +436,11 @@ function edd_pup_customer_count(){
 		}
 	}
 	
-	return $customercount;	
+    $finish = microtime(TRUE);
+    $totaltime = $finish - $start; 
+    write_log('edd_pup_customer_count took '.$totaltime.' seconds to execute.');
+    
+    return $customercount;
 }
 
 /**
@@ -531,4 +552,26 @@ function edd_pup_get_license_keys( $payment_id ){
 	}
 	
 	return $key;
+}
+
+if (!function_exists('write_log')) {
+
+    function write_log ( $log )  {
+
+        if ( true === WP_DEBUG ) {
+
+            if ( is_array( $log ) || is_object( $log ) ) {
+
+                error_log( print_r( $log, true ) );
+
+            } else {
+
+                error_log( $log );
+
+            }
+
+        }
+
+    }
+
 }
