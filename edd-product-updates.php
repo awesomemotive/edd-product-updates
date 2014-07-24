@@ -9,7 +9,7 @@
  *
  * @package EDD_PUP
  * @author Evan Luzi
- * @version 0.9.1
+ * @version 0.9.2
  */
 
 // Exit if accessed directly
@@ -357,27 +357,18 @@ function edd_pup_trigger_email( $payment_id ) {
 	global $edd_options;
 
 	$payment_data = edd_get_payment_meta( $payment_id );
-	$user_id      = edd_get_payment_user_id( $payment_id );
-	$user_info    = maybe_unserialize( $payment_data['user_info'] );
 	$email        = edd_get_payment_user_email( $payment_id );
 
-	if ( isset( $user_id ) && $user_id > 0 ) {
-		$user_data = get_userdata($user_id);
-		$name = $user_data->display_name;
-	} elseif ( isset( $user_info['first_name'] ) && isset( $user_info['last_name'] ) ) {
-		$name = $user_info['first_name'] . ' ' . $user_info['last_name'];
-	} else {
-		$name = $email;
-	}
-
 	$message = edd_get_email_body_header();
-	$message .= edd_email_template_tags( $edd_options['prod_updates_message'], $payment_data, $payment_id );
+	$message .= apply_filters( 'edd_purchase_receipt', edd_email_template_tags( $edd_options['prod_updates_message'], $payment_data, $payment_id ), $payment_id, $payment_data );
 	$message .= edd_get_email_body_footer();
 
-	$from_name = isset( $edd_options['prod_updates_from_name'] ) ? $edd_options['prod_updates_from_name'] : get_bloginfo('name');
+	$from_name = $edd_options['prod_updates_from_name'];
+	//$from_name = isset( $edd_options['prod_updates_from_name'] ) ? $edd_options['prod_updates_from_name'] : get_bloginfo('name');
 	//$from_name = apply_filters( 'edd_prod_updates_from_name', $from_name, $payment_id, $payment_data );
 
-	$from_email = isset( $edd_options['prod_updates_from_email'] ) ? $edd_options['prod_updates_from_email'] : get_option('admin_email');
+	$from_email = $edd_options['prod_updates_from_email'];
+	//$from_email = isset( $edd_options['prod_updates_from_email'] ) ? $edd_options['prod_updates_from_email'] : get_option('admin_email');
 	//$from_email = apply_filters( 'edd_purchase_from_address', $from_email, $payment_id, $payment_data );
 
 	$subject = apply_filters( 'edd_purchase_subject', ! empty( $edd_options['prod_updates_subject'] )
@@ -393,9 +384,9 @@ function edd_pup_trigger_email( $payment_id ) {
 	//$headers = apply_filters( 'edd_receipt_headers', $headers, $payment_id, $payment_data );
 
 	// Allow add-ons to add file attachments
-	$attachments = apply_filters( 'edd_receipt_attachments', array(), $payment_id, $payment_data );
+	$attachments = apply_filters( 'edd_pup_attachments', array(), $payment_id, $payment_data );
 	if ( apply_filters( 'edd_email_purchase_receipt', true ) ) {
-		//wp_mail( $email, $subject, $message, $headers, $attachments );
+		wp_mail( $email, $subject, $message, $headers, $attachments );
 	}
 	
 	// Update payment notes to log this email being sent
