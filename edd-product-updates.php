@@ -18,6 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 // Includes
 require( 'inc/edd-pup-payment.php');
 require( 'inc/edd-pup-tags.php');
+require( 'inc/edd-pup-post-types.php');
 
 /**
  * Register and enqueue necessary JS and CSS files
@@ -184,6 +185,8 @@ function edd_pup_email_confirm_html(){
 	
 	$email_body = isset( $edd_options['prod_updates_message'] ) ? stripslashes( $edd_options['prod_updates_message'] ) : $default_email_body;
 	
+	edd_pup_create_email();
+	
 	ob_start();
 	?>
 		<!-- Begin send email confirmation message -->
@@ -301,6 +304,67 @@ function edd_pup_send_emails( $data ) {
 }
 add_action( 'edd_pup_send_emails', 'edd_pup_send_emails' );
 
+function edd_pup_create_email(){
+    $start = microtime(TRUE);
+	global $edd_options;
+	
+	// Set variables that are the same for all customers
+	$from_name = isset( $edd_options['prod_updates_from_name'] ) ? $edd_options['prod_updates_from_name'] : get_bloginfo('name');
+	//$from_name = apply_filters( 'edd_prod_updates_from_name', $from_name, $payment_id, $payment_data );
+	
+	$from_email = isset( $edd_options['prod_updates_from_email'] ) ? $edd_options['prod_updates_from_email'] : get_option('admin_email');
+	//$from_email = apply_filters( 'edd_purchase_from_address', $from_email, $payment_id, $payment_data );
+
+	$headers = "From: " . stripslashes_deep( html_entity_decode( $from_name, ENT_COMPAT, 'UTF-8' ) ) . " <$from_email>\r\n";
+	$headers .= "Reply-To: ". $from_email . "\r\n";
+	$headers .= "Content-Type: text/html; charset=utf-8\r\n";
+
+	$subject = apply_filters( 'edd_purchase_subject', ! empty( $edd_options['prod_updates_subject'] )
+		? wp_strip_all_tags( $edd_options['prod_updates_subject'], true )
+		: __( 'New Product Update', 'edd' ), $payment_id );
+				
+	$updated_products = $edd_options['prod_updates_products'];
+	
+	// Build post parameters array for custom post
+	$post = array(
+	  'post_content'   => $edd_options['prod_updates_message'],
+	  'post_name'      => '',
+	  'post_title'     => $edd_options['prod_updates_subject'],
+	  'post_status'    => 'draft', // move this to publish when send button is pressed
+	  'post_type'      => 'edd_pup_email',
+	  'post_author'    => '',
+	  'ping_status'    => 'closed',
+	  'post_parent'    => 0,
+	  'menu_order'     => 0,
+	  'to_ping'        => '',
+	  'pinged'         => '',
+	  'post_password'  => '',
+	  'guid'           => '',
+	  'post_content_filtered' => '',
+	  'post_excerpt'   => '', //maybe $headers
+	  'comment_status' => 'closed'
+	);
+		
+	// Create post and get the ID
+	$email_id = wp_insert_post( $post );
+	
+	// Insert custom meta for newly created post
+	if ( 0 !== $email_id )	{
+		add_post_meta ( $email_id, '_edd_pup_from_name', $from_name, true );
+		add_post_meta ( $email_id, '_edd_pup_from_email', $from_email, true );
+		add_post_meta ( $email_id, '_edd_pup_subject', $edd_options['prod_updates_subject'], true );
+		add_post_meta ( $email_id, '_edd_pup_message', $edd_options['prod_updates_message'], true );
+		add_post_meta ( $email_id, '_edd_pup_headers', $headers, true );
+		add_post_meta ( $email_id, '_edd_pup_updated_products', $updated_products, true );		
+	}
+	
+	set_transient( 'edd_pup_email_id', $email_id, 24 * 3600 );
+	
+    $finish = microtime(TRUE);
+    $totaltime = $finish - $start; 
+    write_log('edd_pup_create_email took '.$totaltime.' seconds to execute.');
+}
+
 /**
  * Loop through customers and trigger email if they purchased updated product
  * 
@@ -312,9 +376,13 @@ function edd_pup_email_loop(){
     $start = microtime(TRUE);
 	global $edd_options;
 
+	$email_id = get_transient( 'edd_pup_email_id' );
+	$email_data   = get_post_custom( $email_id );
+	
 	$updated_products = $edd_options['prod_updates_products'];
 	$payments = edd_pup_get_all_customers();
 	
+	// Start the loop
 	foreach ( $payments as $customer ){
 		
 		// Don't send to customers who have unsubscribed from updates
@@ -326,7 +394,7 @@ function edd_pup_email_loop(){
 			// Send email if customers have eligible updates available				
 			if ( ! empty( $customer_updates ) ) {
 				
-				edd_pup_trigger_email($customer->ID);				
+				edd_pup_trigger_email( $customer->ID, $email_data['_edd_pup_subject'][0], $email_data['_edd_pup_message'][0], $email_data['_edd_pup_headers'][0]  );				
 			
 				// Reset file download limits for customers' eligible updates
 				foreach ( $customer_updates as $download ) {
@@ -339,49 +407,34 @@ function edd_pup_email_loop(){
 		}
 		// Flush all transients
 		delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
+		delete_transient( 'edd_pup_email_id' );
 	}
 	
     $finish = microtime(TRUE);
     $totaltime = $finish - $start; 
     write_log('edd_pup_email_loop took '.$totaltime.' seconds to execute.');
+    write_log(var_dump($email_data));
 }
 
 /**
  * Email the product update to the customer in a customizable message
  *
  * @param int $payment_id Payment ID
+ * @param int $email_id Email ID for a edd_pup_email post-type
  * @return void
  */
-function edd_pup_trigger_email( $payment_id ) {
+function edd_pup_trigger_email( $payment_id, $_subject, $_message, $headers ) {
     $start = microtime(TRUE);
 	global $edd_options;
 
 	$payment_data = edd_get_payment_meta( $payment_id );
 	$email        = edd_get_payment_user_email( $payment_id );
-
+	
+	$subject = edd_do_email_tags( $_subject, $payment_id );
+	
 	$message = edd_get_email_body_header();
-	$message .= apply_filters( 'edd_purchase_receipt', edd_email_template_tags( $edd_options['prod_updates_message'], $payment_data, $payment_id ), $payment_id, $payment_data );
+	$message .= apply_filters( 'edd_purchase_receipt', edd_email_template_tags( $_message, $payment_data, $payment_id ), $payment_id, $payment_data );
 	$message .= edd_get_email_body_footer();
-
-	$from_name = $edd_options['prod_updates_from_name'];
-	//$from_name = isset( $edd_options['prod_updates_from_name'] ) ? $edd_options['prod_updates_from_name'] : get_bloginfo('name');
-	//$from_name = apply_filters( 'edd_prod_updates_from_name', $from_name, $payment_id, $payment_data );
-
-	$from_email = $edd_options['prod_updates_from_email'];
-	//$from_email = isset( $edd_options['prod_updates_from_email'] ) ? $edd_options['prod_updates_from_email'] : get_option('admin_email');
-	//$from_email = apply_filters( 'edd_purchase_from_address', $from_email, $payment_id, $payment_data );
-
-	$subject = apply_filters( 'edd_purchase_subject', ! empty( $edd_options['prod_updates_subject'] )
-		? wp_strip_all_tags( $edd_options['prod_updates_subject'], true )
-		: __( 'New Product Update', 'edd' ), $payment_id );
-
-	$subject = edd_do_email_tags( $subject, $payment_id );
-
-	$headers = "From: " . stripslashes_deep( html_entity_decode( $from_name, ENT_COMPAT, 'UTF-8' ) ) . " <$from_email>\r\n";
-	$headers .= "Reply-To: ". $from_email . "\r\n";
-	//$headers .= "MIME-Version: 1.0\r\n";
-	$headers .= "Content-Type: text/html; charset=utf-8\r\n";
-	//$headers = apply_filters( 'edd_receipt_headers', $headers, $payment_id, $payment_data );
 
 	// Allow add-ons to add file attachments
 	$attachments = apply_filters( 'edd_pup_attachments', array(), $payment_id, $payment_data );
