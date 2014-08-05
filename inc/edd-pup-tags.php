@@ -48,12 +48,12 @@ function edd_pup_products_tag($payment_id) {
 	$productlist = '<ul>';
 
 	foreach ($customer_updates as $product) {
-		
+
 		if ( edd_is_bundled_product( $product['id'] ) ) {
 		
 			$bundled_products = edd_get_bundled_products( $product['id'] );
 			
-			$productlist .= '<li>'. get_the_title( $product['id'] ) .'</li>';
+			$productlist .= '<li>'. $product['name'] .'</li>';
 			$productlist .= '<ul>';		
 			
 			foreach ( $bundled_products as $bundle_item ) {
@@ -64,7 +64,7 @@ function edd_pup_products_tag($payment_id) {
 			
 		} else {
 			
-			$productlist .= '<li>'.get_the_title( $product['id'] ).'</li>';
+			$productlist .= '<li>'. $product['name'] .'</li>';
 		}
 	}
 
@@ -110,7 +110,7 @@ function edd_pup_products_links_tag($payment_id) {
 
 				if ( $show_names ) {
 
-					$title = get_the_title( $item['id'] );
+					$title = $item['name'];
 
 					if ( ! empty( $sku ) ) {
 						$title .= "&nbsp;&ndash;&nbsp;" . __( 'SKU', 'edd' ) . ': ' . $sku;
@@ -127,7 +127,7 @@ function edd_pup_products_links_tag($payment_id) {
 				$files = edd_get_download_files( $item['id'], $price_id );
 
 				if ( $files ) {
-					foreach ( $files as $filekey => $file ) {
+					foreach ( $files as $filekey => &$file ) {
 						$download_list .= '<li>';
 						$file_url = edd_get_download_file_url( $payment_data['key'], $email, $filekey, $item['id'], $price_id );
 						$download_list .= '<a href="' . esc_url( $file_url ) . '">' . edd_get_file_name( $file ) . '</a>';

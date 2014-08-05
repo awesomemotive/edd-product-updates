@@ -19,6 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 require( 'inc/edd-pup-payment.php');
 require( 'inc/edd-pup-tags.php');
 require( 'inc/edd-pup-post-types.php');
+require( 'inc/edd-pup-submenu.php');
+require( 'inc/edd-pup-ajax.php');
 
 /**
  * Register and enqueue necessary JS and CSS files
@@ -27,10 +29,10 @@ require( 'inc/edd-pup-post-types.php');
  * @return void
  */
 function edd_pup_scripts() {
-        wp_register_script( 'edd_prod_updates_js', plugins_url(). '/edd-product-updates/assets/edd-pup.min.js', false, '1.0.0' );
+        wp_register_script( 'edd_prod_updates_js', plugins_url(). '/edd-product-updates/assets/edd-pup.js', false, '1.0.0' );
         wp_enqueue_script( 'edd_prod_updates_js' );
 
-        wp_register_style( 'edd_prod_updates_css', plugins_url(). '/edd-product-updates/assets/edd-pup.min.css', false, '1.0.0' );
+        wp_register_style( 'edd_prod_updates_css', plugins_url(). '/edd-product-updates/assets/edd-pup.css', false, '1.0.0' );
         wp_enqueue_style( 'edd_prod_updates_css' );
 }
 add_action( 'admin_enqueue_scripts', 'edd_pup_scripts' );
@@ -177,15 +179,30 @@ function edd_pup_email_confirm_html(){
 		$productlist .= '<li>'.$product.'</li>';
 	}
 	
+	$email_id = get_transient( 'edd_pup_email_id' );
+	
+	// Creates the email post-type or updates it if transient isn't set
+	edd_pup_create_email( $email_id );
+	
+	if ( 0 !== $email_id ) {
+	
+		delete_transient( 'edd_pup_all_customers' );
+		delete_transient( 'edd_pup_subject' );
+		
+		$payments = edd_pup_get_all_customers();
+		
+		foreach ( $payments as $customer ){
+			delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
+		}	
+	
+	}
+	
 	$nonceurl = add_query_arg( array( 'edd_action' => 'pup_send_emails' ), $_POST['url'] );
+	$ajaxnonce = add_query_arg( array( 'edd_action' => 'pup_send_ajax', 'email_id' => get_transient( 'edd_pup_email_id' ) ), 'http://tbabloc.dev/wp-admin/edit.php?post_type=download&page=edd-prod-updates');
 	
 	$customercount = edd_pup_customer_count();
-	
 	$default_email_body = 'This is the default body';
-	
 	$email_body = isset( $edd_options['prod_updates_message'] ) ? stripslashes( $edd_options['prod_updates_message'] ) : $default_email_body;
-	
-	edd_pup_create_email();
 	
 	ob_start();
 	?>
@@ -215,6 +232,7 @@ function edd_pup_email_confirm_html(){
 						</ul>
 						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?></a>
 						<button class="closebutton button button-secondary">Close without sending</button>
+						<a href="<?php echo wp_nonce_url( $ajaxnonce, 'edd_pup_email_loop_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button">Ajax Test</a>
 					</div>
 				</div>
 			<!-- End send email confirmation message -->
@@ -304,7 +322,7 @@ function edd_pup_send_emails( $data ) {
 }
 add_action( 'edd_pup_send_emails', 'edd_pup_send_emails' );
 
-function edd_pup_create_email(){
+function edd_pup_create_email( $email_id = false ){
     $start = microtime(TRUE);
 	global $edd_options;
 	
@@ -321,44 +339,57 @@ function edd_pup_create_email(){
 
 	$subject = apply_filters( 'edd_purchase_subject', ! empty( $edd_options['prod_updates_subject'] )
 		? wp_strip_all_tags( $edd_options['prod_updates_subject'], true )
-		: __( 'New Product Update', 'edd' ), $payment_id );
+		: __( 'New Product Update', 'edd' ) );
 				
 	$updated_products = $edd_options['prod_updates_products'];
+
+	if ( false === $email_id ) {	
+		// Build post parameters array for custom post
+		$post = array(
+		  'post_content'   => $edd_options['prod_updates_message'],
+		  'post_name'      => '',
+		  'post_title'     => $edd_options['prod_updates_subject'],
+		  'post_status'    => 'draft', // move this to publish when send button is pressed
+		  'post_type'      => 'edd_pup_email',
+		  'post_author'    => '',
+		  'ping_status'    => 'closed',
+		  'post_parent'    => 0,
+		  'menu_order'     => 0,
+		  'to_ping'        => '',
+		  'pinged'         => '',
+		  'post_password'  => '',
+		  'guid'           => '',
+		  'post_content_filtered' => '',
+		  'post_excerpt'   => '', //maybe $headers
+		  'comment_status' => 'closed'
+		);
 	
-	// Build post parameters array for custom post
-	$post = array(
-	  'post_content'   => $edd_options['prod_updates_message'],
-	  'post_name'      => '',
-	  'post_title'     => $edd_options['prod_updates_subject'],
-	  'post_status'    => 'draft', // move this to publish when send button is pressed
-	  'post_type'      => 'edd_pup_email',
-	  'post_author'    => '',
-	  'ping_status'    => 'closed',
-	  'post_parent'    => 0,
-	  'menu_order'     => 0,
-	  'to_ping'        => '',
-	  'pinged'         => '',
-	  'post_password'  => '',
-	  'guid'           => '',
-	  'post_content_filtered' => '',
-	  'post_excerpt'   => '', //maybe $headers
-	  'comment_status' => 'closed'
-	);
+		// Create post and get the ID
+		$create_id = wp_insert_post( $post );
 		
-	// Create post and get the ID
-	$email_id = wp_insert_post( $post );
-	
-	// Insert custom meta for newly created post
-	if ( 0 !== $email_id )	{
-		add_post_meta ( $email_id, '_edd_pup_from_name', $from_name, true );
-		add_post_meta ( $email_id, '_edd_pup_from_email', $from_email, true );
-		add_post_meta ( $email_id, '_edd_pup_subject', $edd_options['prod_updates_subject'], true );
-		add_post_meta ( $email_id, '_edd_pup_message', $edd_options['prod_updates_message'], true );
-		add_post_meta ( $email_id, '_edd_pup_headers', $headers, true );
-		add_post_meta ( $email_id, '_edd_pup_updated_products', $updated_products, true );		
+		// Insert custom meta for newly created post
+		if ( 0 != $email_id )	{
+			add_post_meta ( $create_id, '_edd_pup_from_name', $from_name, true );
+			add_post_meta ( $create_id, '_edd_pup_from_email', $from_email, true );
+			add_post_meta ( $create_id, '_edd_pup_subject', $edd_options['prod_updates_subject'], true );
+			add_post_meta ( $create_id, '_edd_pup_message', $edd_options['prod_updates_message'], true );
+			add_post_meta ( $create_id, '_edd_pup_headers', $headers, true );
+			add_post_meta ( $create_id, '_edd_pup_updated_products', $updated_products, true );		
+			write_log('edd_pup_create_email created for ID'.$create_id.'');
+		}
+		
+		set_transient( 'edd_pup_email_id', $create_id, 24 * 3600 );
 	}
 	
-	set_transient( 'edd_pup_email_id', $email_id, 24 * 3600 );
+	if ( 0 != $email_id )	{
+		update_post_meta ( $email_id, '_edd_pup_from_name', $from_name, true );
+		update_post_meta ( $email_id, '_edd_pup_from_email', $from_email, true );
+		update_post_meta ( $email_id, '_edd_pup_subject', $edd_options['prod_updates_subject'], true );
+		update_post_meta ( $email_id, '_edd_pup_message', $edd_options['prod_updates_message'], true );
+		update_post_meta ( $email_id, '_edd_pup_headers', $headers, true );
+		update_post_meta ( $email_id, '_edd_pup_updated_products', $updated_products, true );
+		write_log('edd_pup_create_email updated for ID '.$email_id.'');	
+	}
 	
     $finish = microtime(TRUE);
     $totaltime = $finish - $start; 
@@ -374,13 +405,10 @@ function edd_pup_create_email(){
  */
 function edd_pup_email_loop(){
     $start = microtime(TRUE);
-	global $edd_options;
-
-	$email_id = get_transient( 'edd_pup_email_id' );
-	$email_data   = get_post_custom( $email_id );
 	
-	$updated_products = $edd_options['prod_updates_products'];
-	$payments = edd_pup_get_all_customers();
+	global $edd_options;
+	$email_data = get_post_custom( get_transient( 'edd_pup_email_id' ) );
+	$payments 	= edd_pup_get_all_customers();
 	
 	// Start the loop
 	foreach ( $payments as $customer ){
@@ -389,7 +417,7 @@ function edd_pup_email_loop(){
 		if ( edd_pup_user_send_updates( $customer->ID ) ){
 			
 			// Check what products customers are eligible for updates
-			$customer_updates = edd_pup_eligible_updates( $customer->ID, $updated_products );	
+			$customer_updates = edd_pup_eligible_updates( $customer->ID, $edd_options['prod_updates_products'] );	
 			
 			// Send email if customers have eligible updates available				
 			if ( ! empty( $customer_updates ) ) {
@@ -405,15 +433,20 @@ function edd_pup_email_loop(){
 				}
 			}
 		}
-		// Flush all transients
+		// Flush customer specific transient
 		delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
-		delete_transient( 'edd_pup_email_id' );
 	}
 	
+	// Flush remaining transients
+	delete_transient( 'edd_pup_email_id' );
+	delete_transient( 'edd_pup_all_customers' );
+	delete_transient( 'edd_pup_subject' );	
+	delete_transient( 'edd_pup_email_body_header' );
+	delete_transient( 'edd_pup_email_body_footer' );
+	 
     $finish = microtime(TRUE);
     $totaltime = $finish - $start; 
     write_log('edd_pup_email_loop took '.$totaltime.' seconds to execute.');
-    write_log(var_dump($email_data));
 }
 
 /**
@@ -425,16 +458,44 @@ function edd_pup_email_loop(){
  */
 function edd_pup_trigger_email( $payment_id, $_subject, $_message, $headers ) {
     $start = microtime(TRUE);
-	global $edd_options;
 
 	$payment_data = edd_get_payment_meta( $payment_id );
 	$email        = edd_get_payment_user_email( $payment_id );
 	
-	$subject = edd_do_email_tags( $_subject, $payment_id );
+	/* If subject doesn't use tags (and thus is the same for each customer)
+	 * then store it in a transient for quick access on subsequent loops. */
+	$subject = get_transient( 'edd_pup_subject' );
+		
+	if (false === $subject) {
+		
+		$subject = edd_do_email_tags( $_subject, $payment_id );
+		
+		if ( $subject === $_subject ) {
+			set_transient( 'edd_pup_subject', $subject, 60 * 60 );
+		}
+	}
 	
-	$message = edd_get_email_body_header();
+	$email_body_header = get_transient( 'edd_pup_email_body_header' );
+	
+	if ( false === $email_body_header ) {
+		
+		$email_body_header = edd_get_email_body_header();
+		
+		set_transient( 'edd_pup_email_body_header', $email_body_header, 60 * 60 );
+	}
+	
+	$email_body_footer = get_transient( 'edd_pup_email_body_footer' );
+	
+	if ( false === $email_body_footer ) {
+		
+		$email_body_footer = edd_get_email_body_footer();
+		
+		set_transient( 'edd_pup_email_body_footer', $email_body_footer, 60 * 60 );
+	}
+
+	$message = $email_body_header;
 	$message .= apply_filters( 'edd_purchase_receipt', edd_email_template_tags( $_message, $payment_data, $payment_id ), $payment_id, $payment_data );
-	$message .= edd_get_email_body_footer();
+	$message .= $email_body_footer;
 
 	// Allow add-ons to add file attachments
 	$attachments = apply_filters( 'edd_pup_attachments', array(), $payment_id, $payment_data );
@@ -442,10 +503,8 @@ function edd_pup_trigger_email( $payment_id, $_subject, $_message, $headers ) {
 		wp_mail( $email, $subject, $message, $headers, $attachments );
 	}
 	
-	// Update payment notes to log this email being sent
-	$payment_note = 'Sent product update email "'. $subject .'"';
-	
-	edd_insert_payment_note($payment_id, $payment_note);
+	// Update payment notes to log this email being sent	
+	edd_insert_payment_note($payment_id, 'Sent product update email "'. $subject .'"');
 
     $finish = microtime(TRUE);
     $totaltime = $finish - $start; 
@@ -468,7 +527,7 @@ function edd_pup_customer_count(){
 	
 	$payments = edd_pup_get_all_customers();
 	
-	foreach ($payments as $customer){
+	foreach ( $payments as $customer ){
 		
 		$customer_updates = edd_pup_eligible_updates( $customer->ID, $updated_products );	
 		
@@ -494,24 +553,33 @@ function edd_pup_customer_count(){
  * @return object (all edd_payment post types)
  */
 function edd_pup_get_all_customers(){
-	$queryargs = array(
-		'posts_per_page'   => -1,
-		'offset'           => 0,
-		'category'         => '',
-		'orderby'          => 'ID',
-		'order'            => 'DESC',
-		'include'          => '',
-		'exclude'          => '',
-		'meta_key'         => '',
-		'meta_value'       => '',
-		'post_type'        => 'edd_payment',
-		'post_mime_type'   => '',
-		'post_parent'      => '',
-		'post_status'      => 'publish',
-		'suppress_filters' => true
-		);
+
+	$customers = get_transient( 'edd_pup_all_customers' );
 	
-	return get_posts($queryargs);
+	if ( false === $customers ) {
+	
+		$queryargs = array(
+			'posts_per_page'   => -1,
+			'offset'           => 0,
+			'category'         => '',
+			'orderby'          => 'ID',
+			'order'            => 'DESC',
+			'include'          => '',
+			'exclude'          => '',
+			'meta_key'         => '',
+			'meta_value'       => '',
+			'post_type'        => 'edd_payment',
+			'post_mime_type'   => '',
+			'post_parent'      => '',
+			'post_status'      => 'publish',
+			'suppress_filters' => true
+			);
+		$customers = get_posts($queryargs);
+		
+		set_transient( 'edd_pup_all_customers', $customers, 60*60 );
+	}
+		
+	return $customers;
 }
 
 /**
@@ -598,21 +666,22 @@ function edd_pup_get_license_keys( $payment_id ){
 	return $key;
 }
 
+// Helper function for debugging performance
 if (!function_exists('write_log')) {
 
     function write_log ( $log )  {
 
         if ( true === WP_DEBUG ) {
 
-            if ( is_array( $log ) || is_object( $log ) ) {
+            //if ( is_array( $log ) || is_object( $log ) ) {
 
-                error_log( print_r( $log, true ) );
+                //error_log( print_r( $log, true ) );
 
-            } else {
+           // } else {
 
                 error_log( $log );
 
-            }
+            //}
 
         }
 

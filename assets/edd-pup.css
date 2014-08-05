@@ -72,3 +72,183 @@
 .edd-pu-spin.loading {
 	display: inline-block; 
 }
+
+/* Progress Bar */
+
+#prod-updates-email-ajax-start {
+	margin-bottom: 20px;
+}
+
+@-webkit-keyframes animatedProgress {
+	0% { background-position: 0 0; }
+	100% { background-position: 100% 0; }
+}
+
+.progress-wrap {
+	width: 97%;
+	max-width: 500px;
+	text-align: center;
+	display: none;
+}
+
+.progress {
+
+	padding: 4px;
+	background: rgba(100, 100, 100, 0.25);
+	border-radius: 6px;
+	-webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25), 0 1px rgba(255, 255, 255, 0.08);
+	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25), 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.progress-bar {
+	position: relative;
+	height: 16px;
+	border-radius: 4px;
+	-webkit-transition: 0.4s linear;
+	-moz-transition: 0.4s linear;
+	-o-transition: 0.4s linear;
+	transition: 0.4s linear;
+	-webkit-transition-property: width, background-color;
+	-moz-transition-property: width, background-color;
+	-o-transition-property: width, background-color;
+	transition-property: width, background-color;
+	-webkit-box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.25), inset 0 1px rgba(255, 255, 255, 0.1);
+	box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.25), inset 0 1px rgba(255, 255, 255, 0.1);
+}
+.progress-bar:before, .progress-bar:after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+}
+.progress-bar:before {
+	-webkit-animation: animatedProgress 15s linear infinite;
+	bottom: 0;
+	background: url("img/stripes.png") 0 0 repeat;
+	border-radius: 4px 4px 0 0;
+}
+.progress-bar:after {
+	z-index: 2;
+	bottom: 45%;
+	border-radius: 4px;
+	background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+	background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+	background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+	background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+}
+
+/*
+ * Note: using adjacent or general sibling selectors combined with
+ *       pseudo classes doesn't work in Safari 5.0 and Chrome 12.
+ *       See this article for more info and a potential fix:
+ *       http://css-tricks.com/webkit-sibling-bug/
+ */
+.progress-bar[data-complete="0"],
+.progress-bar[data-complete="5"],
+.progress-bar[data-complete="10"],
+.progress-bar[data-complete="15"],
+.progress-bar[data-complete="20"] {
+  width: 1%;
+  background-color: #f63a0f;
+}
+
+.progress-bar[data-complete="5"] {
+  width: 5%;
+}
+
+.progress-bar[data-complete="10"] {
+  width: 10%;
+}
+
+.progress-bar[data-complete="15"] {
+  width: 15%;
+}
+
+.progress-bar[data-complete="20"] {
+  width: 20%;
+}
+
+.progress-bar[data-complete="25"],
+.progress-bar[data-complete="30"],
+.progress-bar[data-complete="35"],
+.progress-bar[data-complete="40"],
+.progress-bar[data-complete="45"] {
+  width: 25%;
+  background-color: #f27011;
+}
+
+.progress-bar[data-complete="30"] {
+  width: 30%;
+}
+
+.progress-bar[data-complete="35"] {
+  width: 35%;
+}
+
+.progress-bar[data-complete="40"] {
+  width: 40%;
+}
+
+.progress-bar[data-complete="45"] {
+  width: 45%;
+}
+
+.progress-bar[data-complete="50"],
+.progress-bar[data-complete="55"],
+.progress-bar[data-complete="60"],
+.progress-bar[data-complete="65"],
+.progress-bar[data-complete="70"] {
+  width: 50%;
+  background-color: #f2b01e;
+}
+
+.progress-bar[data-complete="55"] {
+  width: 55%;
+}
+
+.progress-bar[data-complete="60"] {
+  width: 60%;
+}
+
+.progress-bar[data-complete="65"] {
+  width: 65%;
+}
+
+.progress-bar[data-complete="70"] {
+  width: 70%;
+}
+
+.progress-bar[data-complete="75"],
+.progress-bar[data-complete="80"],
+.progress-bar[data-complete="85"],
+.progress-bar[data-complete="90"],
+.progress-bar[data-complete="95"] {
+  width: 75%;
+  background-color: #f2d31b;
+}
+
+.progress-bar[data-complete="80"] {
+  width: 80%;
+}
+
+.progress-bar[data-complete="85"] {
+  width: 85%;
+}
+
+.progress-bar[data-complete="90"] {
+  width: 90%;
+}
+
+.progress-bar[data-complete="95"] {
+  width: 95%;
+}
+
+.progress-bar[data-complete="100"] {
+  width: 100%;
+  background-color: #86e01e;
+}
+
+.progress-bar[data-complete="100"]:before {
+  -webkit-animation: none;
+}
