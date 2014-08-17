@@ -77,10 +77,12 @@ jQuery(document).ready(function ($) {
 	
 	function eddPupAjaxSend() {
 		var button = $('#edd-pup-ajax-btn'),
+			email_id = $(this).attr('data-email'),
 			i = 0,
 			s = 0,
 			data = {
-			'action': 'edd_pup_ajax_start'
+			'action': 'edd_pup_ajax_start',
+			'email_id' : email_id
 		};
 		
 		button.click( function() {

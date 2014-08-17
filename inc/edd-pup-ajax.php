@@ -15,7 +15,6 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-
 /**
  * Builds the email queue and stores it in the edd_pup_queue db table
  * 
@@ -23,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @param mixed $data
  * @return $realcount (the number of emails logged in the queue to be sent)
  */
-function edd_pup_ajax_queue( $data ){
+function edd_pup_ajax_start( $data ){
     $start = microtime(TRUE);
     
 	global $wpdb;
@@ -31,6 +30,13 @@ function edd_pup_ajax_queue( $data ){
 	
 	$query = "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, sent) VALUES";
 	$email_id = get_transient( 'edd_pup_email_id' );
+	
+	// Compare email_id transients and set it to a new one if different?
+	if ( $_GET('email_id') !== $email_id ) {
+		set_transient( 'edd_pup_email_id', $_GET('email_id') );
+		$email_id = $_GET('email_id');
+	}
+	
 	$payments = edd_pup_get_all_customers();
 	$precount = edd_pup_customer_count();
 	$realcount = 0;
@@ -82,7 +88,7 @@ function edd_pup_ajax_queue( $data ){
 	exit;
 
 }
-add_action( 'wp_ajax_edd_pup_ajax_start', 'edd_pup_ajax_queue' );
+add_action( 'wp_ajax_edd_pup_ajax_start', 'edd_pup_ajax_start' );
 
 
 /**
@@ -97,15 +103,16 @@ function edd_pup_ajax_trigger(){
     	
 	global $wpdb;
 	global $edd_options;
-	
-	$email_data = get_post_custom( get_transient( 'edd_pup_email_id' ) );
+
+	$email_id = get_transient( 'edd_pup_email_id' );
+	$email_data = get_post_custom( $email_id );
 	$batch = $_POST['iteration'];
 	$sent = $_POST['sent'];
 	$limit = 10;
 	$offset = $limit * $batch;
 	$rows = array();
 	
-	$query = "SELECT * FROM $wpdb->edd_pup_queue LIMIT $limit OFFSET $offset";
+	$query = "SELECT * FROM $wpdb->edd_pup_queue LIMIT $limit OFFSET $offset WHERE email_id = $email_id";
 	
 	$customers = $wpdb->get_results( $query , ARRAY_A);
 
