@@ -9,9 +9,33 @@ jQuery(document).ready(function ($) {
 			height: 'auto'
 		});
 	}
+	
 		$('#cboxContent .closebutton').live('click', function(){
 			$.fn.colorbox.close();
 		});
+		
+
+		$('#edd-pup-view-queue-alert').colorbox({
+				inline: true,
+				href: $('#edd-pup-queue-details'),
+				width: '95%',
+				maxWidth: '680px',
+				height: 'auto'			
+		});
+		
+		$('#edd-pup-empty-queue').click( function() {
+			if (doClear.length) {
+				var doClear = confirm('Empty the Queue?');
+			}
+			
+			if ( doClear ) {
+				$.fn.colorbox.close();
+			} else if ( ! doClear ) {
+				alert('nevermind');
+			}
+
+		});
+
 	
 	function emailConfirmPreview() {
 	
@@ -52,7 +76,7 @@ jQuery(document).ready(function ($) {
 	emailConfirmPreview();
 	
 	function eddPupAjaxSend() {
-		var button = $('#prod-updates-email-ajax-start'),
+		var button = $('#edd-pup-ajax-btn'),
 			i = 0,
 			s = 0,
 			data = {
@@ -67,7 +91,11 @@ jQuery(document).ready(function ($) {
 				alert('something went wrong');
 				
 			}).success( function( totalEmails ) {
-
+				
+				button.prop('disabled', false).attr({
+					id: 'edd-pup-ajax-pause',
+					value: 'Pause'});
+				
 				$('.progress-wrap').show();
 				$('.progress-bar').attr('data-complete', '0');
 				$('.progress-queue').text( totalEmails );
@@ -88,14 +116,32 @@ jQuery(document).ready(function ($) {
 		
 		$.post(ajaxurl, {'action':'edd_pup_ajax_trigger', 'iteration': i, 'sent' : s}).error( function() {
 			alert('something went wrong');
+			
+			// Try to redo what went wrong, add e++. When e = 5, bail out of the operation completely. Set e back to 0 upon success.
 						
 		}).success( function(s) {
 			
+			function progressColor( color1, color2 ){
+				$('.progress-bar').toggleClass(color1).toggleClass(color2);
+			};
+			
 			var percent = Math.round((s / totalEmails) * 100);
-				if ( (percent % 5 == 0) && (percent != e) ) {
+				if (percent != e) {
 					$('.progress-sent').text(s);
-					$('.progress-bar').attr('data-complete', percent);
+					$('.progress-bar').attr('data-complete', percent).css('width', percent+'%');
 					$('.progress-percent').text(percent+'%');
+					
+					if ( percent <= 24 ) {
+						progressColor('red', '');
+					} else if ( percent >= 25 && percent <= 49 ) {
+						progressColor('red','orange');
+					} else if ( percent >= 50 && percent <= 74 ) {
+						progressColor('orange','yellorange');
+					} else if ( percent >= 75 && percent <= 99 ) {
+						progressColor('yellorange', 'yellow');
+					} else if ( percent == 100 ) {
+						progressColor('yellow','green');
+					}
 					
 					var e = percent;
 				}
@@ -111,12 +157,66 @@ jQuery(document).ready(function ($) {
 			alert('something went wrong');
 		}).success( function (response) {
 			var t = $('.progress-clock').html(),
-				time = '';
+				time = t.replace();
 			
 			$('.progress-clock').timer('pause');
 			$('.success-total').text(s);
 			$('#completion').show();	
 		});
+	}
+	
+	function eddPupAjaxPause(){
+		
+	}
+	
+	function eddPupAjaxResume(){
+		
+	}
+	
+	function eddPupAjaxRetry(seconds) {
+        if (this.paused) {
+            return;
+        }
+        this.set_status('request failed (retry in ' + seconds + 's)');
+        if (seconds) {
+            var me = this;
+            setTimeout(function() {
+                me.retry(--seconds);
+            }, 1000);
+        } else {
+            this.set_status('processing');
+            this.process();
+        }
+
+	}
+	
+	function eddPupAjaxInit(){
+        var me = this;
+        jQuery('#cdn_export_file_start').click(function() {
+            if (this.value == 'Pause') {
+                me.paused = 1;
+                me.set_button_text('Resume');
+                me.set_status('paused');
+                clearInterval(me.timer);
+            } else {
+                if (this.value == 'Start') {
+                    me.offset = 0;
+                    me.seconds_elapsed = 0;
+                    me.clear_log();
+                    me.set_progress(0);
+                    me.set_elapsed('-');
+                }
+                me.paused = 0;
+                me.set_button_text('Pause');
+                me.set_status('processing');
+                me.timer = setInterval(function() {
+                    me.timer_callback();
+                }, 1000);
+            }
+
+            me.process();
+        });
+    
 	}
 
 });// End of document ready

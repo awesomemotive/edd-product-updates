@@ -23,6 +23,8 @@ This extension allows you to send specialized product update emails to your cust
 
 **EDD Software Licensing Integration**. Choose whether to send product update emails to those customers who have active subscription licenses for those products in which EDD Software Licensing is being used. Customers with expired or inactive licenses won't receive update emails when enabled.
 
+**Batch Sending of Emails**. For those with large customer lists, the extension breaks up emails into batches and sends them in the background (with a front-end UI to show you the progress) so you don't have to worry about the process timing out PHP on your server.
+
 ## Installation
 1. Download plugin as .zip
 2. Go to Plugins -> Add New in WordPress Dashboard

@@ -14,26 +14,32 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+/**
+ * Register custom edd_pup_email post type for storing sent updates
+ * 
+ * @access public
+ * @return void
+ */
 function edd_pup_post_types() {
 
 	$edd_pup_email_labels = array(
-		'name' 				=> _x('Payments', 'post type general name', 'edd' ),
-		'singular_name' 	=> _x('Payment', 'post type singular name', 'edd' ),
+		'name' 				=> _x('Product Update Emails', 'post type general name', 'edd' ),
+		'singular_name' 	=> _x('Product Update Email', 'post type singular name', 'edd' ),
 		'add_new' 			=> __( 'Add New', 'edd' ),
-		'add_new_item' 		=> __( 'Add New Payment', 'edd' ),
-		'edit_item' 		=> __( 'Edit Payment', 'edd' ),
-		'new_item' 			=> __( 'New Payment', 'edd' ),
-		'all_items' 		=> __( 'All Payments', 'edd' ),
-		'view_item' 		=> __( 'View Payment', 'edd' ),
-		'search_items' 		=> __( 'Search Payments', 'edd' ),
-		'not_found' 		=>  __( 'No Payments found', 'edd' ),
-		'not_found_in_trash'=> __( 'No Payments found in Trash', 'edd' ),
+		'add_new_item' 		=> __( 'Add New Update Email', 'edd' ),
+		'edit_item' 		=> __( 'Edit Update Email', 'edd' ),
+		'new_item' 			=> __( 'New Update Email', 'edd' ),
+		'all_items' 		=> __( 'All Update Emails', 'edd' ),
+		'view_item' 		=> __( 'View Update Email', 'edd' ),
+		'search_items' 		=> __( 'Search Update Emails', 'edd' ),
+		'not_found' 		=>  __( 'No Update Email found', 'edd' ),
+		'not_found_in_trash'=> __( 'No update emails found in Trash', 'edd' ),
 		'parent_item_colon' => '',
-		'menu_name' 		=> __( 'Payment History', 'edd' )
+		'menu_name' 		=> __( 'Product Updates', 'edd' )
 	);
 
 	$edd_pup_email_args = array(
-		//'labels' 			=> apply_filters( 'edd_payment_labels', $payment_labels ),
+		'labels' 			=> apply_filters( 'edd_pup_email_labels', $edd_pup_email_labels ),
 		'public' 			=> false,
 		'query_var' 		=> false,
 		'rewrite' 			=> false,
@@ -48,8 +54,3 @@ function edd_pup_post_types() {
 }
 
 add_action( 'init', 'edd_pup_post_types' );
-
-/* Create the email post when initial send button is pressed and store the post_id into a transient for 24 hours.
- * Update the post if the button is pressed again.
- * If confirm send button is pressed, move the email from draft to publish and clear the transient afterward.
-*/

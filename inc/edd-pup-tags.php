@@ -63,8 +63,8 @@ function edd_pup_products_tag($payment_id) {
 			$productlist .= '</ul>';
 			
 		} else {
-			
-			$productlist .= '<li>'. $product['name'] .'</li>';
+			$productlist .= '<li>'. get_the_title( $product['id'] ) .'</li>';
+			//$productlist .= '<li>'. $product['name'] .'</li>';
 		}
 	}
 
@@ -109,8 +109,9 @@ function edd_pup_products_links_tag($payment_id) {
 				$price_id = edd_get_cart_item_price_id( $item );
 
 				if ( $show_names ) {
-
-					$title = $item['name'];
+					
+					$title = get_the_title( $item['id'] );
+					//$title = $item['name'];
 
 					if ( ! empty( $sku ) ) {
 						$title .= "&nbsp;&ndash;&nbsp;" . __( 'SKU', 'edd' ) . ': ' . $sku;

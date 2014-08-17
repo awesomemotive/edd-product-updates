@@ -73,6 +73,32 @@
 	display: inline-block; 
 }
 
+#edd-pup-queue-details {
+	margin: 0 auto;
+	padding: 0 20px;
+	max-width: 640px;
+}
+
+.edd-pup-queue-email,
+#edd-pup-queue-buttons {
+	border-top: 1px solid #cecece;
+}
+
+#edd-pup-queue-buttons {
+	padding-top: 20px;
+	text-align: center;
+}
+
+#edd-pup-queue-buttons #edd-pup-send-all-queue {
+	margin-right: 10px;
+}
+
+#edd-pup-queue-buttons .closebutton {
+	display: block;
+	margin: 20px auto 0;
+}
+
+
 /* Progress Bar */
 
 #prod-updates-email-ajax-start {
@@ -144,6 +170,26 @@
  *       See this article for more info and a potential fix:
  *       http://css-tricks.com/webkit-sibling-bug/
  */
+.progress-bar.red {
+  background-color: #f63a0f;	
+}
+
+.progress-bar.orange {
+  background-color: #f27011;	
+}
+
+.progress-bar.yellorange {
+  background-color: #f2b01e;	
+}
+
+.progress-bar.yellow {
+  background-color: #f2d31b;	
+}
+
+.progress-bar.green {
+  background-color: #86e01e;
+}
+
 .progress-bar[data-complete="0"],
 .progress-bar[data-complete="5"],
 .progress-bar[data-complete="10"],

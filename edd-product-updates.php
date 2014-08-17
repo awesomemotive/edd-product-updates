@@ -23,10 +23,93 @@ require( 'inc/edd-pup-submenu.php');
 require( 'inc/edd-pup-ajax.php');
 
 /**
+ * Register custom database table name into $wpdb global
+ * 
+ * @access public
+ * @return void
+ * @since 0.9.2
+ */
+function edd_pup_register_table() {
+    global $wpdb;
+    $wpdb->edd_pup_queue = "{$wpdb->prefix}edd_pup_queue";
+}
+add_action( 'init', 'edd_pup_register_table', 1 );
+add_action( 'switch_blog', 'edd_pup_register_table' );
+
+
+/**
+ * Create custom database table for email send queue
+ * 
+ * @access public
+ * @return void
+ * @since 0.9.2
+ */
+function edd_pup_create_tables() {
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    
+	global $wpdb;
+	global $charset_collate;
+	
+	edd_pup_register_table();
+	
+	$sql_create_table = "CREATE TABLE {$wpdb->edd_pup_queue} (
+          eddpup_id bigint(20) unsigned NOT NULL auto_increment,
+          customer_id bigint(20) unsigned NOT NULL default '0',
+          email_id bigint(20) unsigned NOT NULL default '0',
+          sent bool NOT NULL default '0',
+          sent_date timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+          PRIMARY KEY  (eddpup_id),
+          KEY customer_id (customer_id)
+     ) $charset_collate; ";
+ 
+	 dbDelta( $sql_create_table );
+}
+register_activation_hook( __FILE__, 'edd_pup_create_tables' );
+
+
+/**
+ * Removes ALL data on plugin uninstall including custom db table,
+ * all transients, and all saved email sends (custom post type)
+ * 
+ * @access public
+ * @return void
+ * @since 0.9.2
+ */
+function edd_pup_uninstall(){
+    global $wpdb;
+    
+    //Remove our table (if it exists)
+    $wpdb->query("DROP TABLE IF EXISTS $wpdb->edd_pup_queue");
+    
+    //Remove all email posts
+    $wpdb->query("DELETE FROM $wpdb->posts WHERE post_type = 'edd_pup_email'");
+    
+    //Remove all custom metadata from postmeta table
+    $wpdb->query("DELETE FROM $wpdb->postmeta WHERE meta_key IN ( '_edd_pup_from_name' , '_edd_pup_from_email' , '_edd_pup_subject' , '_edd_pup_message' , '_edd_pup_headers' , '_edd_pup_updated_products' )");
+         
+    //Remove the database version
+    delete_option('wptuts_activity_log_version');
+ 
+    //Remove any leftover transients
+	$customers = edd_pup_get_all_customers();	
+	
+	foreach ($customers as $customer){
+		delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
+	}
+	delete_transient( 'edd_pup_email_id' );
+	delete_transient( 'edd_pup_all_customers' );
+	delete_transient( 'edd_pup_subject' );	
+	delete_transient( 'edd_pup_email_body_header' );
+	delete_transient( 'edd_pup_email_body_footer' );
+}
+register_uninstall_hook(__FILE__,'edd_pup_uninstall');
+
+/**
  * Register and enqueue necessary JS and CSS files
  * 
  * @access public
  * @return void
+ * @since 0.9
  */
 function edd_pup_scripts() {
         wp_register_script( 'edd_prod_updates_js', plugins_url(). '/edd-product-updates/assets/edd-pup.js', false, '1.0.0' );
@@ -43,6 +126,7 @@ add_action( 'admin_enqueue_scripts', 'edd_pup_scripts' );
  * @access public
  * @param mixed $edd_settings
  * @return array EDD Settings
+ * @since 0.9
  */
 function edd_pup_settings ( $edd_settings ) {
         $products = array();
@@ -137,6 +221,7 @@ add_filter( 'edd_settings_emails', 'edd_pup_settings' );
  *
  * @access private
  * @global $edd_options Array of all the EDD Options
+ * @since 0.9
 */
 function edd_pup_email_template_buttons() {
 	
@@ -168,6 +253,7 @@ add_action( 'edd_prod_updates_email_settings', 'edd_pup_email_template_buttons' 
  * 
  * @access public
  * @return void
+ * @since 0.9
  */
 function edd_pup_email_confirm_html(){
 
@@ -368,7 +454,7 @@ function edd_pup_create_email( $email_id = false ){
 		$create_id = wp_insert_post( $post );
 		
 		// Insert custom meta for newly created post
-		if ( 0 != $email_id )	{
+		if ( 0 != $create_id )	{
 			add_post_meta ( $create_id, '_edd_pup_from_name', $from_name, true );
 			add_post_meta ( $create_id, '_edd_pup_from_email', $from_email, true );
 			add_post_meta ( $create_id, '_edd_pup_subject', $edd_options['prod_updates_subject'], true );
@@ -500,7 +586,8 @@ function edd_pup_trigger_email( $payment_id, $_subject, $_message, $headers ) {
 	// Allow add-ons to add file attachments
 	$attachments = apply_filters( 'edd_pup_attachments', array(), $payment_id, $payment_data );
 	if ( apply_filters( 'edd_email_purchase_receipt', true ) ) {
-		wp_mail( $email, $subject, $message, $headers, $attachments );
+		//$mailresult = wp_mail( $email, $subject, $message, $headers, $attachments );
+		$mailresult = true;
 	}
 	
 	// Update payment notes to log this email being sent	
@@ -509,6 +596,8 @@ function edd_pup_trigger_email( $payment_id, $_subject, $_message, $headers ) {
     $finish = microtime(TRUE);
     $totaltime = $finish - $start; 
     write_log('edd_pup_trigger_email took '.$totaltime.' seconds to execute.');
+    
+    return $mailresult;
 }
 
 /**
@@ -595,7 +684,9 @@ function edd_pup_get_all_customers(){
  */
 function edd_pup_eligible_updates( $payment_id, $updated_products, $object = true ){
 	
-	$customer_updates = get_transient( 'edd_pup_eligible_updates_'.$payment_id );
+	//$customer_updates = get_transient( 'edd_pup_eligible_updates_'.$payment_id );
+	
+	$customer_updates = false;
 	
 	if ( false === $customer_updates ) {
 		global $edd_options;
@@ -667,24 +758,11 @@ function edd_pup_get_license_keys( $payment_id ){
 }
 
 // Helper function for debugging performance
-if (!function_exists('write_log')) {
+function write_log ( $log )  {
 
-    function write_log ( $log )  {
-
-        if ( true === WP_DEBUG ) {
-
-            //if ( is_array( $log ) || is_object( $log ) ) {
-
-                //error_log( print_r( $log, true ) );
-
-           // } else {
-
-                error_log( $log );
-
-            //}
-
-        }
-
+    if ( true === WP_DEBUG ) {
+    
+            error_log( $log );
     }
-
 }
+
