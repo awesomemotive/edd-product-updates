@@ -66,6 +66,7 @@ function edd_pup_progress_html() {
 
 function edd_pup_queue_details() {
 	$email_list = edd_pup_queue_emails();
+	$n = count($email_list);
 		?>
 		<div id="edd-pup-queue-details-wrap" style="display:none;">
 		<div id="edd-pup-queue-details">
@@ -86,12 +87,14 @@ function edd_pup_queue_details() {
 						<li><strong>Last Send Attempt:</strong> <?php echo date( 'M jS, Y g:i A T', strtotime($queue['date']) );?></li>
 						<li><a href="#">View Email Details</a></li>				
 					</ul>
-					<!-- <div class="button primary-button">Send Remaining Emails</div> -->
+					<?php if ( $n > 1 ): ?>
+					<div class="button primary-button" data-email="<?php echo $email;?>">Send Remaining Emails</div>
+					<?php endif; ?>
 				</div><!-- end #edd-pup-queue-email-<?php echo $i;?> -->
 		<?php endforeach; ?>
 			<div id="edd-pup-queue-buttons">
 		<?php	
-		echo submit_button('Send All Emails', 'primary', 'edd-pup-send-all-queue', false);
+		echo submit_button('Send All Emails', 'primary', 'edd-pup-send-all-queue', false, array('data-email','all'));
 		echo submit_button('Clear the Queue', 'secondary', 'edd-pup-empty-queue', false);
 		echo '<button class="closebutton button button-secondary">Close Window</button>';
 		echo '</div><!-- end #edd-pup-queue-buttons -->
