@@ -9,6 +9,79 @@
  *
 */
 
+/* List table stylings */
+.edd-pup-list #the-list .column-status {
+	font-weight: bold;
+}
+.edd-pup-list #the-list .column-status .publish,
+#edd-pup-admin-email .status-publish {
+	color: green;
+	font-weight: bold;
+}
+
+#edd-pup-admin-email #minor-publishing-actions a {
+	text-align: center;
+}
+
+#edd-pup-admin-email #edd-pup-save-email-changes {
+	float: left;
+}
+
+#edd-pup-admin-email #test-action {
+	padding: 10px;
+}
+
+#edd-pup-admin-email #test-action input {
+	width: 95%;
+	margin: 0 auto;
+}
+
+#edd-pup-admin-email .tag-list {
+	padding: 10px;
+}
+
+#edd-pup-admin-email .tag-list .template-tag {
+	margin: 0.5em 0 0;
+}
+
+#edd-pup-admin-email .tag-list .tag-description {
+	margin-top: 0;
+	font-style: italic;
+	color: #666;
+}
+
+#edd-pup-admin-email p.description {
+	margin-bottom: 15px;
+}
+
+#edd-pup-admin-email .edd-pup-action {
+	display: inline-block;
+	padding: 20px 0;
+}
+
+/* Admin email stylings */
+#edd-pup-admin-email #message-preview {
+	padding: 10px 20px;
+	border: 1px solid #e6e6e6;
+}
+
+#edd-pup-admin-email .view-buttons,
+#edd-pup-admin-email div.submit {
+	/*display: block;
+	clear: both;*/
+}
+
+#edd-pup-admin-email #updated-products {
+	list-style-type: disc;
+    margin-left: 1.5em;
+    list-style-position: inside;
+}
+
+
+#edd-pup-admin-email #updated-products li a {
+	text-decoration: none;
+}
+
 #prod-updates-email-confirm-titles,
 #prod-updates-email-preview-confirm h3,
 #prod-updates-email-preview-footer {
@@ -79,12 +152,13 @@
 	max-width: 640px;
 }
 
-.edd-pup-queue-email,
-#edd-pup-queue-buttons {
+.edd-pup-queue-email {
 	border-top: 1px solid #cecece;
+	padding: 0 0 20px;
 }
 
 #edd-pup-queue-buttons {
+	border-top: 1px solid #cecece;
 	padding-top: 20px;
 	text-align: center;
 }

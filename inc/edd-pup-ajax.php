@@ -37,6 +37,9 @@ function edd_pup_ajax_start( $data ){
 		$email_id = $_GET('email_id');
 	}
 	
+	// Update email status as in processing
+	// add_post_meta ( $email_id, '_edd_pup_status', 'processing', true );
+	
 	$payments = edd_pup_get_all_customers();
 	$precount = edd_pup_customer_count();
 	$realcount = 0;
@@ -189,3 +192,29 @@ function edd_pup_ajax_end(){
 		
 }
 add_action( 'wp_ajax_edd_pup_ajax_end', 'edd_pup_ajax_end' );
+
+function edd_pup_clear_queue( $email ) {
+	global $wpdb;
+	
+	// Update email post status to publish
+	//wp_publish_post( get_transient('edd_pup_email_id') );
+	
+	// Clear customer transients
+	$payments = edd_pup_get_all_customers();
+	
+	foreach ($payments as $customer){
+		delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
+	}
+	
+	// Clear queue
+	$wpdb->delete( );
+	
+	$wpdb->query("TRUNCATE TABLE $wpdb->edd_pup_queue");
+
+	// Flush remaining transients
+	delete_transient( 'edd_pup_email_id' );
+	delete_transient( 'edd_pup_all_customers' );
+	delete_transient( 'edd_pup_subject' );	
+	delete_transient( 'edd_pup_email_body_header' );
+	delete_transient( 'edd_pup_email_body_footer' );		
+}

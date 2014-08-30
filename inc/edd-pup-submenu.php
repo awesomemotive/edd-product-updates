@@ -13,10 +13,43 @@ Contributors: Evan Luzi
  */
 function edd_add_prod_update_submenu() {
 
-	add_submenu_page( 'edit.php?post_type=download', __( 'Easy Digital Download Email Product Updates', 'edd' ), __( 'Product Updates', 'edd' ), 'install_plugins', 'edd-prod-updates', 'edd_pup_progress_html' );
+	add_submenu_page( 'edit.php?post_type=download', __( 'Easy Digital Download Email Product Updates', 'edd' ), __( 'Product Updates', 'edd' ), 'install_plugins', 'edd-prod-updates', 'edd_pup_admin_page' );
+	//add_submenu_page( 'edit.php?post_type=download', __( 'Easy Digital Download Email Product Updates', 'edd' ), __( 'Product Updates', 'edd' ), 'install_plugins', 'edit.php?post_type=download&page=edd-prod-updates', 'edd_pup_admin_page');
 }
 add_action( 'admin_menu', 'edd_add_prod_update_submenu', 10 );
 
+function edd_pup_admin_page() {
+	if ( isset( $_GET['view'] ) && $_GET['view'] == 'edit_pup_email' ) {
+		require 'edit-pup-email.php';
+	} else if ( isset( $_GET['view'] ) && $_GET['view'] == 'add_pup_email' ) {
+		require 'add-pup-email.php';
+	} else if ( isset( $_GET['view'] ) && $_GET['view'] == 'view_pup_email' ) {
+		require 'view-pup-email.php';
+	} else if ( isset( $_GET['view'] ) && $_GET['view'] == 'popup' ) {
+		require 'popup.php';
+	} else {
+	require_once ( 'class-edd-pup-table.php' );
+	$receipts_table = new EDD_Pup_Table();
+	$receipts_table->prepare_items();
+			?>
+
+			<div class="wrap edd-pup-list">
+				<h2><?php _e( 'Product Update Emails', 'edd-pup' ); ?><a href="<?php echo add_query_arg( array( 'view' => 'add_pup_email', 'edd-message' => false ) ); ?>" class="add-new-h2"><?php _e( 'Send New Email', 'edd-pup' ); ?></a></h2>
+				<?php do_action( 'edd_receipts_page_top' ); ?>
+				<form id="edd-receipts-filter" method="get" action="<?php echo admin_url( 'edit.php?post_type=download&page=edd-receipts' ); ?>">
+					<?php $receipts_table->search_box( __( 'Search', 'edd-ppe' ), 'edd-receipts' ); ?>
+
+					<input type="hidden" name="post_type" value="download" />
+					<input type="hidden" name="page" value="edd-receipts" />
+
+					<?php $receipts_table->views() ?>
+					<?php $receipts_table->display() ?>
+				</form>
+				<?php do_action( 'edd_receipts_page_bottom' ); ?>
+			</div>
+		<?php
+	}
+}
 
 /**
  * Temporary: Front end UI for AJAX batch sending of emails. Will be moved
@@ -88,14 +121,15 @@ function edd_pup_queue_details() {
 						<li><a href="#">View Email Details</a></li>				
 					</ul>
 					<?php if ( $n > 1 ): ?>
-					<div class="button primary-button" data-email="<?php echo $email;?>">Send Remaining Emails</div>
+					<div class="button primary-button edd-pup-queue-button" data-action="edd-pup-send-queue" data-email="<?php echo $email;?>">Send Remaining Emails</div>
+					<div class="button primary-button edd-pup-queue-button" data-action="edd-pup-empty-queue" data-email="<?php echo $email;?>">Clear From Queue</div>
 					<?php endif; ?>
 				</div><!-- end #edd-pup-queue-email-<?php echo $i;?> -->
 		<?php endforeach; ?>
 			<div id="edd-pup-queue-buttons">
 		<?php	
-		echo submit_button('Send All Emails', 'primary', 'edd-pup-send-all-queue', false, array('data-email','all'));
-		echo submit_button('Clear the Queue', 'secondary', 'edd-pup-empty-queue', false);
+		echo submit_button('Send All Emails', 'primary', 'edd-pup-send-queue-all', false, array('data-email'=> 'all', 'data-action' => 'edd-pup-send-queue', 'class' => 'edd-pup-queue-button' ));
+		echo submit_button('Clear the Queue', 'secondary', 'edd-pup-empty-queue-all', false, array('data-email'=> 'all', 'data-action' => 'edd-pup-empty-queue', 'class' => 'edd-pup-queue-button' ));
 		echo '<button class="closebutton button button-secondary">Close Window</button>';
 		echo '</div><!-- end #edd-pup-queue-buttons -->
 			  </div><!-- end #edd-pup-queue-details -->

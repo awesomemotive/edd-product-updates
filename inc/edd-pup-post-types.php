@@ -23,8 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function edd_pup_post_types() {
 
 	$edd_pup_email_labels = array(
-		'name' 				=> _x('Product Update Emails', 'post type general name', 'edd' ),
-		'singular_name' 	=> _x('Product Update Email', 'post type singular name', 'edd' ),
+		'name' 				=> __('Product Update Emails', 'post type general name', 'edd' ),
+		'singular_name' 	=> __('Product Update Email', 'post type singular name', 'edd' ),
 		'add_new' 			=> __( 'Add New', 'edd' ),
 		'add_new_item' 		=> __( 'Add New Update Email', 'edd' ),
 		'edit_item' 		=> __( 'Edit Update Email', 'edd' ),
@@ -40,13 +40,14 @@ function edd_pup_post_types() {
 
 	$edd_pup_email_args = array(
 		'labels' 			=> apply_filters( 'edd_pup_email_labels', $edd_pup_email_labels ),
-		'public' 			=> false,
+		'public' 			=> true,
 		'query_var' 		=> false,
 		'rewrite' 			=> false,
-		'show_ui'			=> false,
-		'capability_type' 	=> 'manage_shop_settings',
-		'map_meta_cap'      => true,
-		'supports' 			=> array( 'title' ),
+		'show_ui'			=> true,
+		'show_in_menu'		=> 'edit.php?post_type=download&page=edd-prod-updates',
+		'capability_type' 	=> 'install_plugins',
+		//'map_meta_cap'      => true,
+		'supports' 			=> array( 'title', 'editor', 'thumbnail', 'excerpt', 'revisions' ),
 		'can_export'		=> true
 	);
 	

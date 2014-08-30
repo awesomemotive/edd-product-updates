@@ -14,7 +14,7 @@ jQuery(document).ready(function ($) {
 			$.fn.colorbox.close();
 		});
 		
-
+		if ( $('.edd-pup-queue-button').length ){
 		$('#edd-pup-view-queue-alert').colorbox({
 				inline: true,
 				href: $('#edd-pup-queue-details'),
@@ -22,11 +22,13 @@ jQuery(document).ready(function ($) {
 				maxWidth: '680px',
 				height: 'auto'			
 		});
+		}
 		
-		$('#edd-pup-empty-queue').click( function() {
-			if (doClear.length) {
-				var doClear = confirm('Empty the Queue?');
-			}
+		// used for queue resolution popup from alert
+		if ( $('.edd-pup-queue-button').length ){
+		$('.edd-pup-queue-button').click( function() {
+			
+			var doClear = confirm('Empty the Queue?');
 			
 			if ( doClear ) {
 				$.fn.colorbox.close();
@@ -35,7 +37,36 @@ jQuery(document).ready(function ($) {
 			}
 
 		});
-
+		}
+jQuery('#edd-pup-open-preview').mousedown( function() {
+    tinyMCE.triggerSave();
+    }); 
+    
+	function emailPreview() {
+	
+		var	button = $('#edd-pup-open-preview');
+		
+           button.click( function () {
+          		tinyMCE.triggerSave();
+           		var url = document.URL,
+           			form = $('#edd-pup-email-edit').serialize(),
+           			data = {'action': 'edd_pup_ajax_save', 'form' : form };         
+                
+                $.post( ajaxurl, data ).error( function() {
+                
+                        alert('Could not process emails. Please try again.');
+						button.prop("disabled", false);
+											
+                    }).success( function( response ) {
+                    
+						$.colorbox({html:response});		
+					
+					});
+            });
+            
+          }
+            
+	emailPreview();
 	
 	function emailConfirmPreview() {
 	
@@ -73,7 +104,7 @@ jQuery(document).ready(function ($) {
                 });
             }
             
-	emailConfirmPreview();
+	//emailConfirmPreview();
 	
 	function eddPupAjaxSend() {
 		var button = $('#edd-pup-ajax-btn'),
