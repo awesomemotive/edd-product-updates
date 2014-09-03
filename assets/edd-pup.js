@@ -38,19 +38,21 @@ jQuery(document).ready(function ($) {
 
 		});
 		}
-jQuery('#edd-pup-open-preview').mousedown( function() {
-    tinyMCE.triggerSave();
-    }); 
     
 	function emailPreview() {
 	
 		var	button = $('#edd-pup-open-preview');
 		
-           button.click( function () {
+           button.mousedown( function() {
+           
+			   	tinyMCE.triggerSave();
+			   		
+  				}).click( function () {
+  				
           		tinyMCE.triggerSave();
            		var url = document.URL,
            			form = $('#edd-pup-email-edit').serialize(),
-           			data = {'action': 'edd_pup_ajax_save', 'form' : form };         
+           			data = {'action': 'edd_pup_ajax_preview', 'form' : form };         
                 
                 $.post( ajaxurl, data ).error( function() {
                 
@@ -67,6 +69,37 @@ jQuery('#edd-pup-open-preview').mousedown( function() {
           }
             
 	emailPreview();
+	
+	function emailTest() {
+	
+		var	button = $('#edd-pup-send-test');
+		
+           button.mousedown( function() {
+           
+			   	tinyMCE.triggerSave();
+			   		
+  				}).click( function () {
+  				
+          		tinyMCE.triggerSave();
+           		var url = document.URL,
+           			form = $('#edd-pup-email-edit').serialize(),
+           			data = {'action': 'edd_pup_send_test_email', 'form' : form };         
+                
+                $.post( ajaxurl, data ).error( function() {
+                
+                        alert('Could not process emails. Please try again.');
+						button.prop("disabled", false);
+											
+                    }).success( function( response ) {
+                    
+						$.colorbox({html:response});		
+					
+					});
+            });
+            
+          }
+            
+	emailTest();
 	
 	function emailConfirmPreview() {
 	

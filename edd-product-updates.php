@@ -840,11 +840,11 @@ function edd_pup_delete_email( $data ) {
 }
 add_action( 'edd_pup_delete_email', 'edd_pup_delete_email' );
 
-function edd_pup_ajax_save() {
+function edd_pup_ajax_save( $posted ) {
 	
 	// Convert form data to array
 	$data = array();
-	parse_str($_POST['form'], $data );
+	parse_str($posted['form'], $data );
 	
 	//Sanitize our data
 	$data['message'] 	= wp_kses_post( $data['message'] );
@@ -852,22 +852,32 @@ function edd_pup_ajax_save() {
 	$data['recipients']	= absint( $data['recipients'] );
 	$data['from_name'] 	= sanitize_text_field( $data['from_name'] );
 	$data['from_email'] = sanitize_email( $data['from_email'] );
-	$data['title']		= sanitize_title( $data['title'], 'ID:'. $data['email-id'], 'save' );
+	$data['title']		= sanitize_text_field( $data['title'], 'ID:'. $data['email-id'], 'save' );
 	$data['subject']	= sanitize_text_field( $data['subject'] );;
 	$data['product']	= filter_var_array( $data['product'], FILTER_SANITIZE_STRING );	
 	
-	edd_pup_save_email( $data, $data['email-id'] );
+	return edd_pup_save_email( $data, $data['email-id'] );
+}
+
+function edd_pup_ajax_preview() {
 	
-	$email = get_post( $data['email-id'] );
+	$email_id = edd_pup_ajax_save( $_POST );
 	
-	// Use $template_name = apply_filters( 'edd_email_template', $template_name, $payment_id );
-	add_filter('edd_email_template', 'edd_pup_template' );
+	if ( 0 != $email_id ){
 	
-	echo edd_apply_email_template( $email->post_content, null, null );
+		$email = get_post( $email_id );
+		
+		// Use $template_name = apply_filters( 'edd_email_template', $template_name, $payment_id );
+		add_filter('edd_email_template', 'edd_pup_template' );
+		
+		echo edd_apply_email_template( $email->post_content, null, null );
+	} else {
+		_e('There was an error retrieving the post. Please contact support.', 'edd-pup');
+	}
 	
 	die();
 }
-add_action( 'wp_ajax_edd_pup_ajax_save', 'edd_pup_ajax_save' );
+add_action( 'wp_ajax_edd_pup_ajax_preview', 'edd_pup_ajax_preview' );
 
 /**
  * Trigger the sending of a Product Update Test Email
@@ -875,20 +885,23 @@ add_action( 'wp_ajax_edd_pup_ajax_save', 'edd_pup_ajax_save' );
  * @param array $data Parameters sent from Settings page
  * @return void
  */
-function edd_pup_send_test_email( $data ) {
-	if ( ! wp_verify_nonce( $data['_wpnonce'], 'edd-pup-test-nonce' ) )
-		return;
+function edd_pup_send_test_email() {
+	//if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'edd-pup-test-nonce' ) )
+	//	return;
 	
-	//edd_pup_save_email( $data, $data['id'] );
+	$form = array();
+	parse_str($_POST['form'], $form );
+	
+	$email_id = edd_pup_ajax_save( $_POST );
 	
 	// Send a test email
-    //edd_pup_test_email( $data['id'], $data['test-email'] );
-    edd_pup_test_email( $data['id'], 'evantest@theblackandblue.com' );
-
-    // Remove the test email query arg
-    wp_redirect( admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=edit_pup_email&id='.$data['id'] ) ); exit;
+    edd_pup_test_email( $email_id, $form['test-email'] );
+	
+	echo 'Test SEnt';
+	
+    die();
 }
-add_action( 'edd_pup_send_test_email', 'edd_pup_send_test_email' );
+add_action( 'wp_ajax_edd_pup_send_test_email', 'edd_pup_send_test_email' );
 
 /**
  * Email the product update test email to the admin account
