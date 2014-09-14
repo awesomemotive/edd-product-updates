@@ -213,86 +213,6 @@ function edd_pup_email_template_buttons() {
 }
 add_action( 'edd_prod_updates_email_settings', 'edd_pup_email_template_buttons' );
 
-/**
- * Generates HTML for email confirmation via AJAX on send button press
- * 
- * @access public
- * @return void
- * @since 0.9
- */
-function edd_pup_email_confirm_html(){
-
-	global $edd_options;
-	$products = $edd_options['prod_updates_products'];
-	$productlist = '';
-	
-	foreach ($products as $product) {
-		$productlist .= '<li>'.$product.'</li>';
-	}
-	
-	$email_id = get_transient( 'edd_pup_email_id' );
-	
-	// Creates the email post-type or updates it if transient isn't set
-	edd_pup_create_email( $email_id );
-	
-	if ( 0 !== $email_id ) {
-	
-		delete_transient( 'edd_pup_all_customers' );
-		delete_transient( 'edd_pup_subject' );
-		
-		$payments = edd_pup_get_all_customers();
-		
-		foreach ( $payments as $customer ){
-			delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
-		}	
-	
-	}
-	
-	$nonceurl = add_query_arg( array( 'edd_action' => 'pup_send_emails' ), $_POST['url'] );
-	$ajaxnonce = add_query_arg( array( 'edd_action' => 'pup_send_ajax', 'email_id' => get_transient( 'edd_pup_email_id' ) ), 'http://tbabloc.dev/wp-admin/edit.php?post_type=download&page=edd-prod-updates');
-	
-	$customercount = edd_pup_customer_count();
-	$default_email_body = 'This is the default body';
-	$email_body = isset( $edd_options['prod_updates_message'] ) ? stripslashes( $edd_options['prod_updates_message'] ) : $default_email_body;
-	
-	ob_start();
-	?>
-		<!-- Begin send email confirmation message -->
-			<div id="prod-updates-email-preview-confirm">
-				<div id="prod-updates-email-confirm-titles">
-					<h2><strong>Almost Ready to Send!</strong></h2>
-					<p>Please carefully check the information below before sending your emails.</p>
-				</div>
-					<div id="prod-updates-email-preview-message">
-						<div id="prod-updates-email-preview-header">
-							<h3>Email Message Preview</h3>
-							<ul class="prod-updates-email-confirm-info">
-								<li><strong>From:</strong> <?php echo $edd_options['prod_updates_from_name'];?> (<?php echo $edd_options['prod_updates_from_email'];?>)</li>
-								<li><strong>Subject:</strong> <?php echo $edd_options['prod_updates_subject'];?></li>
-							</ul>
-						</div>
-				<?php echo edd_apply_email_template( $email_body, null, null ); ?>
-				<div id="prod-updates-email-preview-footer">
-					<h3>Additional Information</h3>
-						<ul class="prod-updates-email-confirm-info">
-							<li><strong>Updated Products:</strong></li>
-								<ul id="prod-updates-email-confirm-prod-list">
-									<?php echo $productlist;?>
-								</ul>
-							<li><strong>Recipients:</strong> <?php echo $customercount;?> customers will receive this email and have their downloads reset</li>
-						</ul>
-						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_send_emails' ); ?>" id="prod-updates-email-send" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?></a>
-						<button class="closebutton button button-secondary">Close without sending</button>
-						<a href="<?php echo wp_nonce_url( $ajaxnonce, 'edd_pup_email_loop_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button">Ajax Test</a>
-					</div>
-				</div>
-			<!-- End send email confirmation message -->
-	<?php
-	echo ob_get_clean();
-	
-	die();
-}
-add_action( 'wp_ajax_edd_pup_confirm_ajax', 'edd_pup_email_confirm_html' );
 
 /**
  * Trigger the sending of a Product Update Email
@@ -840,6 +760,12 @@ function edd_pup_delete_email( $data ) {
 }
 add_action( 'edd_pup_delete_email', 'edd_pup_delete_email' );
 
+function edd_pup_bulk_delete( $id = 0 ) {
+	
+	return wp_delete_post( $id , true );
+	
+}
+
 function edd_pup_ajax_save( $posted ) {
 	
 	// Convert form data to array
@@ -897,7 +823,7 @@ function edd_pup_send_test_email() {
 	// Send a test email
     edd_pup_test_email( $email_id, $form['test-email'] );
 	
-	echo 'Test SEnt';
+	echo 'Test Sent with function edd_pup_send_test_email';
 	
     die();
 }
@@ -926,6 +852,7 @@ function edd_pup_test_email( $email_id, $to = null ) {
 	$message .= apply_filters( 'edd_prod_updates_message', edd_email_preview_template_tags( $body ), 0, array() );
 	$message .= edd_get_email_body_footer();
 
+//CHANGE THIS//
 	$from_name = isset( $emailmeta['from_name'] ) ? $emailmeta['from_name'] : get_bloginfo('name');
 	$from_email = isset( $emailmeta['from_email'] ) ? $emailmeta['from_email'] : get_option('admin_email');
 
@@ -960,6 +887,99 @@ function edd_pup_test_email( $email_id, $to = null ) {
 		wp_mail( $recipient, $subject, $message, $headers );
 	}
 }
+
+/**
+ * Generates HTML for email confirmation via AJAX on send button press
+ * 
+ * @access public
+ * @return void
+ * @since 0.9
+ */
+function edd_pup_email_confirm_html(){
+	global $edd_options;
+	
+	$form = array();
+	parse_str($_POST['form'], $form );
+	
+	$email_id = edd_pup_ajax_save( $_POST );
+
+	$email     = get_post( $email_id );
+	$emailmeta = get_post_custom( $email_id );
+    
+	$products = get_post_meta( $email_id, '_edd_pup_updated_products', true );
+	$productlist = '';
+	
+	foreach ( $products as $product_id => $product ) {
+		$productlist .= '<li data-id="'. $product_id .'">'.$product.'</li>';
+	}
+	
+	// Creates the email post-type or updates it if transient isn't set
+	//edd_pup_create_email( $email_id );
+	
+	if ( 0 !== $email_id ) {
+	
+		delete_transient( 'edd_pup_all_customers' );
+		delete_transient( 'edd_pup_subject' );
+		
+		$payments = edd_pup_get_all_customers();
+		
+		foreach ( $payments as $customer ){
+			delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
+		}	
+	
+	}
+	
+	//$nonceurl = add_query_arg( array( 'edd_action' => 'pup_send_emails' ), $_POST['url'] );
+	$nonceurl = '#';
+	$ajaxnonce = add_query_arg( array( 'edd_action' => 'pup_send_ajax', 'email_id' => get_transient( 'edd_pup_email_id' ) ), 'http://tbabloc.dev/wp-admin/edit.php?post_type=download&page=edd-prod-updates');
+	
+	$customercount = edd_pup_customer_count( $email_id, $products );
+	
+	// Construct the email message
+	$default_email_body = 'Cannot retrieve message content';
+	$email_body = isset( $email->post_content ) ? stripslashes( $email->post_content ) : $default_email_body;
+	
+	// Construct templated email HTML
+	add_filter('edd_email_template', 'edd_pup_template' );
+	$message = edd_apply_email_template( $email_body, null, null );
+	
+	ob_start();
+	?>
+		<!-- Begin send email confirmation message -->
+			<div id="prod-updates-email-preview-confirm">
+				<div id="prod-updates-email-confirm-titles">
+					<h2><strong>Almost Ready to Send!</strong></h2>
+					<p>Please carefully check the information below before sending your emails.</p>
+				</div>
+					<div id="prod-updates-email-preview-message">
+						<div id="prod-updates-email-preview-header">
+							<h3>Email Message Preview</h3>
+							<ul class="prod-updates-email-confirm-info">
+								<li><strong>From:</strong> <?php echo $emailmeta['_edd_pup_from_name'][0];?> (<?php echo $emailmeta['_edd_pup_from_email'][0];?>)</li>
+								<li><strong>Subject:</strong> <?php echo $emailmeta['_edd_pup_subject'][0];?></li>
+							</ul>
+						</div>
+				<?php echo $message ?>
+				<div id="prod-updates-email-preview-footer">
+					<h3>Additional Information</h3>
+						<ul class="prod-updates-email-confirm-info">
+							<li><strong>Updated Products:</strong></li>
+								<ul id="prod-updates-email-confirm-prod-list">
+									<?php echo $productlist;?>
+								</ul>
+							<li><strong>Recipients:</strong> <?php echo $customercount;?> customers will receive this email and have their downloads reset</li>
+						</ul>
+						<a href="<?php echo wp_nonce_url( $ajaxnonce, 'edd_pup_email_loop_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?></a>
+						<button class="closebutton button-secondary">Close without sending</button>
+					</div>
+				</div>
+			<!-- End send email confirmation message -->
+	<?php
+	echo ob_get_clean();
+	
+	die();
+}
+add_action( 'wp_ajax_edd_pup_confirm_ajax', 'edd_pup_email_confirm_html' );
 
 // Helper function for debugging performance
 function write_log ( $log )  {

@@ -45,9 +45,8 @@ $tags = edd_get_email_tags();
 								<div id="test-action">
 									<p><strong><?php _e( 'Send Test Email To' , 'edd-pup' );?>:</strong></p>
 									<input type="text" class="test-email" name="test-email" id="test-email" placeholder="name@email.com" size="10" />
-									<p class="description"><?php _e( 'Use a comma between emails (max 5).' , 'edd-pup' ); ?></p>
-									<a href="<?php echo wp_nonce_url( add_query_arg( 'edd_action', 'pup_send_test_email' ), 'edd-pup-test-nonce' ); ?>" class="button-secondary"><?php _e( 'Send Test Email', 'edd-pup' ); ?></a>
-									<a href="javascript:void(0);" id="edd-pup-send-test" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Send Ajax Test', 'edd' ); ?></a>
+									<p class="description"><?php _e( 'Use a comma between multiple emails.' , 'edd-pup' ); ?></p>
+									<a href="javascript:void(0);" id="edd-pup-send-test" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Send Test Email', 'edd-pup' ); ?></a>
 									<input type="hidden" name="edd-pup-test-nonce" value="<?php echo wp_create_nonce( 'edd-pup-test-nonce' ); ?>" />
 								</div>
 								<div id="major-publishing-actions">
@@ -85,7 +84,7 @@ $tags = edd_get_email_tags();
 						<div class="inside">
 							<strong><?php _e( 'Email Name', 'edd-pup' ); ?>:</strong>
 							<input type="text" class="regular-text" name="title" id="title" value="<?php echo $email->post_title;?>" size="30" />
-							<p class="description"><?php _e( 'Used for internal use only to help organize product updates (i.e. 2nd Edition eBook Update). Customers will not see this.' , 'edd-pup' ); ?></p>
+							<p class="description"><?php _e( 'For internal use only to help organize product updates – i.e. "2nd Edition eBook Update." Customers will not see this.' , 'edd-pup' ); ?></p>
 							
 							<!-- products -->
 							<strong><?php _e( 'Choose products being updated', 'edd-pup' ) ; ?>:</strong>

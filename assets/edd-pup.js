@@ -106,6 +106,43 @@ jQuery(document).ready(function ($) {
 		var	button = $('#send-prod-updates'),
 			spinner = $('.edd-pu-spin');
 		
+           button.mousedown( function () {
+           		
+           		tinyMCE.triggerSave();
+           		
+           		}).click( function() {
+
+           		var url = document.URL,
+		   		form = $('#edd-pup-email-edit').serialize(),
+           		data = {'action': 'edd_pup_confirm_ajax', 'form' : form };		   		
+
+				$(this).prop("disabled",true);
+				spinner.toggleClass('loading');                
+                $.post( ajaxurl, data ).error( function() {
+                
+                        alert('Could not process emails. Please try again.');
+						spinner.toggleClass('loading');
+						button.prop("disabled", false);
+											
+                    }).success( function(response) {
+                    
+						$.colorbox({html:response});
+						spinner.toggleClass('loading');
+						button.prop("disabled", false);	
+                    });
+                    
+                    return false;    
+                    
+                });
+            }
+            
+	emailConfirmPreview();
+		
+	function emailConfirmPreviewOld() {
+	
+		var	button = $('#send-prod-updates'),
+			spinner = $('.edd-pu-spin');
+		
            button.click( function () {
            		var url = document.URL,
            			form = $('#tab_container form').serialize();
@@ -137,7 +174,7 @@ jQuery(document).ready(function ($) {
                 });
             }
             
-	//emailConfirmPreview();
+	//emailConfirmPreviewOld();
 	
 	function eddPupAjaxSend() {
 		var button = $('#edd-pup-ajax-btn'),

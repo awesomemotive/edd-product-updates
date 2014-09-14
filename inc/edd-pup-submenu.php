@@ -29,23 +29,21 @@ function edd_pup_admin_page() {
 		require 'popup.php';
 	} else {
 	require_once ( 'class-edd-pup-table.php' );
-	$receipts_table = new EDD_Pup_Table();
-	$receipts_table->prepare_items();
+	$pup_table = new EDD_Pup_Table();
+	$pup_table->prepare_items();
 			?>
 
 			<div class="wrap edd-pup-list">
 				<h2><?php _e( 'Product Update Emails', 'edd-pup' ); ?><a href="<?php echo add_query_arg( array( 'view' => 'add_pup_email', 'edd-message' => false ) ); ?>" class="add-new-h2"><?php _e( 'Send New Email', 'edd-pup' ); ?></a></h2>
-				<?php do_action( 'edd_receipts_page_top' ); ?>
-				<form id="edd-receipts-filter" method="get" action="<?php echo admin_url( 'edit.php?post_type=download&page=edd-receipts' ); ?>">
-					<?php $receipts_table->search_box( __( 'Search', 'edd-ppe' ), 'edd-receipts' ); ?>
-
+				<?php do_action( 'edd_pup_page_top' ); ?>
+				<form id="edd-pup-filter" method="get" action="<?php echo admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ); ?>">
+					<?php $pup_table->search_box( __( 'Search', 'edd-pup' ), 'edd-pup' ); ?>
 					<input type="hidden" name="post_type" value="download" />
-					<input type="hidden" name="page" value="edd-receipts" />
-
-					<?php $receipts_table->views() ?>
-					<?php $receipts_table->display() ?>
+					<input type="hidden" name="page" value="edd-prod-updates" />
+					<?php $pup_table->views() ?>
+					<?php $pup_table->display() ?>
 				</form>
-				<?php do_action( 'edd_receipts_page_bottom' ); ?>
+				<?php do_action( 'edd_pup_page_bottom' ); ?>
 			</div>
 		<?php
 	}
