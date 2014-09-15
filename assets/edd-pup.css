@@ -65,10 +65,9 @@
 	border: 1px solid #e6e6e6;
 }
 
-#edd-pup-admin-email .view-buttons,
-#edd-pup-admin-email div.submit {
-	/*display: block;
-	clear: both;*/
+#edd-pup-admin-email .view-buttons {
+	display: block;
+	clear: both;
 }
 
 #edd-pup-admin-email #updated-products {

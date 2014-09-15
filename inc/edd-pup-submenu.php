@@ -25,7 +25,7 @@ function edd_pup_admin_page() {
 		require 'add-pup-email.php';
 	} else if ( isset( $_GET['view'] ) && $_GET['view'] == 'view_pup_email' ) {
 		require 'view-pup-email.php';
-	} else if ( isset( $_GET['view'] ) && $_GET['view'] == 'popup' ) {
+	} else if ( isset( $_GET['view'] ) && $_GET['view'] == 'pup_send_ajax' ) {
 		require 'popup.php';
 	} else {
 	require_once ( 'class-edd-pup-table.php' );

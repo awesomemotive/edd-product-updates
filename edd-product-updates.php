@@ -916,7 +916,7 @@ function edd_pup_email_confirm_html(){
 	// Creates the email post-type or updates it if transient isn't set
 	//edd_pup_create_email( $email_id );
 	
-	if ( 0 !== $email_id ) {
+	/*if ( 0 !== $email_id ) {
 	
 		delete_transient( 'edd_pup_all_customers' );
 		delete_transient( 'edd_pup_subject' );
@@ -927,11 +927,9 @@ function edd_pup_email_confirm_html(){
 			delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
 		}	
 	
-	}
+	}*/
 	
-	//$nonceurl = add_query_arg( array( 'edd_action' => 'pup_send_emails' ), $_POST['url'] );
-	$nonceurl = '#';
-	$ajaxnonce = add_query_arg( array( 'edd_action' => 'pup_send_ajax', 'email_id' => get_transient( 'edd_pup_email_id' ) ), 'http://tbabloc.dev/wp-admin/edit.php?post_type=download&page=edd-prod-updates');
+	$nonceurl = add_query_arg( array( 'view' => 'pup_send_ajax', 'id' => $email_id ), 'http://tbabloc.dev/wp-admin/edit.php?post_type=download&page=edd-prod-updates');
 	
 	$customercount = edd_pup_customer_count( $email_id, $products );
 	
@@ -969,7 +967,7 @@ function edd_pup_email_confirm_html(){
 								</ul>
 							<li><strong>Recipients:</strong> <?php echo $customercount;?> customers will receive this email and have their downloads reset</li>
 						</ul>
-						<a href="<?php echo wp_nonce_url( $ajaxnonce, 'edd_pup_email_loop_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?></a>
+						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_email_loop_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?></a>
 						<button class="closebutton button-secondary">Close without sending</button>
 					</div>
 				</div>
@@ -989,4 +987,3 @@ function write_log ( $log )  {
             error_log( $log );
     }
 }
-

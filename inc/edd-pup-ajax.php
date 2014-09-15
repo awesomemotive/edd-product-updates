@@ -22,26 +22,25 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @param mixed $data
  * @return $realcount (the number of emails logged in the queue to be sent)
  */
-function edd_pup_ajax_start( $data ){
-    $start = microtime(TRUE);
+function edd_pup_ajax_start(){
     
 	global $wpdb;
-	global $edd_options;
 	
 	$query = "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, sent) VALUES";
-	$email_id = get_transient( 'edd_pup_email_id' );
+	$email_id = intval( $_POST['email_id'] );
 	
 	// Compare email_id transients and set it to a new one if different?
-	if ( $_GET('email_id') !== $email_id ) {
-		set_transient( 'edd_pup_email_id', $_GET('email_id') );
-		$email_id = $_GET('email_id');
-	}
+	//if ( $_GET('id') !== $email_id ) {
+		//set_transient( 'edd_pup_email_id', $_GET('id') );
+	//	$email_id = $_GET('id');
+	//}
 	
 	// Update email status as in processing
 	// add_post_meta ( $email_id, '_edd_pup_status', 'processing', true );
 	
+	$products = get_post_meta( $email_id, '_edd_pup_updated_products', true );
 	$payments = edd_pup_get_all_customers();
-	$precount = edd_pup_customer_count();
+	//$precount = edd_pup_customer_count();
 	$realcount = 0;
 	$i = 1;
 	
@@ -51,7 +50,7 @@ function edd_pup_ajax_start( $data ){
 		if ( edd_pup_user_send_updates( $customer->ID ) ){
 			
 			// Check what products customers are eligible for updates
-			$customer_updates = edd_pup_eligible_updates( $customer->ID, $edd_options['prod_updates_products'] );	
+			$customer_updates = edd_pup_eligible_updates( $customer->ID, $products );	
 			
 			// Add to queue only if customers have eligible updates available				
 			if ( ! empty( $customer_updates ) ) {
@@ -81,12 +80,8 @@ function edd_pup_ajax_start( $data ){
 		$query .= implode(',', $queue );
 		$wpdb->query( $query );
 	}
-	
-    $finish = microtime(TRUE);
-    $totaltime = $finish - $start; 
-    write_log('edd_pup_ajax_queue took '.$totaltime.' seconds to execute.');
     		
-	return $realcount;
+	echo $realcount;
 	
 	exit;
 

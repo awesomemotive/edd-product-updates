@@ -177,8 +177,8 @@ jQuery(document).ready(function ($) {
 	//emailConfirmPreviewOld();
 	
 	function eddPupAjaxSend() {
-		var button = $('#edd-pup-ajax-btn'),
-			email_id = $(this).attr('data-email'),
+		var button = $('#edd-pup-ajax-start'),
+			email_id = button.attr('data-email'),
 			i = 0,
 			s = 0,
 			data = {
@@ -199,11 +199,13 @@ jQuery(document).ready(function ($) {
 					id: 'edd-pup-ajax-pause',
 					value: 'Pause'});
 				
+				alert( totalEmails );
+				
 				$('.progress-wrap').show();
 				$('.progress-bar').attr('data-complete', '0');
 				$('.progress-queue').text( totalEmails );
 				
-				eddPupAjaxTrigger(i, s, totalEmails);
+				//eddPupAjaxTrigger(i, s, totalEmails);
 
 			});
 		});
