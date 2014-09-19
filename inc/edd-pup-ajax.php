@@ -26,7 +26,7 @@ function edd_pup_ajax_start(){
     
 	global $wpdb;
 	
-	$query = "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, sent) VALUES";
+	//$query = "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, sent) VALUES ON DUPLICATE KEY UPDATE customer_id=customer_id, email_id=email_id, sent=sent";
 	$email_id = intval( $_POST['email_id'] );
 	
 	// Compare email_id transients and set it to a new one if different?
@@ -61,12 +61,14 @@ function edd_pup_ajax_start(){
 				// Insert into database in batches of 1000
 				if ( $i % 1000 == 0 ){
 
-					$query .= implode(',', $queue );
+					$queueinsert = implode(',', $queue );
+					$query = "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, sent) VALUES $queueinsert ON DUPLICATE KEY UPDATE customer_id=customer_id, email_id=email_id, sent=sent";
+
 					$wpdb->query( $query );
 					
 					// Reset defaults for next batch
 					$queue = '';
-					$query = "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, sent) VALUES";
+					//$query = "INSERT IGNORE INTO $wpdb->edd_pup_queue (customer_id, email_id, sent) VALUES $queueinsert ON DUPLICATE KEY UPDATE customer_id=customer_id, email_id=email_id, sent=sent";
 				}
 			
 			}
@@ -77,7 +79,8 @@ function edd_pup_ajax_start(){
 	
 	// Insert leftovers or if batch is less than 1000
 	if ( !empty( $queue ) ) {
-		$query .= implode(',', $queue );
+		$queueinsert = implode(',', $queue );
+		$query = "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, sent) VALUES $queueinsert ON DUPLICATE KEY UPDATE customer_id=customer_id, email_id=email_id, sent=sent";
 		$wpdb->query( $query );
 	}
     		

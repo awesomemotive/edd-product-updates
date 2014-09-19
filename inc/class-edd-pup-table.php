@@ -143,7 +143,7 @@ class EDD_Pup_Table extends WP_List_Table {
 			'status'  		=> __( 'Status', 'edd-pup' ),
 			'subject'		=> __( 'Subject', 'edd-pup' ),
 			'recipients'	=> __( 'Recipients', 'edd-pup' ),
-			'date'			=> __( 'Date Sent', 'edd-pup' )
+			'date'			=> __( 'Last Modified / Date Sent', 'edd-pup' )
 		);
 
 		return $columns;
@@ -354,10 +354,19 @@ class EDD_Pup_Table extends WP_List_Table {
 	
 		$receipts = get_posts( $args );
 
-
 		if ( $receipts ) {
 			foreach ( $receipts as $receipt ) {
 
+				$updated_products = get_post_meta( $receipt->ID, '_edd_pup_updated_products', TRUE );
+				
+				$recipients = get_post_meta( $receipt->ID, '_edd_pup_recipients', true );
+				
+				// Generate recipients number if it doesn't already exist - can probably remove this for 1.0
+				if ( empty( $recipients ) ) {
+					$recipients = edd_pup_customer_count( $receipt->ID, $updated_products );
+					update_post_meta ( $receipt->ID, '_edd_pup_recipients', $recipients );
+				}
+				
 				$download = edd_ppe_get_receipt_download( $receipt->ID ) ? get_the_title( edd_ppe_get_receipt_download( $receipt->ID ) ) : '';
 				$download_id = get_post_meta( $receipt->ID, '_edd_receipt_download', true);
 
@@ -366,8 +375,8 @@ class EDD_Pup_Table extends WP_List_Table {
 					'download'		=> '<a class="row-title" href="' . add_query_arg( array( 'view' => 'edit_receipt', 'receipt' => $receipt->ID ) ) . '">' . $download .'</a>',
 					'status'		=> ucwords( $receipt->post_status ),
 					'subject'		=>	get_post_meta( $receipt->ID, '_edd_pup_subject', true ),
-					'date'			=> 'Sample Date 1',
-					'recipients'	=>	get_post_meta( $receipt->ID, '_edd_pup_recipients', true )
+					'date'			=>  get_the_date('M m Y g:i A T', $receipt->ID ),
+					'recipients'	=>	absint( $recipients )
 				);
 
 			}
