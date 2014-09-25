@@ -138,21 +138,25 @@ jQuery(document).ready(function ($) {
             
 	emailConfirmPreview();
 	
-	function eddPupAjaxSend() {
+	function eddPupAjaxEmails() {
+		
 		var button = $('#edd-pup-ajax'),
-			email_id = button.attr('data-email'),
+			clock = $('.progress-clock'),
+			bar = $('.progress-bar'),
+			emailid  = button.attr('data-email'),
 			i = 0,
 			s = 0,
 			data = {
-			'action': 'edd_pup_ajax_start',
-			'email_id' : email_id
-		};
+				'action': 'edd_pup_ajax_start',
+				'email_id' : emailid
+			};
 		
 		button.click( function() {
 			
 			$(this).prop('disabled', true);
-			$('.progress-clock').timer('start');
+			clock.timer('start');
 			$.post(ajaxurl, data).error( function() {
+			
 				alert('something went wrong');
 				
 			}).success( function( totalEmails ) {
@@ -161,139 +165,135 @@ jQuery(document).ready(function ($) {
 					'data-action': 'pause',
 					value: 'Pause'});
 				
-				alert( totalEmails );
-				
+				bar.attr('data-complete', '0');
 				$('.progress-wrap').show();
-				$('.progress-bar').attr('data-complete', '0');
 				$('.progress-queue').text( totalEmails );
 				
 				eddPupAjaxTrigger(i, s, totalEmails);
 
 			});
 		});
-	}
-	eddPupAjaxSend();
+			
+		function eddPupAjaxTrigger(i, s, totalEmails) {
 		
-	function eddPupAjaxTrigger(i, s, totalEmails) {
-	
-		if (+s >= +totalEmails) {
-			eddPupAjaxEnd(i, s, totalEmails);
-			return false;
+			if (+s >= +totalEmails) {
+				eddPupAjaxEnd(i, s, totalEmails);
+				return false;
+			}
+			
+			$.post(ajaxurl, {'action':'edd_pup_ajax_trigger', 'iteration': i, 'sent' : s}).error( function() {
+				alert('something went wrong');
+				
+				// Try to redo what went wrong, add e++. When e = 5, bail out of the operation completely. Set e back to 0 upon success.
+							
+			}).success( function(s) {
+				
+				function progressColor( color1, color2 ){
+					bar.toggleClass(color1).toggleClass(color2);
+				};
+				
+				var percent = Math.round((s / totalEmails) * 100);
+				
+					if (percent != e) {
+						$('.progress-sent').text(s);
+						bar.attr('data-complete', percent).css('width', percent+'%');
+						$('.progress-percent').text(percent+'%');
+						
+						if ( percent <= 24 ) {
+							progressColor('red', '');
+						} else if ( percent >= 25 && percent <= 49 ) {
+							progressColor('red','orange');
+						} else if ( percent >= 50 && percent <= 74 ) {
+							progressColor('orange','yellorange');
+						} else if ( percent >= 75 && percent <= 99 ) {
+							progressColor('yellorange', 'yellow');
+						} else if ( percent == 100 ) {
+							progressColor('yellow','green');
+						}
+						
+						var e = percent;
+					}
+				
+				i++;
+				
+				eddPupAjaxTrigger(i, s, totalEmails);
+			});
 		}
 		
-		$.post(ajaxurl, {'action':'edd_pup_ajax_trigger', 'iteration': i, 'sent' : s}).error( function() {
-			alert('something went wrong');
+		function eddPupAjaxEnd(i,s,totalEmails){
+			$.post(ajaxurl, {'action':'edd_pup_ajax_end'}).error( function() {
+				alert('something went wrong');
+			}).success( function (response) {
 			
-			// Try to redo what went wrong, add e++. When e = 5, bail out of the operation completely. Set e back to 0 upon success.
+				button.prop('disabled', true).attr({
+						'data-action': 'complete',
+						value: 'Complete'});
 						
-		}).success( function(s) {
-			
-			function progressColor( color1, color2 ){
-				$('.progress-bar').toggleClass(color1).toggleClass(color2);
-			};
-			
-			var percent = Math.round((s / totalEmails) * 100);
-				if (percent != e) {
-					$('.progress-sent').text(s);
-					$('.progress-bar').attr('data-complete', percent).css('width', percent+'%');
-					$('.progress-percent').text(percent+'%');
-					
-					if ( percent <= 24 ) {
-						progressColor('red', '');
-					} else if ( percent >= 25 && percent <= 49 ) {
-						progressColor('red','orange');
-					} else if ( percent >= 50 && percent <= 74 ) {
-						progressColor('orange','yellorange');
-					} else if ( percent >= 75 && percent <= 99 ) {
-						progressColor('yellorange', 'yellow');
-					} else if ( percent == 100 ) {
-						progressColor('yellow','green');
-					}
-					
-					var e = percent;
-				}
-			
-			i++;
-			
-			eddPupAjaxTrigger(i, s, totalEmails);
-		});
-	}
-	
-	function eddPupAjaxEnd(i,s,totalEmails){
-		$.post(ajaxurl, {'action':'edd_pup_ajax_end'}).error( function() {
-			alert('something went wrong');
-		}).success( function (response) {
+					var t = clock.html().split(':');
+				
+				clock.timer('pause');
+				$('.success-total').text(s);
+				$('.success-time-m').text(t[1]);
+				$('.success-time-h').text(t[0]);
+				$('#completion').show();
+			});
+		}
 		
-		var button = $('#edd-pup-ajax');
-		
-			button.prop('disabled', true).attr({
-					'data-action': 'complete',
-					value: 'Complete'});
-					
-			var clock = $('.progress-clock'),
-				t = clock.html().split(':');
+		function eddPupAjaxPause(){
 			
-			clock.timer('pause');
-			$('.success-total').text(s);
-			$('.success-time-m').text(t[1]);
-			$('.success-time-h').text(t[0]);
-			$('#completion').show();
-		});
-	}
-	
-	function eddPupAjaxPause(){
+		}
 		
-	}
-	
-	function eddPupAjaxResume(){
+		function eddPupAjaxResume(){
+			
+		}
 		
-	}
+		function eddPupAjaxRetry(seconds) {
+	        if (this.paused) {
+	            return;
+	        }
+	        this.set_status('request failed (retry in ' + seconds + 's)');
+	        if (seconds) {
+	            var me = this;
+	            setTimeout(function() {
+	                me.retry(--seconds);
+	            }, 1000);
+	        } else {
+	            this.set_status('processing');
+	            this.process();
+	        }
 	
-	function eddPupAjaxRetry(seconds) {
-        if (this.paused) {
-            return;
-        }
-        this.set_status('request failed (retry in ' + seconds + 's)');
-        if (seconds) {
-            var me = this;
-            setTimeout(function() {
-                me.retry(--seconds);
-            }, 1000);
-        } else {
-            this.set_status('processing');
-            this.process();
-        }
-
-	}
+		}
+		
+		/*function eddPupAjaxInitsss(){
+	        var me = this;
+	        jQuery('#cdn_export_file_start').click(function() {
+	            if (this.value == 'Pause') {
+	                me.paused = 1;
+	                me.set_button_text('Resume');
+	                me.set_status('paused');
+	                clearInterval(me.timer);
+	            } else {
+	                if (this.value == 'Start') {
+	                    me.offset = 0;
+	                    me.seconds_elapsed = 0;
+	                    me.clear_log();
+	                    me.set_progress(0);
+	                    me.set_elapsed('-');
+	                }
+	                me.paused = 0;
+	                me.set_button_text('Pause');
+	                me.set_status('processing');
+	                me.timer = setInterval(function() {
+	                    me.timer_callback();
+	                }, 1000);
+	            }
 	
-	function eddPupAjaxInit(){
-        var me = this;
-        jQuery('#cdn_export_file_start').click(function() {
-            if (this.value == 'Pause') {
-                me.paused = 1;
-                me.set_button_text('Resume');
-                me.set_status('paused');
-                clearInterval(me.timer);
-            } else {
-                if (this.value == 'Start') {
-                    me.offset = 0;
-                    me.seconds_elapsed = 0;
-                    me.clear_log();
-                    me.set_progress(0);
-                    me.set_elapsed('-');
-                }
-                me.paused = 0;
-                me.set_button_text('Pause');
-                me.set_status('processing');
-                me.timer = setInterval(function() {
-                    me.timer_callback();
-                }, 1000);
-            }
-
-            me.process();
-        });
-    
+	            me.process();
+	        });
+	    
+		}*/
 	}
+	eddPupAjaxEmails();
 
 });// End of document ready
 
