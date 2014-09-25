@@ -153,9 +153,8 @@ add_action( 'wp_ajax_edd_pup_ajax_trigger', 'edd_pup_ajax_trigger' );
  * @param int $email_id Email ID for a edd_pup_email post-type
  * @return void
  */
-function edd_pup_ajax_send_email( $payment_id, $_subject, $_message, $headers ) {
+function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 
-	$email_id  = get_transient('edd_pup_sending_email_id');
 	$emailpost = get_post( $email_id );
 	$emailmeta = get_post_custom( $email_id );
 
@@ -168,10 +167,12 @@ function edd_pup_ajax_send_email( $payment_id, $_subject, $_message, $headers ) 
 		
 	if (false === $subject) {
 		
-		$subject = edd_do_email_tags( $_subject, $payment_id );
+		$_subject = edd_do_email_tags( $emailmeta['_edd_pup_subject'][0], $payment_id );
 		
 		if ( $subject == $_subject ) {
-			set_transient( 'edd_pup_subject', $subject, 60 * 60 );
+			$subject = set_transient( 'edd_pup_subject', $subject, 60 * 60 );
+		} else {
+			$subject = $_subject;
 		}
 	}
 	
@@ -194,7 +195,7 @@ function edd_pup_ajax_send_email( $payment_id, $_subject, $_message, $headers ) 
 	}
 
 	$message = $email_body_header;
-	$message .= apply_filters( 'edd_purchase_receipt', edd_email_template_tags( $_message, $payment_data, $payment_id ), $payment_id, $payment_data );
+	$message .= apply_filters( 'edd_purchase_receipt', edd_email_template_tags( $emailpost->post_content, $payment_data, $payment_id ), $payment_id, $payment_data );
 	$message .= $email_body_footer;
 
 	// Allow add-ons to add file attachments
@@ -205,7 +206,7 @@ function edd_pup_ajax_send_email( $payment_id, $_subject, $_message, $headers ) 
 	}
 	
 	// Update payment notes to log this email being sent	
-	edd_insert_payment_note($payment_id, 'Sent product update email "'. $subject .'." <a href="/wp-admin/edit.php?post_type=download&page=edd-prod-updates&view=view_pup_email&id='.$email_id.'">View Email</a>.');
+	edd_insert_payment_note($payment_id, 'Sent product update email "'. $subject .'." <a href="/wp-admin/edit.php?post_type=download&page=edd-prod-updates&view=view_pup_email&id='.$email_id.'">View Email</a>');
     
     return $mailresult;
 }
