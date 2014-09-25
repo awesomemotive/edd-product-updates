@@ -981,9 +981,6 @@ add_action( 'wp_ajax_edd_pup_confirm_ajax', 'edd_pup_email_confirm_html' );
 
 // Helper function for debugging performance
 function write_log ( $log )  {
-
-    if ( true === WP_DEBUG ) {
-    
-            error_log( $log );
-    }
+     
+     error_log( $log );
 }

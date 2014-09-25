@@ -137,47 +137,9 @@ jQuery(document).ready(function ($) {
             }
             
 	emailConfirmPreview();
-		
-	function emailConfirmPreviewOld() {
-	
-		var	button = $('#send-prod-updates'),
-			spinner = $('.edd-pu-spin');
-		
-           button.click( function () {
-           		var url = document.URL,
-           			form = $('#tab_container form').serialize();
-
-				$(this).prop("disabled",true);
-				spinner.toggleClass('loading');                
-                $.post( 'options.php', form ).error( function() {
-                
-                        alert('Could not process emails. Please try again.');
-						spinner.toggleClass('loading');
-						button.prop("disabled", false);
-											
-                    }).success( function() {
-                    
-						var data = {
-							'action': 'edd_pup_confirm_ajax',
-							'url' : url
-						};
-						
-						$.post(ajaxurl, data, function(response) {
-							$.colorbox({html:response});
-							spinner.toggleClass('loading');
-							button.prop("disabled", false);			
-						});
-                    });
-                    
-                    return false;    
-                    
-                });
-            }
-            
-	//emailConfirmPreviewOld();
 	
 	function eddPupAjaxSend() {
-		var button = $('#edd-pup-ajax-start'),
+		var button = $('#edd-pup-ajax'),
 			email_id = button.attr('data-email'),
 			i = 0,
 			s = 0,
@@ -196,7 +158,7 @@ jQuery(document).ready(function ($) {
 			}).success( function( totalEmails ) {
 				
 				button.prop('disabled', false).attr({
-					id: 'edd-pup-ajax-pause',
+					'data-action': 'pause',
 					value: 'Pause'});
 				
 				alert( totalEmails );
@@ -205,7 +167,7 @@ jQuery(document).ready(function ($) {
 				$('.progress-bar').attr('data-complete', '0');
 				$('.progress-queue').text( totalEmails );
 				
-				//eddPupAjaxTrigger(i, s, totalEmails);
+				eddPupAjaxTrigger(i, s, totalEmails);
 
 			});
 		});
@@ -261,12 +223,21 @@ jQuery(document).ready(function ($) {
 		$.post(ajaxurl, {'action':'edd_pup_ajax_end'}).error( function() {
 			alert('something went wrong');
 		}).success( function (response) {
-			var t = $('.progress-clock').html(),
-				time = t.replace();
+		
+		var button = $('#edd-pup-ajax');
+		
+			button.prop('disabled', true).attr({
+					'data-action': 'complete',
+					value: 'Complete'});
+					
+			var clock = $('.progress-clock'),
+				t = clock.html().split(':');
 			
-			$('.progress-clock').timer('pause');
+			clock.timer('pause');
 			$('.success-total').text(s);
-			$('#completion').show();	
+			$('.success-time-m').text(t[1]);
+			$('.success-time-h').text(t[0]);
+			$('#completion').show();
 		});
 	}
 	
