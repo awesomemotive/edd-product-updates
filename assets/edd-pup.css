@@ -171,6 +171,12 @@
 	margin: 20px auto 0;
 }
 
+.wp-list-table .column-email { width: 30%; }
+.wp-list-table .column-status { width: 10%; }
+.wp-list-table .column-subject { width: 30%; }
+.wp-list-table .column-recipients { width: 10%;}
+.wp-list-table .column-date { width: 20%;}
+
 
 /* Progress Bar */
 
