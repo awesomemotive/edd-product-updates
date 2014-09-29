@@ -139,18 +139,16 @@ jQuery(document).ready(function ($) {
 												
 	                    }).success( function(response) {
 	                    	
-	                    	var s = JSON.parse(response);
-	                    	
 							if ( response === 'nocheck' ) {
 							
 								alert( 'Please choose at least one product whose customers will receive this email update.');
 								spinner.toggleClass('loading');
 								button.prop("disabled", false);	
 														
-							} else if ( s.response.length ) {
+							} else if ( response % 1 == 0 ) {
 	
 								var u = url.replace( 'add_pup_email', 'edit_pup_email');
-								window.location.href= u + '&id=' + s.id;
+								window.location.href= u + '&id=' + response;
 								
 							} else {
 								

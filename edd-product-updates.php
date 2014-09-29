@@ -786,7 +786,6 @@ function edd_pup_email_confirm_html(){
 	
 	$form = array();
 	parse_str($_POST['form'], $form );
-	
 	parse_str( $_POST['url'], $url );
 	
 	$email_id = edd_pup_ajax_save( $_POST );
@@ -803,9 +802,7 @@ function edd_pup_email_confirm_html(){
 	}
 	
 	if ( $url['view'] == 'add_pup_email' ) {
-		
-		$data = array( 'response' => 'add_post_redirect', 'id' => $email_id );
-		echo json_encode($data);
+		echo absint( $email_id );
 		die();
 	}
 	
