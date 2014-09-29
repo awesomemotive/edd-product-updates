@@ -83,26 +83,33 @@ jQuery(document).ready(function ($) {
           		tinyMCE.triggerSave();
            		var url = document.URL,
            			form = $('#edd-pup-email-edit').serialize(),
-           			data = {'action': 'edd_pup_send_test_email', 'form' : form };         
-                
-                $.post( ajaxurl, data ).error( function() {
-                
-                        alert('Could not process emails. Please try again.');
-						button.prop("disabled", false);
-											
-                    }).success( function( response ) {
-                    	
-						alert( response );
-					
-					});
+           			data = {'action': 'edd_pup_send_test_email', 'form' : form };
+           			       
+		   		if ( emailValidate( $('#from_email').val() ) ) {
+		   		          
+	                $.post( ajaxurl, data ).error( function() {
+	                
+	                        alert('Could not process emails. Please try again.');
+							button.prop("disabled", false);
+												
+	                    }).success( function( response ) {
+	                    	
+							alert( response );
+						
+						});
+				} else {
+		             alert( 'Please enter a valid email address under "From Email."');
+		             return false;				
+				}
             });
             
           }
             
 	emailTest();
 	
-	function emailSaveValidate() {
-		
+	function emailValidate(email) {
+		var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+		return regex.test(email);
 	}
 	
 	function emailConfirmPreview() {
@@ -119,40 +126,49 @@ jQuery(document).ready(function ($) {
            		var url = document.URL,
 		   		form = $('#edd-pup-email-edit').serialize(),
            		data = {'action': 'edd_pup_confirm_ajax', 'form' : form, 'url' : url };		   		
-
-				$(this).prop("disabled",true);
-				spinner.toggleClass('loading');                
-                $.post( ajaxurl, data ).error( function() {
-                
-                        alert('Could not process emails. Please try again.');
-						spinner.toggleClass('loading');
-						button.prop("disabled", false);
-											
-                    }).success( function(response) {
-                    	
-                    	var snew = JSON.parse(response);
-                    	
-						if ( response === 'nocheck' ) {
-						
-							alert( 'Please choose at least one product whose customers will receive this email update.');
-							spinner.toggleClass('loading');
-							button.prop("disabled", false);	
-													
-						} else if ( snew.response.length ) {
-
-							var surl = url.replace( 'add_pup_email', 'edit_pup_email');
-							window.location.href= surl + '&id=' + snew.id;
-							
-						} else {
-							
-							$.colorbox({html:response});
+		   		
+		   		if ( emailValidate( $('#from_email').val() ) ) {
+		   		
+					$(this).prop("disabled",true);
+					spinner.toggleClass('loading');         
+	                $.post( ajaxurl, data ).error( function() {
+	                
+	                        alert('Could not process emails. Please try again.');
 							spinner.toggleClass('loading');
 							button.prop("disabled", false);
-						}
-                    });
-                    
-                    return false;    
-                    
+												
+	                    }).success( function(response) {
+	                    	
+	                    	var s = JSON.parse(response);
+	                    	
+							if ( response === 'nocheck' ) {
+							
+								alert( 'Please choose at least one product whose customers will receive this email update.');
+								spinner.toggleClass('loading');
+								button.prop("disabled", false);	
+														
+							} else if ( s.response.length ) {
+	
+								var u = url.replace( 'add_pup_email', 'edit_pup_email');
+								window.location.href= u + '&id=' + s.id;
+								
+							} else {
+								
+								$.colorbox({html:response});
+								spinner.toggleClass('loading');
+								button.prop("disabled", false);
+							}
+	                    });
+	              
+	                    return false;    
+	                    
+				  } else {
+	                
+	                alert( 'Please enter a valid email address under "From Email."');
+	                return false;
+
+                  }
+                
                 });
             }
             
