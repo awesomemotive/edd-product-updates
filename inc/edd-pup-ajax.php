@@ -201,8 +201,8 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 	// Allow add-ons to add file attachments
 	$attachments = apply_filters( 'edd_pup_attachments', array(), $payment_id, $payment_data );
 	if ( apply_filters( 'edd_email_purchase_receipt', true ) ) {
-		//$mailresult = wp_mail( $email, $subject, $message, $headers, $attachments );
-		$mailresult = true;
+		$mailresult = wp_mail( $email, $subject, $message, '', $attachments );
+		//$mailresult = true;
 	}
 	
 	// Update payment notes to log this email being sent	

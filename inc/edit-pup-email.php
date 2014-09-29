@@ -51,7 +51,7 @@ $tags = edd_get_email_tags();
 								</div>
 								<div id="major-publishing-actions">
 									<div id="delete-action">
-										<a class="submitdelete deletion" href="<?php echo wp_nonce_url( add_query_arg( 'edd_action' , 'pup_delete_email' ), 'edd-pup-delete-nonce' ); ?>" onclick="var result=confirm(<?php _e( 'Are you sure you want to permanently delete this email?', 'edd-pup' ); ?>);return result;"><span class="delete"><?php _e( 'Delete Email' , 'edd-pup'); ?></span></a>
+										<a class="submitdelete deletion" href="<?php echo wp_nonce_url( add_query_arg( 'edd_action' , 'pup_delete_email' ), 'edd-pup-delete-nonce' ); ?>" onclick="var result=confirm(<?php _e( "'Are you sure you want to permanently delete this email?'", 'edd-pup' ); ?>);return result;"><span class="delete"><?php _e( 'Delete Email' , 'edd-pup'); ?></span></a>
 									</div>
 									<div id="publishing-action">
 										<?php submit_button('Send Update Email', 'primary', 'send-prod-updates', false);?><span class="edd-pu-spin spinner"></span>
@@ -83,14 +83,14 @@ $tags = edd_get_email_tags();
 						<h3 class="hndle"><span><?php _e( 'Email Setup', 'edd-pup' ); ?></span></h3>
 						<div class="inside">
 							<strong><?php _e( 'Email Name', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="regular-text" name="title" id="title" value="<?php echo $email->post_title;?>" size="30" />
+							<input type="text" class="regular-text" name="title" id="title" placeholder="<?php _e( 'Name your product update email', 'edd-pup'); ?>" value="<?php echo $email->post_title;?>" size="30" />
 							<p class="description"><?php _e( 'For internal use only to help organize product updates – i.e. "2nd Edition eBook Update." Customers will not see this.' , 'edd-pup' ); ?></p>
 							
 							<!-- products -->
 							<strong><?php _e( 'Choose products being updated', 'edd-pup' ) ; ?>:</strong>
 							<br>
 							<?php foreach ( $products as $product_id => $title ):
-								if ( array_key_exists( $product_id, $updated_products ) ) {
+								if ( is_array( $updated_products) && array_key_exists( $product_id, $updated_products ) ) {
 									$checked = 'checked="checked"';
 								} else { $checked = ''; }
 							?>
@@ -111,15 +111,15 @@ $tags = edd_get_email_tags();
 						<div class="inside">
 							<!-- from name  -->
 							<strong><?php _e( 'From Name', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="regular-text" name="from_name" id="from_name" value="<?php echo $emailmeta['_edd_pup_from_name'][0]; ?>" />
+							<input type="text" class="regular-text" name="from_name" id="from_name" placeholder="<?php echo get_bloginfo('name'); ?>" value="<?php echo $emailmeta['_edd_pup_from_name'][0]; ?>" />
 							<p class="description"><?php _e( 'The name customers will see the product update coming from.' , 'edd-pup' ); ?></p>
 							<!-- from email -->
 							<strong><?php _e( 'From Email', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="regular-text" name="from_email" id="from_email" value="<?php echo $emailmeta['_edd_pup_from_email'][0]; ?>" />
+							<input type="text" class="regular-text" name="from_email" id="from_email" placeholder="<?php echo get_bloginfo('admin_email'); ?>" value="<?php echo $emailmeta['_edd_pup_from_email'][0]; ?>" />
 							<p class="description"><?php _e( 'The email address customers will receive the product update from.' , 'edd-pup' ); ?></p>
 							<!-- subject    -->
 							<strong><?php _e( 'Subject', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="widefat" name="subject" id="subject" value="<?php echo $email->post_excerpt;?>" size="30" />
+							<input type="text" class="widefat" name="subject" id="subject" placeholder="<?php _e( 'Your email subject line', 'edd-pup'); ?>" value="<?php echo $email->post_excerpt;?>" size="30" />
 							<p class="description"><?php _e( 'Enter the email subject line for this product update. Template tags can be used (see sidebar).' , 'edd-pup' ); ?></p>
 							
 							<!-- message    -->

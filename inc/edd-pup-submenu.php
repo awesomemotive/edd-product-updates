@@ -14,7 +14,7 @@ Contributors: Evan Luzi
 function edd_add_prod_update_submenu() {
 
 	add_submenu_page( 'edit.php?post_type=download', __( 'Easy Digital Download Email Product Updates', 'edd' ), __( 'Product Updates', 'edd' ), 'install_plugins', 'edd-prod-updates', 'edd_pup_admin_page' );
-	//add_submenu_page( 'edit.php?post_type=download', __( 'Easy Digital Download Email Product Updates', 'edd' ), __( 'Product Updates', 'edd' ), 'install_plugins', 'edit.php?post_type=download&page=edd-prod-updates', 'edd_pup_admin_page');
+
 }
 add_action( 'admin_menu', 'edd_add_prod_update_submenu', 10 );
 

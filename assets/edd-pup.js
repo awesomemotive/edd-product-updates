@@ -91,8 +91,8 @@ jQuery(document).ready(function ($) {
 						button.prop("disabled", false);
 											
                     }).success( function( response ) {
-                    
-						$.colorbox({html:response});		
+                    	
+						alert( response );
 					
 					});
             });
@@ -100,6 +100,10 @@ jQuery(document).ready(function ($) {
           }
             
 	emailTest();
+	
+	function emailSaveValidate() {
+		
+	}
 	
 	function emailConfirmPreview() {
 	
@@ -114,7 +118,7 @@ jQuery(document).ready(function ($) {
 
            		var url = document.URL,
 		   		form = $('#edd-pup-email-edit').serialize(),
-           		data = {'action': 'edd_pup_confirm_ajax', 'form' : form };		   		
+           		data = {'action': 'edd_pup_confirm_ajax', 'form' : form, 'url' : url };		   		
 
 				$(this).prop("disabled",true);
 				spinner.toggleClass('loading');                
@@ -125,10 +129,26 @@ jQuery(document).ready(function ($) {
 						button.prop("disabled", false);
 											
                     }).success( function(response) {
-                    
-						$.colorbox({html:response});
-						spinner.toggleClass('loading');
-						button.prop("disabled", false);	
+                    	
+                    	var snew = JSON.parse(response);
+                    	
+						if ( response === 'nocheck' ) {
+						
+							alert( 'Please choose at least one product whose customers will receive this email update.');
+							spinner.toggleClass('loading');
+							button.prop("disabled", false);	
+													
+						} else if ( snew.response.length ) {
+
+							var surl = url.replace( 'add_pup_email', 'edit_pup_email');
+							window.location.href= surl + '&id=' + snew.id;
+							
+						} else {
+							
+							$.colorbox({html:response});
+							spinner.toggleClass('loading');
+							button.prop("disabled", false);
+						}
                     });
                     
                     return false;    
@@ -233,7 +253,8 @@ jQuery(document).ready(function ($) {
 				
 				clock.timer('pause');
 				$('.success-total').text(s);
-				$('.success-time-m').text(t[1]);
+				$('.success-time-s').text(t[1]);
+				$('.success-time-m').text(t[0]);
 				$('.success-time-h').text(t[0]);
 				$('#completion').show();
 			});

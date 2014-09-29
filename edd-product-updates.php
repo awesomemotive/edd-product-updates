@@ -538,6 +538,10 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = tru
 	
 	//$customer_updates = get_transient( 'edd_pup_eligible_updates_'.$payment_id );
 	
+	if ( empty( $payment_id) || empty( $updated_products ) ) {
+		return false;
+	}
+	
 	$customer_updates = false;
 	
 	if ( false === $customer_updates ) {
@@ -679,6 +683,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
 	$subject = apply_filters( 'edd_purchase_subject', ! empty( $data['subject'] )
 		? wp_strip_all_tags( $data['subject'], true )
 		: __( 'New Product Update', 'edd-pup' ) );
+	$products = isset( $data['product'] ) ? $data['product'] : '';
 		
 	if ( 0 != $email_id ) {
 	
@@ -694,7 +699,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
 		update_post_meta ( $email_id, '_edd_pup_from_email', $from_email );
 		update_post_meta ( $email_id, '_edd_pup_subject', $data['subject'] );
 		update_post_meta ( $email_id, '_edd_pup_message', $data['message'] );
-		update_post_meta ( $email_id, '_edd_pup_updated_products', $data['product'] );
+		update_post_meta ( $email_id, '_edd_pup_updated_products', $products );
 		update_post_meta ( $email_id, '_edd_pup_recipients', $data['recipients'] );
 		write_log('edd_pup_create_email updated for ID '.$email_id.'');
 
@@ -732,7 +737,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
 			add_post_meta ( $create_id, '_edd_pup_from_email', $from_email, true );
 			add_post_meta ( $create_id, '_edd_pup_subject', $data['subject'], true );
 			add_post_meta ( $create_id, '_edd_pup_message', $data['message'], true );
-			add_post_meta ( $create_id, '_edd_pup_updated_products', $data['product'], true );
+			add_post_meta ( $create_id, '_edd_pup_updated_products', $products, true );
 			add_post_meta ( $email_id, '_edd_pup_recipients', $data['recipients'] );	
 			write_log('edd_pup_create_email created for ID'.$create_id.'');
 		}
@@ -760,12 +765,6 @@ function edd_pup_delete_email( $data ) {
 }
 add_action( 'edd_pup_delete_email', 'edd_pup_delete_email' );
 
-function edd_pup_bulk_delete( $id = 0 ) {
-	
-	return wp_delete_post( $id , true );
-	
-}
-
 function edd_pup_ajax_save( $posted ) {
 	
 	// Convert form data to array
@@ -779,8 +778,13 @@ function edd_pup_ajax_save( $posted ) {
 	$data['from_name'] 	= sanitize_text_field( $data['from_name'] );
 	$data['from_email'] = sanitize_email( $data['from_email'] );
 	$data['title']		= sanitize_text_field( $data['title'], 'ID:'. $data['email-id'], 'save' );
-	$data['subject']	= sanitize_text_field( $data['subject'] );;
-	$data['product']	= filter_var_array( $data['product'], FILTER_SANITIZE_STRING );	
+	$data['subject']	= sanitize_text_field( $data['subject'] );
+	
+	if ( isset( $data['product'] ) ) {
+		$data['product'] = filter_var_array( $data['product'], FILTER_SANITIZE_STRING );
+	} else {
+		$data['product'] = '';
+	}
 	
 	return edd_pup_save_email( $data, $data['email-id'] );
 }
@@ -815,15 +819,49 @@ function edd_pup_send_test_email() {
 	//if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'edd-pup-test-nonce' ) )
 	//	return;
 	
+	$error = 0;	
 	$form = array();
 	parse_str($_POST['form'], $form );
+
+	if ( empty( $form['test-email'] ) ) {
+		_e( 'Please enter an email address to send the test to.', 'edd-pup' );		
+	} else {
+		
+		$emails = explode( ',', $form['test-email'], 6 );
+		
+		if ( count( $emails ) > 5 ) {
+			array_pop( $emails );
+		}
+		
+		// Sanitize our email addresses to make sure they're valid
+		foreach ( $emails as $key => $address ) {
+			$clean = sanitize_email( $address );
+			
+			if ( is_email( $clean ) ) {
+				$to[$key] = $clean;
+			} else {
+				$error++;
+			}
+		}
+		
+		if ( !empty( $to ) ) {
+			$email_id = edd_pup_ajax_save( $_POST );
+			
+			// Send a test email
+	    	$sent = edd_pup_test_email( $email_id, $to );
+	    	
+	    	if ( $error > 0 ) {
+				_e( 'One or more of the emails entered were invalid. Test emails sent to: ' . implode(', ', $sent), 'edd-pup' );	    	
+	    	} else {
+	    	
+				_e( 'Test email sent to: ' . implode(', ', $sent), 'edd-pup' );
+			}
+			
+		} else if ( empty( $to ) && $error > 0 ) {
+			_e( 'Your email address was invalid. Please enter a valid email address to send the test.', 'edd-pup' );
+		}
 	
-	$email_id = edd_pup_ajax_save( $_POST );
-	
-	// Send a test email
-    edd_pup_test_email( $email_id, $form['test-email'] );
-	
-	echo 'Test Sent with function edd_pup_send_test_email';
+	}	
 	
     die();
 }
@@ -858,7 +896,7 @@ function edd_pup_test_email( $email_id, $to = null ) {
 
 	$subject = apply_filters( 'edd_prod_updates_subject', isset( $email->post_excerpt )
 		? trim( $email->post_excerpt )
-		: __( 'Purchase Receipt', 'edd' ), 0 );
+		: __( '(no subject)', 'edd-pup' ), 0 );
 	$subject = edd_do_email_tags( $subject, $email_id );
 
 	$headers = "From: " . stripslashes_deep( html_entity_decode( $from_name, ENT_COMPAT, 'UTF-8' ) ) . " <$from_email>\r\n";
@@ -867,25 +905,11 @@ function edd_pup_test_email( $email_id, $to = null ) {
 	$headers .= "Content-Type: text/html; charset=utf-8\r\n";
 	$headers = apply_filters( 'edd_test_purchase_headers', $headers );
 	
-	if ( empty( $to ) ) {
-		$to = edd_get_admin_notice_emails();
-	} else {
-			// Build array of max 5 email addresses
-			$to = explode( ',', $to, 6 );
-			
-			if ( count( $to ) > 5 ) {
-				$overmax = array_pop( $to );
-			}
-			
-			// Sanitize our email addresses to make sure they're valid
-			foreach ( $to as $key => $address ) {
-				$to[$key] = sanitize_email( $address );
-			}
-	}
-	
 	foreach ( $to as $recipient ) {
 		wp_mail( $recipient, $subject, $message, $headers );
 	}
+	
+	return $to;
 }
 
 /**
@@ -901,6 +925,8 @@ function edd_pup_email_confirm_html(){
 	$form = array();
 	parse_str($_POST['form'], $form );
 	
+	parse_str( $_POST['url'], $url );
+	
 	$email_id = edd_pup_ajax_save( $_POST );
 
 	$email     = get_post( $email_id );
@@ -908,6 +934,18 @@ function edd_pup_email_confirm_html(){
     
 	$products = get_post_meta( $email_id, '_edd_pup_updated_products', true );
 	$productlist = '';
+	
+	if ( empty( $products ) ) {
+		echo 'nocheck';
+		die();
+	}
+	
+	if ( $url['view'] == 'add_pup_email' ) {
+		
+		$data = array( 'response' => 'add_post_redirect', 'id' => $email_id );
+		echo json_encode($data);
+		die();
+	}
 	
 	foreach ( $products as $product_id => $product ) {
 		$productlist .= '<li data-id="'. $product_id .'">'.$product.'</li>';

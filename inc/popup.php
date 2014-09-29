@@ -18,7 +18,7 @@
 		</div>
 		<div id="completion" style="display:none">
 		<h3><?php _e( 'Success!', 'edd-pup' );?></h3>
-		<p><span class="success-total">0</span> <?php _e('emails processed in', 'edd-pup' );?> <span class="success-time-h">0</span> hr. <span class="success-time-m">0</span> min.</p>
+		<p><span class="success-total">0</span> <?php _e('emails processed in', 'edd-pup' );?> <span class="success-time-h">0</span> hr. <span class="success-time-m">0</span> min. <span class="success-time-s">0</span> sec.</p>
 		<div class="button primary-button">View Sent Email</div><div class="button primary-button">Send Another Update Email</div>
 		</div>
 		</div>

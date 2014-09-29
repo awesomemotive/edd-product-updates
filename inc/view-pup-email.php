@@ -14,7 +14,7 @@ if ( ! isset( $_GET['id'] ) || ! is_numeric( $_GET['id'] ) ) {
 
 $email_id  = absint( $_GET['id'] );
 $email     = get_post( $email_id );
-$email_data = get_post_custom( $email_id );
+$emailmeta = get_post_custom( $email_id );
 $updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
 
 ?>
@@ -28,7 +28,7 @@ $updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE 
 						<h3 class="hndle"><span><?php _e( 'Product Update Email Info', 'edd-pup' ); ?></span></h3>
 						<div class="inside">
 							<p><strong><?php _e( 'Status', 'edd-pup' ); ?>:</strong> <span class="status-publish">Sent</span></p>
-							<p><strong><?php _e( 'Recipients', 'edd-pup' ); ?>:</strong> 1,000</p>
+							<p><strong><?php _e( 'Recipients', 'edd-pup' ); ?>:</strong> <?php echo $emailmeta['_edd_pup_recipients'][0]; ?></p>
 							<p><strong><?php _e( 'Updated Products', 'edd-pup' ); ?>:</strong></p>
 								<ul id="updated-products">
 								<?php foreach ( $updated_products as $id => $title ): ?>
@@ -44,12 +44,12 @@ $updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE 
 					<div class="postbox">
 						<h3 class="hndle"><span><?php _e( 'Product Update Email Message', 'edd-pup' ); ?></span></h3>
 						<div class="inside">
-							<p><strong><?php _e( 'From Name', 'edd-pup' ); ?>:</strong> <?php echo $email_data['_edd_pup_from_name'][0]; ?></p>
-							<p><strong><?php _e( 'From Email', 'edd-pup' ); ?>:</strong> <?php echo $email_data['_edd_pup_from_email'][0]; ?></p>
-							<p><strong><?php _e( 'Subject', 'edd-pup' ); ?>:</strong> <?php echo $email_data['_edd_pup_subject'][0]; ?></p>
+							<p><strong><?php _e( 'From Name', 'edd-pup' ); ?>:</strong> <?php echo $emailmeta['_edd_pup_from_name'][0]; ?></p>
+							<p><strong><?php _e( 'From Email', 'edd-pup' ); ?>:</strong> <?php echo $emailmeta['_edd_pup_from_email'][0]; ?></p>
+							<p><strong><?php _e( 'Subject', 'edd-pup' ); ?>:</strong> <?php echo $emailmeta['_edd_pup_subject'][0]; ?></p>
 							<p><strong><?php _e( 'Message', 'edd-pup' ); ?>:</strong></p>
 							<div id="message-preview">
-								<?php echo edd_apply_email_template( $email_data['_edd_pup_message'][0], null, null ); ?>
+								<?php echo edd_apply_email_template( $emailmeta['_edd_pup_message'][0], null, null ); ?>
 							</div>
 						</div>
 					</div>

@@ -158,8 +158,10 @@ class EDD_Pup_Table extends WP_List_Table {
 	 */
 	public function get_sortable_columns() {
 		return array(
-			'ID'     => array( 'ID', true ),
-			'download'   => array( 'download', false ),
+			'email'      => array( 'email', false ),
+			'subject'    => array( 'subject', false ),
+			'recipients' => array( 'recipients', false ),
+			'date'       => array( 'date', true )
 		);
 	}
 
@@ -214,8 +216,8 @@ class EDD_Pup_Table extends WP_List_Table {
 	function column_email( $item ) {
 		$email        = get_post( $item['ID'] );
 		$status       = strtolower ( $item [ 'status' ] );
-		$base         = admin_url( 'edit.php?post_type=download&page=edd-receipts&view=edit_receipt&receipt=' . $item['ID'] );
 		$row_actions  = array();
+		$emailname    = !empty( $email->post_title ) ? $email->post_title : __( '(no title)', 'edd-pup' );
 		
 		if ( $status == 'draft') {
 			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => 'edit_pup_email', 'id' => $email->ID ) ) . '">' . __( 'Edit', 'edd-pup' ) . '</a>';
@@ -224,14 +226,14 @@ class EDD_Pup_Table extends WP_List_Table {
 		}
 
 		if( strtolower( $item['status'] ) == 'draft' ) {
-		$row_actions['test'] = '<a href="' . wp_nonce_url( add_query_arg( array( 'edd-action' => 'send_test_email', 'id' => $email->ID, 'edd-message' => false ) ), 'edd-ppe-test-email' ) . '">' . __( 'Send Test Email', 'edd-ppe' ) . '</a>';
+		$row_actions['test'] = '<a href="' . wp_nonce_url( add_query_arg( array( 'edd-action' => 'send_test_email', 'id' => $email->ID, 'edd-message' => false ) ), 'edd-pup-test-email' ) . '">' . __( 'Send Test Email', 'edd-ppe' ) . '</a>';
 		}
 	
 		$row_actions['delete'] = '<a href="' . wp_nonce_url( add_query_arg( array( 'edd_action' => 'pup_delete_email', 'id' => $email->ID ) ), 'edd-pup-delete-nonce' ) . '" onclick="var result=confirm(\''. __( 'Are you sure you want to permanently delete this email?', 'edd-pup' ).'\');return result;">' . __( 'Delete', 'edd-pup' ) . '</a>';
 
 		$row_actions = apply_filters( 'edd_pup_row_actions', $row_actions, $email );
 
-		return $email->post_title . $this->row_actions( $row_actions );
+		return $emailname . $this->row_actions( $row_actions );
 	}
 
 	/**
@@ -245,7 +247,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	function column_cb( $item ) {
 		return sprintf(
 			'<input type="checkbox" name="%1$s[]" value="%2$s" />',
-			/*$1%s*/ 'receipt',
+			/*$1%s*/ 'email',
 			/*$2%s*/ $item['ID']
 		);
 	}
@@ -285,17 +287,17 @@ class EDD_Pup_Table extends WP_List_Table {
 
 
 	public function process_bulk_action() {
-		$ids = isset( $_GET[ 'id' ] ) ? $_GET[ 'id' ] : false;
+			
+		$ids = isset( $_GET[ 'email' ] ) ? $_GET[ 'email' ] : false;
 
 		if ( ! is_array( $ids ) )
 			$ids = array( $ids );
 
 		foreach ( $ids as $id ) {
 			if ( 'delete' === $this->current_action() ) {
-				edd_pup_bulk_delete( $id );
+				$goodbye = wp_delete_post( $id , true );
 			}
 		}
-
 	}
 
 	/**
@@ -360,13 +362,7 @@ class EDD_Pup_Table extends WP_List_Table {
 				$updated_products = get_post_meta( $receipt->ID, '_edd_pup_updated_products', TRUE );
 				
 				$recipients = get_post_meta( $receipt->ID, '_edd_pup_recipients', true );
-				
-				// Generate recipients number if it doesn't already exist - can probably remove this for 1.0
-				if ( empty( $recipients ) ) {
-					$recipients = edd_pup_customer_count( $receipt->ID, $updated_products );
-					update_post_meta ( $receipt->ID, '_edd_pup_recipients', $recipients );
-				}
-				
+				$subject = get_post_meta( $receipt->ID, '_edd_pup_subject', true );				
 				$download = edd_ppe_get_receipt_download( $receipt->ID ) ? get_the_title( edd_ppe_get_receipt_download( $receipt->ID ) ) : '';
 				$download_id = get_post_meta( $receipt->ID, '_edd_receipt_download', true);
 
@@ -374,7 +370,7 @@ class EDD_Pup_Table extends WP_List_Table {
 					'ID' 			=> $receipt->ID,
 					'download'		=> '<a class="row-title" href="' . add_query_arg( array( 'view' => 'edit_receipt', 'receipt' => $receipt->ID ) ) . '">' . $download .'</a>',
 					'status'		=> ucwords( $receipt->post_status ),
-					'subject'		=>	get_post_meta( $receipt->ID, '_edd_pup_subject', true ),
+					'subject'		=>	!empty( $subject ) ? $subject : __( '(no subject)', 'edd-pup' ),
 					'date'			=>  get_the_date('M m Y g:i A T', $receipt->ID ),
 					'recipients'	=>	absint( $recipients )
 				);
