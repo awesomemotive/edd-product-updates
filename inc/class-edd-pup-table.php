@@ -15,9 +15,9 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 }
 
 /**
- * EDD_Receipts_Table Class
+ * EDD_Pup_Table Class
  *
- * Renders the Receipts table on the Conditional Receipts page
+ * Renders the Product Update Emails table on the Product Updates submenu page
  *
  * @since 1.0
  */
@@ -59,7 +59,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 *
 	 * @access public
 	 * @since 1.0
-	 * @uses EDD_Receipts_Table::get_email_counts()
+	 * @uses EDD_Pup_Table::get_email_counts()
 	 * @see WP_List_Table::__construct()
 	 * @return void
 	 */
@@ -74,7 +74,7 @@ class EDD_Pup_Table extends WP_List_Table {
 
 		$this->get_email_counts();
 	}
-
+  
 	/**
 	 * Show the search field
 	 *
@@ -171,7 +171,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * @access public
 	 * @since 1.0
 	 *
-	 * @param array $item Contains all the data of the receipt
+	 * @param array $item Contains all the data of the email
 	 * @param string $column_name The name of the column
 	 *
 	 * @return string Column Name
@@ -189,7 +189,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * @access public
 	 * @since 1.0
 	 *
-	 * @param array $item Contains all the data of the receipt
+	 * @param array $item Contains all the data of the email
 	 * @param string $column_name The name of the column
 	 *
 	 * @return string Column Name
@@ -210,30 +210,27 @@ class EDD_Pup_Table extends WP_List_Table {
 	 *
 	 * @access public
 	 * @since 1.0
-	 * @param array $item Contains all the data of the receipt
+	 * @param array $item Contains all the data of the email
 	 * @return string Data shown in the Name column
 	 */
 	function column_email( $item ) {
 		$email        = get_post( $item['ID'] );
 		$status       = strtolower ( $item [ 'status' ] );
-		$row_actions  = array();
+		$view	      = $status == 'publish' ? 'view_pup_email' : 'edit_pup_email';
 		$emailname    = !empty( $email->post_title ) ? $email->post_title : __( '(no title)', 'edd-pup' );
-		
+		$row_actions  = array();
+				
 		if ( $status == 'draft') {
-			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => 'edit_pup_email', 'id' => $email->ID ) ) . '">' . __( 'Edit', 'edd-pup' ) . '</a>';
+			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID ) ) . '">' . __( 'Edit', 'edd-pup' ) . '</a>';
 		} else {
-			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => 'view_pup_email', 'id' => $email->ID ) ) . '">' . __( 'View', 'edd-pup' ) . '</a>';
-		}
-
-		if( strtolower( $item['status'] ) == 'draft' ) {
-		$row_actions['test'] = '<a href="' . wp_nonce_url( add_query_arg( array( 'edd-action' => 'send_test_email', 'id' => $email->ID, 'edd-message' => false ) ), 'edd-pup-test-email' ) . '">' . __( 'Send Test Email', 'edd-ppe' ) . '</a>';
+			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID ) ) . '">' . __( 'View', 'edd-pup' ) . '</a>';
 		}
 	
 		$row_actions['delete'] = '<a href="' . wp_nonce_url( add_query_arg( array( 'edd_action' => 'pup_delete_email', 'id' => $email->ID ) ), 'edd-pup-delete-nonce' ) . '" onclick="var result=confirm(\''. __( 'Are you sure you want to permanently delete this email?', 'edd-pup' ).'\');return result;">' . __( 'Delete', 'edd-pup' ) . '</a>';
 
 		$row_actions = apply_filters( 'edd_pup_row_actions', $row_actions, $email );
 
-		return $emailname . $this->row_actions( $row_actions );
+		return '<strong><a class="row-title" href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID ) ) . '">' . $emailname . '</a></strong>' . $this->row_actions( $row_actions );
 	}
 
 	/**
@@ -319,10 +316,10 @@ class EDD_Pup_Table extends WP_List_Table {
 	 *
 	 * @access public
 	 * @since 1.0
-	 * @return array $receipt_data Array of all the data for the receipt
+	 * @return array $email_data Array of all the data for the email
 	 */
 	public function pup_emails_data() {
-		$receipt_data = array();
+		$email_data = array();
 
 		$per_page = $this->per_page;
 
@@ -354,31 +351,28 @@ class EDD_Pup_Table extends WP_List_Table {
 		
 		$args = wp_parse_args( $args, $defaults );
 	
-		$receipts = get_posts( $args );
+		$emails = get_posts( $args );
 
-		if ( $receipts ) {
-			foreach ( $receipts as $receipt ) {
+		if ( $emails ) {
+			foreach ( $emails as $email ) {
 
-				$updated_products = get_post_meta( $receipt->ID, '_edd_pup_updated_products', TRUE );
+				$updated_products = get_post_meta( $email->ID, '_edd_pup_updated_products', TRUE );
 				
-				$recipients = get_post_meta( $receipt->ID, '_edd_pup_recipients', true );
-				$subject = get_post_meta( $receipt->ID, '_edd_pup_subject', true );				
-				$download = edd_ppe_get_receipt_download( $receipt->ID ) ? get_the_title( edd_ppe_get_receipt_download( $receipt->ID ) ) : '';
-				$download_id = get_post_meta( $receipt->ID, '_edd_receipt_download', true);
+				$recipients = get_post_meta( $email->ID, '_edd_pup_recipients', true );
+				$subject = get_post_meta( $email->ID, '_edd_pup_subject', true );				
 
-				$receipt_data[] = array(
-					'ID' 			=> $receipt->ID,
-					'download'		=> '<a class="row-title" href="' . add_query_arg( array( 'view' => 'edit_receipt', 'receipt' => $receipt->ID ) ) . '">' . $download .'</a>',
-					'status'		=> ucwords( $receipt->post_status ),
+				$email_data[] = array(
+					'ID' 			=> $email->ID,
+					'status'		=> ucwords( $email->post_status ),
 					'subject'		=>	!empty( $subject ) ? $subject : __( '(no subject)', 'edd-pup' ),
-					'date'			=>  get_the_date('M m Y g:i A T', $receipt->ID ),
+					'date'			=>  get_the_date('M m Y g:i A T', $email->ID ),
 					'recipients'	=>	absint( $recipients )
 				);
 
 			}
 		}
 
-		return $receipt_data;
+		return $email_data;
 	}
 
 	/**
@@ -386,10 +380,10 @@ class EDD_Pup_Table extends WP_List_Table {
 	 *
 	 * @access public
 	 * @since 1.0
-	 * @uses EDD_Receipts_Table::get_columns()
-	 * @uses EDD_Receipts_Table::get_sortable_columns()
-	 * @uses EDD_Receipts_Table::process_bulk_action()
-	 * @uses EDD_Receipts_Table::receipt_data()
+	 * @uses EDD_Pup_Table::get_columns()
+	 * @uses EDD_Pup_Table::get_sortable_columns()
+	 * @uses EDD_Pup_Table::process_bulk_action()
+	 * @uses EDD_Pup_Table::email_data()
 	 * @uses WP_List_Table::get_pagenum()
 	 * @uses WP_List_Table::set_pagination_args()
 	 * @return void
