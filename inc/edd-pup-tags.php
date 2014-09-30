@@ -24,9 +24,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @return void
  */
 function edd_pup_email_tags( $payment_id ) {
-	edd_add_email_tag( 'updated_products', 'Display a list of updated products without links', 'edd_pup_products_tag' );
-	edd_add_email_tag( 'updated_products_links', 'Display a list of updated products with links', 'edd_pup_products_links_tag' );
-	edd_add_email_tag( 'unsubscribe_link', 'Output an unsubscribe link so users no longer receive product update emails', 'edd_pup_unsub_tag' );
+	edd_add_email_tag( 'updated_products', __( 'Display a list of updated products without links', 'edd-pup' ), 'edd_pup_products_tag' );
+	edd_add_email_tag( 'updated_products_links', __( 'Display a list of updated products with links', 'edd-pup' ), 'edd_pup_products_links_tag' );
+	edd_add_email_tag( 'unsubscribe_link', __( 'Output an unsubscribe link so users no longer receive product update emails', 'edd-pup' ), 'edd_pup_unsub_tag' );
 }
 add_action( 'edd_add_email_tags', 'edd_pup_email_tags' );
 
@@ -40,7 +40,7 @@ add_action( 'edd_add_email_tags', 'edd_pup_email_tags' );
  * @return void
  */
 function edd_pup_products_tag($payment_id) {
-    $start = microtime(TRUE);
+
 	global $edd_options;
 
 	$updated_products = $edd_options['prod_updates_products'];	
@@ -69,10 +69,6 @@ function edd_pup_products_tag($payment_id) {
 	}
 
 	$productlist .= '</ul>';
-	
-    $finish = microtime(TRUE);
-    $totaltime = $finish - $start; 
-    write_log('edd_pup_products_tag took '.$totaltime.' seconds to execute.');
 
 	return $productlist;
 }
@@ -86,7 +82,7 @@ function edd_pup_products_tag($payment_id) {
  * @return void
  */
 function edd_pup_products_links_tag($payment_id) {
-    $start = microtime(TRUE);
+
 	global $edd_options;
 
 	$updated_products = $edd_options['prod_updates_products'];
@@ -173,10 +169,6 @@ function edd_pup_products_links_tag($payment_id) {
 		}
 	
 	$download_list .= '</ul>';
-	
-    $finish = microtime(TRUE);
-    $totaltime = $finish - $start; 
-    write_log('edd_pup_products_links_tag took '.$totaltime.' seconds to execute.');
     
 	return $download_list;
 }
@@ -199,7 +191,7 @@ function edd_pup_unsub_tag($payment_id) {
 		'edd_action' => 'prod_update_unsub'
 	);
 	$unsublink = add_query_arg( $unsub_link_params, ''.home_url() );
-	$unsubscribe = '<a href="'.$unsublink.'">Unsubscribe</a>';
+	$unsubscribe = printf( '<a href="%1$s">%2$s</a>', $unsublink, __( 'Unsubscribe', 'edd-pup' ) );
 
 	return $unsubscribe;
 }
@@ -218,10 +210,10 @@ function edd_pup_verify_unsub_link() {
 			return;
 		}
 
-		$order_id = $_GET['order_id'];
-		$action   = $_GET['edd_action'];
-		$email    = $_GET['email'];
-		$key      = $_GET['purchase_key'];
+		$order_id = absint( $_GET['order_id'] );
+		$action   = sanitize_text_field( $_GET['edd_action'] );
+		$email    = sanitize_email( $_GET['email'] );
+		$key      = sanitize_key( $_GET['purchase_key'] );
 
 		$meta_query = array(
 			'relation'  => 'AND',
@@ -243,7 +235,7 @@ function edd_pup_verify_unsub_link() {
 		if ( $payments ) {
 			edd_pup_unsub_page($order_id, $key, $email, $action);
 		} else {
-			wp_die( 'The email you requested to be removed was not found.' , 'Email Not Found');
+			wp_die( __( 'The email address you requested to be unsubscribed was not found.', 'edd-pup' ) , __( 'Email Not Found', 'edd-pup' ) );
 		}
 	}
 }
@@ -274,7 +266,7 @@ function edd_pup_unsub_page($payment_id, $purchase_key, $email, $action) {
 		update_post_meta( $payment_id, '_edd_payment_meta', $payment_meta );
 
 		// Update customer log with note about unsubscribing
-		edd_insert_payment_note($payment_id, 'User unsubscribed from product update emails');
+		edd_insert_payment_note($payment_id, __( 'User unsubscribed from product update emails', 'edd-pup' ) );
 
 	} else if (!edd_pup_unsub_status($payment_id) && $action == 'prod_update_resub' ) {
 	
@@ -285,7 +277,7 @@ function edd_pup_unsub_page($payment_id, $purchase_key, $email, $action) {
 		update_post_meta( $payment_id, '_edd_payment_meta', $payment_meta );
 
 		// Update customer log with note about resubscribing
-		edd_insert_payment_note($payment_id, 'User re-subscribed to product update emails');
+		edd_insert_payment_note($payment_id, __( 'User re-subscribed to product update emails', 'edd-pup' ) );
 	}
 
 	edd_pup_unsub_message($payment_id, $purchase_key, $email, $action);
@@ -321,23 +313,23 @@ function edd_pup_unsub_message($payment_id, $purchase_key, $email, $action){
 	$unsublink = add_query_arg( $unsub_link_params, ''.home_url() );
 
 	if ($action == 'prod_update_unsub'){
-		$title = 'Unsubscribed - You have been successfully removed from the list.';
+		$title = __( 'Unsubscribed - You have been successfully removed from the list.', 'edd-pup' );
 		ob_start();
 ?>
 		<h1>Thank you</h1>
-		<p>Your email <strong><?php echo $email; ?></strong> has been successfully removed from the list.</p>
-		<p><em>Did you unsubscribe on accident? <a href="<?php echo $resublink;?>">Click here to resubscribe.</a></em></p>
+		<p><?php sprintf( __( 'Your email <strong>%s</strong> has been successfully removed from the list.', 'edd-pup' ), $email ); ?></p>
+		<p><em><?php _e( 'Did you unsubscribe on accident?', 'edd-pup' ); ?> <a href="<?php echo $resublink;?>"><?php _e( 'Click here to resubscribe.', 'edd-pup' ); ?></a></em></p>
 		<?php
 	} else if ($action == 'prod_update_resub'){
-			$title = 'Resubscribed - You have successfully re-subscribed to the list.';
+			$title = __( 'Resubscribed - You have successfully re-subscribed to the list.', 'edd-pup' );
 			ob_start();
 ?>
-		<h1>Thank you!</h1>
-		<p>You have successfully re-subscribed <strong><?php echo $email; ?></strong> to the list.</p>
-		<p><em><a href="<?php echo $unsublink;?>">Click here to unsubscribe.</a></em></p>
+		<h1><?php _e( 'Thank you!', 'edd-pup' ); ?></h1>
+		<p><?php sprintf( __( 'You have successfully re-subscribed <strong>%s</strong> to the list.', 'edd-pup' ), $email ); ?></p>
+		<p><em><a href="<?php echo $unsublink;?>"><?php _e( 'Click here to unsubscribe.', 'edd-pup' ); ?></a></em></p>
 		<?php
 		}
-	wp_die(ob_get_clean(), $title);
+	wp_die( ob_get_clean(), $title );
 
 }
 

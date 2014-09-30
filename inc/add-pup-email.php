@@ -89,7 +89,7 @@ $tags = edd_get_email_tags();
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
 							
 							<!-- recipients
-								<p><strong><?php _e( 'Recipients', 'edd-pup' ); ?>:</strong> <?php printf( __( '%s customers will receive this email', 'edd-pup' ), '0' ); ?></p> -->
+								<p><strong><?php printf( _n( '1 customer will receive this email', '%s customers will receive this email', $recipients, 'edd-pup' ), $recipients ); ?></p> -->
 								<input type="hidden" name="recipients" value="<?php echo $recipients; ?>" />
 						</div>
 					</div>

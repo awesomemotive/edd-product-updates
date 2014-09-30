@@ -164,7 +164,7 @@ function edd_pup_settings ( $edd_settings ) {
         $settings2 = array(
 			array(
 				'id' => 'edd_pup_template',
-				'name' => __( 'Email Template', 'edd' ),
+				'name' => __( 'Email Template', 'edd-pup' ),
 				'desc' => __( 'Choose a template to be used for the product update emails.', 'edd-pup' ),
 				'type' => 'select',
 				'options' => edd_get_email_templates()
@@ -290,7 +290,7 @@ function edd_pup_trigger_email( $payment_id, $_subject, $_message, $headers ) {
 	}
 	
 	// Update payment notes to log this email being sent	
-	edd_insert_payment_note($payment_id, 'Sent product update email "'. $subject .'"');
+	edd_insert_payment_note($payment_id, sprintf( __( 'Sent product update email "%s"', 'edd-pup' ), $subject ) );
     
     return $mailresult;
 }
@@ -502,8 +502,8 @@ function edd_pup_create_email( $data ) {
 			wp_redirect( add_query_arg( array( 'view' => 'edit_pup_email' , 'id' => $post ), $data['edd-pup-email'] ) ); edd_die();
 
 		} else {
-		
-			wp_redirect( add_query_arg( 'edd-message', 'receipt_add_failed', $data['edd-pup-email'] ) ); edd_die();
+			wp_die ( __( 'Something went wrong. Please contact support.', 'edd-pup' ) );
+			edd_die();
 			
 		}		
 	}
@@ -811,7 +811,7 @@ function edd_pup_email_confirm_html(){
 	}
 
 	
-	$nonceurl = add_query_arg( array( 'view' => 'pup_send_ajax', 'id' => $email_id ), 'http://tbabloc.dev/wp-admin/edit.php?post_type=download&page=edd-prod-updates');
+	$nonceurl = add_query_arg( array( 'view' => 'pup_send_ajax', 'id' => $email_id ), admin_url( 'wp-admin/edit.php?post_type=download&page=edd-prod-updates' ) );
 	
 	$customercount = edd_pup_customer_count( $email_id, $products );
 	
@@ -828,29 +828,29 @@ function edd_pup_email_confirm_html(){
 		<!-- Begin send email confirmation message -->
 			<div id="prod-updates-email-preview-confirm">
 				<div id="prod-updates-email-confirm-titles">
-					<h2><strong>Almost Ready to Send!</strong></h2>
-					<p>Please carefully check the information below before sending your emails.</p>
+					<h2><strong><?php _e( 'Almost Ready to Send!', 'edd-pup' ); ?></strong></h2>
+					<p><?php _e( 'Please carefully check the information below before sending your emails.', 'edd-pup' ); ?></p>
 				</div>
 					<div id="prod-updates-email-preview-message">
 						<div id="prod-updates-email-preview-header">
-							<h3>Email Message Preview</h3>
+							<h3><?php _e( 'Email Message Preview', 'edd-pup' ); ?></h3>
 							<ul class="prod-updates-email-confirm-info">
-								<li><strong>From:</strong> <?php echo $emailmeta['_edd_pup_from_name'][0];?> (<?php echo $emailmeta['_edd_pup_from_email'][0];?>)</li>
-								<li><strong>Subject:</strong> <?php echo $emailmeta['_edd_pup_subject'][0];?></li>
+								<li><strong><?php _e( 'From:', 'edd-pup' ); ?></strong> <?php echo $emailmeta['_edd_pup_from_name'][0];?> (<?php echo $emailmeta['_edd_pup_from_email'][0];?>)</li>
+								<li><strong><?php _e( 'Subject:', 'edd-pup' ); ?></strong> <?php echo $emailmeta['_edd_pup_subject'][0];?></li>
 							</ul>
 						</div>
 				<?php echo $message ?>
 				<div id="prod-updates-email-preview-footer">
-					<h3>Additional Information</h3>
+					<h3><?php _e( 'Additional Information', 'edd-pup' ); ?></h3>
 						<ul class="prod-updates-email-confirm-info">
-							<li><strong>Updated Products:</strong></li>
+							<li><strong><?php _e( 'Updated Products:', 'edd-pup' ); ?></strong></li>
 								<ul id="prod-updates-email-confirm-prod-list">
 									<?php echo $productlist;?>
 								</ul>
-							<li><strong>Recipients:</strong> <?php echo $customercount;?> customers will receive this email and have their downloads reset</li>
+							<li><strong><?php _e( 'Recipients:', 'edd-pup' ); ?></strong> <?php printf( _n( '1 customer will receive this email and have their downloads reset', '%s customers will receive this email and have their downloads reset', $customercount, 'edd-pup' ), $customercount ); ?></li>
 						</ul>
-						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_email_loop_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-prod-updates' ); ?></a>
-						<button class="closebutton button-secondary">Close without sending</button>
+						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_email_loop_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
+						<button class="closebutton button-secondary"><?php _e( 'Close without sending', 'edd-pup' ); ?></button>
 					</div>
 				</div>
 			<!-- End send email confirmation message -->

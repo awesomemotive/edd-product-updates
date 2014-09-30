@@ -35,10 +35,10 @@ $tags = edd_get_email_tags();
 							<div class="submitbox" id="submitpost">
 								<div id="minor-publishing-actions">
 									<div id="save-action">
-										<?php submit_button('Save Changes', 'secondary', 'edd-pup-save-email-changes', false);?>
+										<?php submit_button( __( 'Save Changes', 'edd-pup' ), 'secondary', 'edd-pup-save-email-changes', false);?>
 									</div>
 									<div id="preview-action">
-										<a href="javascript:void(0);" id="edd-pup-open-preview" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Preview Email', 'edd' ); ?></a>
+										<a href="javascript:void(0);" id="edd-pup-open-preview" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Preview Email', 'edd-pup' ); ?></a>
 									</div>
 									<div class="clear"></div>
 								</div>
@@ -54,7 +54,7 @@ $tags = edd_get_email_tags();
 										<a class="submitdelete deletion" href="<?php echo wp_nonce_url( add_query_arg( 'edd_action' , 'pup_delete_email' ), 'edd-pup-delete-nonce' ); ?>" onclick="var result=confirm(<?php _e( "'Are you sure you want to permanently delete this email?'", 'edd-pup' ); ?>);return result;"><span class="delete"><?php _e( 'Delete Email' , 'edd-pup'); ?></span></a>
 									</div>
 									<div id="publishing-action">
-										<?php submit_button('Send Update Email', 'primary', 'send-prod-updates', false);?><span class="edd-pu-spin spinner"></span>
+										<?php submit_button( __( 'Send Update Email', 'edd-pup' ), 'primary', 'send-prod-updates', false);?><span class="edd-pu-spin spinner"></span>
 									</div>
 									<div class="clear"></div>
 								</div>
@@ -101,7 +101,8 @@ $tags = edd_get_email_tags();
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
 							
 							<!-- recipients -->
-								<p><strong><?php _e( 'Recipients', 'edd-pup' ); ?>:</strong> <?php printf( __( '%s customers will receive this email', 'edd-pup' ), $recipients ); ?></p>
+								<p><strong><?php _e( 'Recipients', 'edd-pup' ); ?>:</strong> <?php printf( _n( '1 customer will receive this email', '%s customers will receive this email', $recipients, 'edd-pup' ), $recipients ); ?></p>
+
 								<input type="hidden" name="recipients" value="<?php echo $recipients; ?>" />
 						</div>
 					</div>

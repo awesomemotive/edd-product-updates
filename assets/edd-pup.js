@@ -26,7 +26,7 @@ jQuery(document).ready(function ($) {
 		}
 		
 		// used for queue resolution popup from alert
-		if ( $('.edd-pup-queue-button').length ){
+		//if ( $('.edd-pup-queue-button').length ){
 			$('.edd-pup-queue-button').click( function() {
 				
 				var doClear = confirm('Empty the Queue?');
@@ -38,7 +38,7 @@ jQuery(document).ready(function ($) {
 				}
 	
 			});
-		}
+		//}
     
 	function emailPreview() {
 	

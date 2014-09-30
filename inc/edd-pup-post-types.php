@@ -23,19 +23,19 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function edd_pup_post_types() {
 
 	$edd_pup_email_labels = array(
-		'name' 				=> __('Product Update Emails', 'post type general name', 'edd' ),
-		'singular_name' 	=> __('Product Update Email', 'post type singular name', 'edd' ),
-		'add_new' 			=> __( 'Add New', 'edd' ),
-		'add_new_item' 		=> __( 'Add New Update Email', 'edd' ),
-		'edit_item' 		=> __( 'Edit Update Email', 'edd' ),
-		'new_item' 			=> __( 'New Update Email', 'edd' ),
-		'all_items' 		=> __( 'All Update Emails', 'edd' ),
-		'view_item' 		=> __( 'View Update Email', 'edd' ),
-		'search_items' 		=> __( 'Search Update Emails', 'edd' ),
-		'not_found' 		=>  __( 'No Update Email found', 'edd' ),
-		'not_found_in_trash'=> __( 'No update emails found in Trash', 'edd' ),
+		'name' 				=> __('Product Update Emails', 'post type general name', 'edd-pup' ),
+		'singular_name' 	=> __('Product Update Email', 'post type singular name', 'edd-pup' ),
+		'add_new' 			=> __( 'Add New', 'edd-pup' ),
+		'add_new_item' 		=> __( 'Add New Update Email', 'edd-pup' ),
+		'edit_item' 		=> __( 'Edit Update Email', 'edd-pup' ),
+		'new_item' 			=> __( 'New Update Email', 'edd-pup' ),
+		'all_items' 		=> __( 'All Update Emails', 'edd-pup' ),
+		'view_item' 		=> __( 'View Update Email', 'edd-pup' ),
+		'search_items' 		=> __( 'Search Update Emails', 'edd-pup' ),
+		'not_found' 		=>  __( 'No Update Email found', 'edd-pup' ),
+		'not_found_in_trash'=> __( 'No update emails found in Trash', 'edd-pup' ),
 		'parent_item_colon' => '',
-		'menu_name' 		=> __( 'Product Updates', 'edd' )
+		'menu_name' 		=> __( 'Product Updates', 'edd-pup' )
 	);
 
 	$edd_pup_email_args = array(
