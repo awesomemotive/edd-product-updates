@@ -12,31 +12,32 @@ jQuery(document).ready(function ($) {
 	
 		$('#cboxContent .closebutton').live('click', function(){
 			$.fn.colorbox.close();
+			
 		});
 		
 		if ( $('.edd-pup-queue-button').length ){
-		$('#edd-pup-view-queue-alert').colorbox({
-				inline: true,
-				href: $('#edd-pup-queue-details'),
-				width: '95%',
-				maxWidth: '680px',
-				height: 'auto'			
-		});
+			$('#edd-pup-view-queue-alert').colorbox({
+					inline: true,
+					href: $('#edd-pup-queue-details'),
+					width: '95%',
+					maxWidth: '680px',
+					height: 'auto'			
+			});
 		}
 		
 		// used for queue resolution popup from alert
 		if ( $('.edd-pup-queue-button').length ){
-		$('.edd-pup-queue-button').click( function() {
-			
-			var doClear = confirm('Empty the Queue?');
-			
-			if ( doClear ) {
-				$.fn.colorbox.close();
-			} else if ( ! doClear ) {
-				alert('nevermind');
-			}
-
-		});
+			$('.edd-pup-queue-button').click( function() {
+				
+				var doClear = confirm('Empty the Queue?');
+				
+				if ( doClear ) {
+					$.fn.colorbox.close();
+				} else if ( ! doClear ) {
+					alert('nevermind');
+				}
+	
+			});
 		}
     
 	function emailPreview() {
@@ -125,7 +126,7 @@ jQuery(document).ready(function ($) {
 
            		var url = document.URL,
 		   		form = $('#edd-pup-email-edit').serialize(),
-           		data = {'action': 'edd_pup_confirm_ajax', 'form' : form, 'url' : url };		   		
+           		data = {'action': 'edd_pup_confirm_ajax', 'form' : form, 'url' : url };
 		   		
 		   		if ( emailValidate( $('#from_email').val() ) ) {
 		   		
@@ -137,22 +138,22 @@ jQuery(document).ready(function ($) {
 							spinner.toggleClass('loading');
 							button.prop("disabled", false);
 												
-	                    }).success( function(response) {
+	                    }).success( function(r) {
 	                    	
-							if ( response === 'nocheck' ) {
+							if ( r === 'nocheck' ) {
 							
 								alert( 'Please choose at least one product whose customers will receive this email update.');
 								spinner.toggleClass('loading');
 								button.prop("disabled", false);	
 														
-							} else if ( response % 1 == 0 ) {
+							} else if ( r % 1 == 0 ) {
 	
 								var u = url.replace( 'add_pup_email', 'edit_pup_email');
-								window.location.href= u + '&id=' + response;
+								window.location.href= u + '&id=' + r + '&edd_pup_confirm=1';
 								
 							} else {
 								
-								$.colorbox({html:response});
+								$.colorbox({ html: r });
 								spinner.toggleClass('loading');
 								button.prop("disabled", false);
 							}
@@ -171,6 +172,37 @@ jQuery(document).ready(function ($) {
             }
             
 	emailConfirmPreview();
+	
+	function emailConfirmRedirect() {
+		var	button = $('#send-prod-updates'),
+			spinner = $('.edd-pu-spin'),
+			url = document.URL,
+			form = $('#edd-pup-email-edit').serialize(),
+			data = {'action': 'edd_pup_confirm_ajax', 'form' : form, 'url' : url },
+			confirm = decodeURIComponent((new RegExp('[?|&]' + 'edd_pup_confirm' + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+         
+         if (confirm == 1) {
+         
+         	button.prop("disabled",true);
+			spinner.toggleClass('loading');
+			
+		    $.post( ajaxurl, data ).error( function() {
+	    
+	            alert('Could not process emails. Please try again.');
+				spinner.toggleClass('loading');
+				button.prop("disabled", false);
+									
+	        }).success( function(r) {
+					
+				$.colorbox({ html: r });
+				spinner.toggleClass('loading');
+				button.prop("disabled", false);
+				// Remove "edd_pup_confirm" url param once colorbox is loaded
+				window.history.replaceState({}, 'newurl', url.replace(/&?edd_pup_confirm=([^&]$|[^&]*)/i, "") );
+	        });
+         }
+	}
+	emailConfirmRedirect();
 	
 	function eddPupAjaxEmails() {
 		
