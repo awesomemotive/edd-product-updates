@@ -30,6 +30,62 @@ function edd_pup_email_tags( $payment_id ) {
 }
 add_action( 'edd_add_email_tags', 'edd_pup_email_tags' );
 
+/**
+ * Filters custom email tags from EDD Product Updates to display placeholders
+ * when clicking the "Preview" button on the edit email page
+ * 
+ * @access public
+ * @param string $message
+ * @return $message - HTML message with template tags replaced
+ */
+function edd_pup_preview_tags( $message ) {
+	
+	$email_id = get_transient( 'edd_pup_preview_email' );
+
+	if ( false !== $email_id ) {
+		$updated_links    = preg_replace( '/<a(.*?)href="(.*?)"(.*?)>/', '<a href="#">', edd_pup_products_links_tag( '', $email_id ) );
+		$updated_products = edd_pup_products_tag( '', $email_id );
+		
+	} else {
+		
+		// Sample HTML for {updated_products_links} tag
+		$updated_links = '<ul><li>'. __( 'Sample Product Title A', 'edd-pup' ) .' –</li>';
+		$updated_links .= '<ul><li><a href="#">'. __( 'sample_product_a_file1.pdf', 'edd-pup' ) .'</a></li>';
+		$updated_links .= '<li><a href="#">'. __( 'sample_product_a_file2.pdf', 'edd-pup' ) .'</a></li></ul>';
+		$updated_links .= '<li>'. __( 'Sample Product Title B', 'edd-pup' ) .' –</li>';
+		$updated_links .= '<ul><li><a href="#">'. __( 'sample_product_b_file1.pdf', 'edd-pup' ) .'</a></li></ul>';
+		$updated_links .= '<li>'. __( 'Sample Bundle Product Title', 'edd-pup' ) .' –</li>';
+		$updated_links .= '<ul><li><em>'. __( 'Sample Bundle Product 1', 'edd-pup' ) .' –</em></li>';
+		$updated_links .= '<ul><li><a href="#">'. __( 'sample_bundle_product1.pdf', 'edd-pup' ) .'</a></li></ul>';	
+		$updated_links .= '<li><em>'. __( 'Sample Bundle Product 2', 'edd-pup' ) .' –</em></li>';
+		$updated_links .= '<ul><li><a href="#">'. __( 'sample_bundle_product2.pdf', 'edd-pup' ) .'</a></li></ul>';	
+		$updated_links .= '<li><em>'. __( 'Sample Bundle Product 3', 'edd-pup' ) .' –</em></li>';
+		$updated_links .= '<ul><li><a href="#">'. __( 'sample_bundle_product2.pdf', 'edd-pup' ) .'</a></li></ul></ul></ul>';
+
+		// Sample HTML for {updated_Products} tag
+		$updated_products = '<ul><li>'. __( 'Sample Product Title A', 'edd-pup' ) .'</li>';
+		$updated_products .= '<li>'. __( 'Sample Product Title B', 'edd-pup' ) .'</li>';
+		$updated_products .= '<li>'. __( 'Sample Bundle Product Title', 'edd-pup' ) .'</li>';
+		$updated_products .= '<ul><li><em>'. __( 'Sample Bundle Product 1', 'edd-pup' ) .'</em></li>';	
+		$updated_products .= '<li><em>'. __( 'Sample Bundle Product 2', 'edd-pup' ) .'</em></li>';
+		$updated_products .= '<li><em>'. __( 'Sample Bundle Product 3', 'edd-pup' ) .'</em></li>';
+		$updated_products .= '</ul><li>'. __( 'Sample Product Title C', 'edd-pup' ) .'</li></ul>';
+	}
+	
+	// Sample HTML for {unsubscribe_link} tag
+	$unsubscribe = '<a href="#">'. __( 'Unsubscribe', 'edd-pup' ) .'</a>';
+	
+	// Replace tags with sample HTML
+	$message = str_replace( '{updated_products_links}', $updated_links, $message );
+	$message = str_replace( '{updated_products}', $updated_products, $message );
+	$message = str_replace( '{unsubscribe_link}', $unsubscribe, $message );
+	
+	// Add div for CSS styling of custom tags
+	$message = '<div id="edd-pup-preview">' . $message . '</div>';
+
+	return $message;
+}
+add_filter('edd_email_preview_template_tags', 'edd_pup_preview_tags', 999);
 
 /**
  * Email template tag: updated_products
@@ -39,15 +95,29 @@ add_action( 'edd_add_email_tags', 'edd_pup_email_tags' );
  * @param mixed $payment_id
  * @return void
  */
-function edd_pup_products_tag($payment_id) {
+function edd_pup_products_tag( $payment_id, $email = null ) {
 
-	global $edd_options;
-
-	$updated_products = $edd_options['prod_updates_products'];	
-	$customer_updates = edd_pup_eligible_updates( $payment_id, $updated_products );
+	$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );	
+	
+	// Used to generate accurate tag outputs for preview and test emails
+	if ( !empty( $email ) ) {
+	
+		foreach ( $updated_products as $id => $name ) {
+		
+			$customer_updates[] = array( 'id' => $id, 'name' => $name);
+		
+		}
+		
+	} else {
+	
+		$email = get_transient( 'edd_pup_sending_email' ); 
+		$customer_updates = edd_pup_eligible_updates( $payment_id, $updated_products );
+	
+	}
+	
 	$productlist = '<ul>';
 
-	foreach ($customer_updates as $product) {
+	foreach ( $customer_updates as $product ) {
 
 		if ( edd_is_bundled_product( $product['id'] ) ) {
 		
@@ -64,7 +134,6 @@ function edd_pup_products_tag($payment_id) {
 			
 		} else {
 			$productlist .= '<li>'. get_the_title( $product['id'] ) .'</li>';
-			//$productlist .= '<li>'. $product['name'] .'</li>';
 		}
 	}
 
@@ -81,16 +150,28 @@ function edd_pup_products_tag($payment_id) {
  * @param mixed $payment_id
  * @return void
  */
-function edd_pup_products_links_tag($payment_id) {
+function edd_pup_products_links_tag( $payment_id, $email = null ) {
 
-	global $edd_options;
-
-	$updated_products = $edd_options['prod_updates_products'];
-	$customer_updates = edd_pup_eligible_updates( $payment_id, $updated_products, true );
+	$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );	
+	
+	// Used to generate accurate tag outputs for preview and test emails
+	if ( !empty( $email ) ) {
+	
+		foreach ( $updated_products as $id => $name ) {
+		
+			$customer_updates[] = array( 'id' => $id, 'name' => $name);
+		
+		}
+		
+	} else {
+	
+		$email = get_transient( 'edd_pup_sending_email' ); 
+		$customer_updates = edd_pup_eligible_updates( $payment_id, $updated_products );
+	
+	}
 
 	$payment_data  = edd_get_payment_meta( $payment_id );
 	$download_list = '<ul>';
-	//$cart_items    = edd_get_payment_meta_cart_details( $payment_id );
 	$email         = edd_get_payment_user_email( $payment_id );
 	
 	if ( $customer_updates ) {
@@ -107,7 +188,6 @@ function edd_pup_products_links_tag($payment_id) {
 				if ( $show_names ) {
 					
 					$title = get_the_title( $item['id'] );
-					//$title = $item['name'];
 
 					if ( ! empty( $sku ) ) {
 						$title .= "&nbsp;&ndash;&nbsp;" . __( 'SKU', 'edd' ) . ': ' . $sku;
@@ -137,7 +217,7 @@ function edd_pup_products_links_tag($payment_id) {
 					
 					foreach ( $bundled_products as $bundle_item ) {
 					
-						if (array_key_exists($bundle_item, $customer_updates)) {
+						if ( array_key_exists( $bundle_item, $customer_updates ) ) {
 
 							$download_list .= '<li class="edd_bundled_product"><strong>' . get_the_title( $bundle_item ) . '</strong></li>';
 
@@ -181,8 +261,8 @@ function edd_pup_products_links_tag($payment_id) {
  * @param mixed $payment_id
  * @return void
  */
-function edd_pup_unsub_tag($payment_id) {
-
+function edd_pup_unsub_tag( $payment_id ) {
+	
 	$purchase_data = get_post_meta( $payment_id, '_edd_payment_meta', true );
 	$unsub_link_params = array(
 		'order_id'  => $payment_id,
