@@ -9,13 +9,13 @@ jQuery(document).ready(function ($) {
 			height: 'auto'
 		});
 	}
-	
+		
 		$('#cboxContent .closebutton').live('click', function(){
 			$.fn.colorbox.close();
 			
 		});
 		
-		if ( $('.edd-pup-queue-button').length ){
+		if ( $('#edd-pup-queue-details').length ){
 			$('#edd-pup-view-queue-alert').colorbox({
 					inline: true,
 					href: $('#edd-pup-queue-details'),
@@ -26,19 +26,26 @@ jQuery(document).ready(function ($) {
 		}
 		
 		// used for queue resolution popup from alert
-		//if ( $('.edd-pup-queue-button').length ){
+		if ( $('#edd-pup-queue-details').length ){
 			$('.edd-pup-queue-button').click( function() {
 				
-				var doClear = confirm('Empty the Queue?');
+				var data = {
+						'action' : $(this).attr('data-action'),
+						'email' : $(this).attr('data-email')
+						};
 				
-				if ( doClear ) {
-					$.fn.colorbox.close();
-				} else if ( ! doClear ) {
-					alert('nevermind');
+				if ( action == 'edd-pup-empty') {
+					
+					if ( confirm('Empty the Queue? Action: ' +action + ' email: ' + email) ) {
+						$.fn.colorbox.close();
+					}
+					
+				} else {
+					$.post( ajaxurl, data );
 				}
 	
 			});
-		//}
+		}
     
 	function emailPreview() {
 	
