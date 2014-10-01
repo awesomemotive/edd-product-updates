@@ -72,20 +72,19 @@ function edd_pup_queue_details() {
 						<li><a href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=edit_pup_email&id='. $email ); ?>"><?php _e( 'View Email Details', 'edd-pup' ); ?></a></li>				
 					</ul>
 					<?php if ( $n > 1 ): ?>
-					<div class="button primary-button edd-pup-queue-button" data-action="edd-pup-send-queue" data-email="<?php echo $email;?>"><?php _e( 'Send Remaining Emails', 'edd-pup' ); ?></div>
-					<div class="button primary-button edd-pup-queue-button" data-action="edd-pup-empty-queue" data-email="<?php echo $email;?>"><?php _e( 'Clear From Queue', 'edd-pup' ); ?></div>
+					<div class="button primary-button edd-pup-queue-button" data-action="edd-pup-send" data-email="<?php echo $email;?>"><?php _e( 'Send Remaining Emails', 'edd-pup' ); ?></div>
+					<div class="button primary-button edd-pup-queue-button" data-action="edd-pup-empty" data-email="<?php echo $email;?>"><?php _e( 'Clear From Queue', 'edd-pup' ); ?></div>
 					<?php endif; ?>
 				</div><!-- end #edd-pup-queue-email-<?php echo $i;?> -->
 		<?php endforeach; ?>
 			<div id="edd-pup-queue-buttons">
-		<?php	
-		echo submit_button( __( 'Send All Emails', 'edd-pup' ), 'primary', 'edd-pup-send-queue-all', false, array('data-email'=> 'all', 'data-action' => 'edd-pup-send-queue', 'class' => 'edd-pup-queue-button' ));
-		echo submit_button( __( 'Clear the Queue', 'edd-pup' ), 'secondary', 'edd-pup-empty-queue-all', false, array('data-email'=> 'all', 'data-action' => 'edd-pup-empty-queue', 'class' => 'edd-pup-queue-button' ));
-		echo '<button class="closebutton button button-secondary">Close Window</button>';
-		echo '</div><!-- end #edd-pup-queue-buttons -->
-			  </div><!-- end #edd-pup-queue-details -->
-			  </div><!-- end #edd-pup-queue-details-wrap -->';
-
+				<input type="submit" name="edd-pup-send-queue-all" id="edd-pup-send-queue-all" class="button button-primary edd-pup-queue-button" value="<?php _e( 'Send All Emails', 'edd-pup' ); ?>" data-email="all" data-action="edd-pup-send">
+				<input type="submit" name="edd-pup-empty-queue-all" id="edd-pup-empty-queue-all" class="button edd-pup-queue-button" value="<?php _e( 'Clear the Queue', 'edd-pup' ); ?>" data-email="all" data-action="edd-pup-empty">
+				<button class="closebutton button button-secondary">Close Window</button>
+			</div><!-- end #edd-pup-queue-buttons -->
+		</div><!-- end #edd-pup-queue-details -->
+	</div><!-- end #edd-pup-queue-details-wrap -->';
+<?php
 }
 
 function edd_pup_check_queue( $email_id = null ) {
@@ -149,14 +148,14 @@ function edd_pup_queue_alert(){
 	if ( ( false === get_transient( 'edd_pup_sending' ) ) && (! empty( $_GET['post_type'] ) ) && ( $_GET['post_type'] == 'download') ){
 		$remaining = edd_pup_check_queue_total();
 			
-			if ($remaining == 0) {
+		if ( $remaining == 0 ) {
 				return;
-			}
+		}
 			
 		ob_start();?>
 		
 		<div class="update-nag">
-		<?php printf( __( 'There are %s product update emails that have not been sent.', 'edd-pup'), number_format( $remaining, 0, '.', ',' ) ); ?> <a id="edd-pup-view-queue-alert" href="#edd-pup-queue-details"><?php _e( 'View Details', 'edd-pup' ); ?></a>.
+		<?php printf( __( 'There are %s product update emails that have not been sent.', 'edd-pup'), number_format( $remaining, 0, '.', ',' ) ); ?> <a id="edd-pup-view-queue-alert" href="#edd-pup-queue-details" onclick="doCbox();"><?php _e( 'View Details', 'edd-pup' ); ?></a>.
 		</div>
 		
 		<?php
