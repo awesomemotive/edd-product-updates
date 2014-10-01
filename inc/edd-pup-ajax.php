@@ -30,7 +30,7 @@ function edd_pup_ajax_start(){
 	$email_id = intval( $_POST['email_id'] );
 	
 	// Set email ID transient
-	set_transient( 'edd_pup_sending_email_id', $email_id );
+	set_transient( 'edd_pup_sending_email', $email_id );
 	
 	// Update email status as in processing
 	// add_post_meta ( $email_id, '_edd_pup_status', 'processing', true );
@@ -99,7 +99,7 @@ add_action( 'wp_ajax_edd_pup_ajax_start', 'edd_pup_ajax_start' );
 function edd_pup_ajax_trigger(){
 	global $wpdb;
 
-	$email_id = get_transient( 'edd_pup_sending_email_id' );
+	$email_id = get_transient( 'edd_pup_sending_email' );
 	
 	$batch = $_POST['iteration'];
 	$sent = $_POST['sent'];
@@ -223,7 +223,7 @@ function edd_pup_ajax_end(){
 	global $wpdb;
 	
 	// Update email post status to publish
-	wp_publish_post( get_transient('edd_pup_sending_email_id') );
+	wp_publish_post( get_transient('edd_pup_sending_email') );
 	
 	// Clear customer transients
 	$payments = edd_pup_get_all_customers();	
@@ -236,7 +236,7 @@ function edd_pup_ajax_end(){
 	$wpdb->query("TRUNCATE TABLE $wpdb->edd_pup_queue");
 
 	// Flush remaining transients
-	delete_transient( 'edd_pup_sending_email_id' );
+	delete_transient( 'edd_pup_sending_email' );
 	delete_transient( 'edd_pup_all_customers' );
 	delete_transient( 'edd_pup_subject' );	
 	delete_transient( 'edd_pup_email_body_header' );
@@ -264,7 +264,7 @@ function edd_pup_clear_queue( $email ) {
 	$wpdb->query("TRUNCATE TABLE $wpdb->edd_pup_queue");
 
 	// Flush remaining transients
-	delete_transient( 'edd_pup_sending_email_id' );
+	delete_transient( 'edd_pup_sending_email' );
 	delete_transient( 'edd_pup_all_customers' );
 	delete_transient( 'edd_pup_subject' );	
 	delete_transient( 'edd_pup_email_body_header' );
