@@ -16,6 +16,7 @@ $email_id  = absint( $_GET['id'] );
 $email     = get_post( $email_id );
 $emailmeta = get_post_custom( $email_id );
 $updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
+$queue = edd_pup_check_queue( $email_id );
 
 ?>
 <div id="edd-pup-admin-email" class="wrap">
@@ -38,8 +39,20 @@ $updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE 
 						</div>
 					</div>
 				</div>	
-			</div>	
-			<div id="postbox-container-2" class="postbox-container">
+			</div>
+			<?php if ( $queue['queue'] > 0 ) : ?>
+			<div id="postbox-container-2" class="postbox-container edd-pup-view-alert">
+				<div id="normal-sortables" class="meta-box-sortables ui-sortable">
+					<div class="postbox">
+						<h3 class="hndle"><span><?php _e( 'Here is the Alert Title', 'edd-pup' ); ?></span></h3>
+						<div class="inside">
+							<p>This would be the alert message</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<?php endif; ?>
+			<div id="postbox-container-3" class="postbox-container">
 				<div id="normal-sortables" class="meta-box-sortables ui-sortable">
 					<div class="postbox">
 						<h3 class="hndle"><span><?php _e( 'Product Update Email Message', 'edd-pup' ); ?></span></h3>
