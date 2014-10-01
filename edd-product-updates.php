@@ -101,6 +101,8 @@ function edd_pup_uninstall(){
 	delete_transient( 'edd_pup_subject' );	
 	delete_transient( 'edd_pup_email_body_header' );
 	delete_transient( 'edd_pup_email_body_footer' );
+	delete_transient( 'edd_pup_preview_email' );
+	delete_transient( 'edd_pup_sending_email' );
 }
 register_uninstall_hook(__FILE__,'edd_pup_uninstall');
 
@@ -185,54 +187,6 @@ function edd_pup_template(){
 	global $edd_options;
 	
 	return $edd_options['edd_pup_template'];
-}
-
-/**
- * Loop through customers and trigger email if they purchased updated product
- * 
- * 
- * @access public
- * @return void
- */
-function edd_pup_email_loop(){
-
-	global $edd_options;
-	$email_data = get_post_custom( get_transient( 'edd_pup_email_id' ) );
-	$payments 	= edd_pup_get_all_customers();
-	
-	// Start the loop
-	foreach ( $payments as $customer ){
-		
-		// Don't send to customers who have unsubscribed from updates
-		if ( edd_pup_user_send_updates( $customer->ID ) ){
-			
-			// Check what products customers are eligible for updates
-			$customer_updates = edd_pup_eligible_updates( $customer->ID, $edd_options['prod_updates_products'] );	
-			
-			// Send email if customers have eligible updates available				
-			if ( ! empty( $customer_updates ) ) {
-				
-				edd_pup_trigger_email( $customer->ID, $email_data['_edd_pup_subject'][0], $email_data['_edd_pup_message'][0], $email_data['_edd_pup_headers'][0]  );				
-			
-				// Reset file download limits for customers' eligible updates
-				foreach ( $customer_updates as $download ) {
-					$limit = edd_get_file_download_limit( $download['id'] );
-					if ( ! empty( $limit ) ) {
-						edd_set_file_download_limit_override( $download['id'], $customer->ID );
-					}
-				}
-			}
-		}
-		// Flush customer specific transient
-		delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
-	}
-	
-	// Flush remaining transients
-	delete_transient( 'edd_pup_email_id' );
-	delete_transient( 'edd_pup_all_customers' );
-	delete_transient( 'edd_pup_subject' );	
-	delete_transient( 'edd_pup_email_body_header' );
-	delete_transient( 'edd_pup_email_body_footer' );
 }
 
 /**
@@ -651,9 +605,18 @@ function edd_pup_ajax_save( $posted ) {
 	return edd_pup_save_email( $data, $data['email-id'] );
 }
 
+/**
+ * Generates HTML for preview of email on edit email screen
+ * 
+ * @access public
+ * @return void
+ */
 function edd_pup_ajax_preview() {
 	
 	$email_id = edd_pup_ajax_save( $_POST );
+	
+	// Necessary for preview HTML
+	set_transient ( 'edd_pup_preview_email', $email_id, 60 );
 	
 	if ( 0 != $email_id ){
 	
@@ -663,8 +626,10 @@ function edd_pup_ajax_preview() {
 		add_filter('edd_email_template', 'edd_pup_template' );
 		
 		echo edd_apply_email_template( $email->post_content, null, null );
+		
 	} else {
-		_e('There was an error retrieving the post. Please contact support.', 'edd-pup');
+	
+		_e('There was an error generating a preview. Please contact support with error code 001.', 'edd-pup');
 	}
 	
 	die();
@@ -680,6 +645,7 @@ add_action( 'wp_ajax_edd_pup_ajax_preview', 'edd_pup_ajax_preview' );
 function edd_pup_send_test_email() {
 	//if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'edd-pup-test-nonce' ) )
 	//	return;
+	
 	
 	$error = 0;	
 	$form = array();
@@ -709,6 +675,9 @@ function edd_pup_send_test_email() {
 		if ( !empty( $to ) ) {
 			$email_id = edd_pup_ajax_save( $_POST );
 			
+			// Set transient for custom tags in test email
+			set_transient( 'edd_pup_preview_email', $email_id, 60 );
+				
 			// Send a test email
 	    	$sent = edd_pup_test_email( $email_id, $to );
 	    	
@@ -739,33 +708,25 @@ function edd_pup_test_email( $email_id, $to = null ) {
 	
 	$email     = get_post( $email_id );
 	$emailmeta = get_post_custom( $email_id );
-
-	$default_email_body = __( "Dear", "edd" ) . " {name},\n\n";
-	$default_email_body .= __( "Thank you for your purchase. Please click on the link(s) below to download your files.", "edd" ) . "\n\n";
-	$default_email_body .= "{download_list}\n\n";
-	$default_email_body .= "{sitename}";
 	
 	add_filter('edd_email_template', 'edd_pup_template' );
-	$body = edd_apply_email_template( $email->post_content, $email_id, null );
 	
 	$message = edd_get_email_body_header();
-	$message .= apply_filters( 'edd_prod_updates_message', edd_email_preview_template_tags( $body ), 0, array() );
+	$message .= apply_filters( 'edd_pup_test_message', edd_apply_email_template( $email->post_content, $email_id, null ), 0, array() );
 	$message .= edd_get_email_body_footer();
 
-//CHANGE THIS//
-	$from_name = isset( $emailmeta['from_name'] ) ? $emailmeta['from_name'] : get_bloginfo('name');
-	$from_email = isset( $emailmeta['from_email'] ) ? $emailmeta['from_email'] : get_option('admin_email');
+	$from_name = isset( $emailmeta['_edd_pup_from_name'][0] ) ? $emailmeta['_edd_pup_from_name'][0] : get_bloginfo('name');
+	$from_email = isset( $emailmeta['_edd_pup_from_email'][0] ) ? $emailmeta['_edd_pup_from_email'][0] : get_option('admin_email');
 
-	$subject = apply_filters( 'edd_prod_updates_subject', isset( $email->post_excerpt )
+	$subject = apply_filters( 'edd_pup_test_subject', isset( $email->post_excerpt )
 		? trim( $email->post_excerpt )
 		: __( '(no subject)', 'edd-pup' ), 0 );
 	$subject = edd_do_email_tags( $subject, $email_id );
 
 	$headers = "From: " . stripslashes_deep( html_entity_decode( $from_name, ENT_COMPAT, 'UTF-8' ) ) . " <$from_email>\r\n";
 	$headers .= "Reply-To: ". $from_email . "\r\n";
-	//$headers .= "MIME-Version: 1.0\r\n";
 	$headers .= "Content-Type: text/html; charset=utf-8\r\n";
-	$headers = apply_filters( 'edd_test_purchase_headers', $headers );
+	$headers = apply_filters( 'edd_pup_test_headers', $headers );
 	
 	foreach ( $to as $recipient ) {
 		wp_mail( $recipient, $subject, $message, $headers );
