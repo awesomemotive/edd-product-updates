@@ -13,10 +13,20 @@
 .edd-pup-list #the-list .column-status {
 	font-weight: bold;
 }
+
 .edd-pup-list #the-list .column-status .publish,
 #edd-pup-admin-email .status-publish {
-	color: green;
-	font-weight: bold;
+	color: #27ae60;
+}
+
+.edd-pup-list #the-list .column-status .pending,
+#edd-pup-admin-email .status-pending {
+	color: #f39c12;
+}
+
+.edd-pup-list #the-list .column-status .abandoned,
+#edd-pup-admin-email .status-abandoned {
+	color: #c0392b;
 }
 
 #edd-pup-admin-email #minor-publishing-actions a {
@@ -177,22 +187,48 @@
 .wp-list-table .column-recipients { width: 10%;}
 .wp-list-table .column-date { width: 20%;}
 
+
+.postbox #edd-pup-popup-preview {
+	padding: 0;
+	max-width: 100%;
+	margin: 0 auto;
+}
+
 /* Preview styles */
-#edd-pup-preview {
+#edd-pup-popup-preview {
 	padding: 0 20px;
 	max-width: 600px;
 	margin: 0 auto;
 }
 
-#edd-pup-preview ul {
+#edd-pup-popup-preview ul {
 	list-style-type: disc;
 	margin-left: 25px;
 }
 
-#edd-pup-preview ul li ul,
-#edd-pup-preview ul ul {
+#edd-pup-popup-preview ul li ul,
+#edd-pup-popup-preview ul ul {
 	list-style-type: circle;
 	margin-left: 25px;
+}
+
+/* View Alert */
+.edd-pup-view-alert .postbox {
+	background: rgba(231, 76, 60,.4);
+	border: 2px solid rgba(192, 57, 43,1.0);
+}
+
+.edd-pup-view-alert .postbox .hndle {
+	border-bottom-color: rgba(192, 57, 43,1.0);
+}
+
+.edd-pup-view-processing .postbox {
+	background: rgba(46, 204, 113, 0.4);
+	border: 2px solid rgba(39, 174, 96,1.0);
+}
+
+.edd-pup-view-processing .postbox .hndle {
+	border-bottom-color: rgba(39, 174, 96,1.0);
 }
 
 /* Progress Bar */
