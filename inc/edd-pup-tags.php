@@ -81,7 +81,7 @@ function edd_pup_preview_tags( $message ) {
 	$message = str_replace( '{unsubscribe_link}', $unsubscribe, $message );
 	
 	// Add div for CSS styling of custom tags
-	$message = '<div id="edd-pup-preview">' . $message . '</div>';
+	$message = '<div id="edd-pup-popup-preview">' . $message . '</div>';
 
 	return $message;
 }
@@ -271,7 +271,7 @@ function edd_pup_unsub_tag( $payment_id ) {
 		'edd_action' => 'prod_update_unsub'
 	);
 	$unsublink = add_query_arg( $unsub_link_params, ''.home_url() );
-	$unsubscribe = printf( '<a href="%1$s">%2$s</a>', $unsublink, __( 'Unsubscribe', 'edd-pup' ) );
+	$unsubscribe = printf( '<a href="%1$s">%2$s</a>', $unsublink, apply_filters( 'edd_pup_unsubscribe_text', __( 'Unsubscribe', 'edd-pup' ) ) );
 
 	return $unsubscribe;
 }
