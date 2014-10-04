@@ -21,6 +21,7 @@ require( 'inc/edd-pup-tags.php');
 require( 'inc/edd-pup-post-types.php');
 require( 'inc/edd-pup-submenu.php');
 require( 'inc/edd-pup-ajax.php');
+require( 'inc/edd-pup-notices.php');
 
 /**
  * Register custom database table name into $wpdb global
@@ -143,19 +144,26 @@ function edd_pup_settings ( $edd_settings ) {
 	        }
 	    }
 
-        $settings[] =
+        $settings = array(
             array(
-                'id' => 'prod_updates',
+                'id' => 'edd_pup_settings_head',
                 'name' => '<strong>' . __( 'Product Updates Email Settings', 'edd-pup' ) . '</strong>',
                 'desc' => __( 'Configure the Product Updates Email settings', 'edd-pup' ),
                 'type' => 'header'
-            );
+            ),
+            array(
+                'id' => 'edd_pup_auto_del',
+                'name' => __( 'Disable automatic queue removal', 'edd-pup' ),
+                'desc' => __( 'When checked, emails will remain in the queue indefinitely instead of being removed after 48 hours.', 'edd-pup' ),
+                'type' => 'checkbox'
+            )
+       );
 	            
        if ( is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
        
         $settings[] =
             array(
-                'id' => 'prod_updates_license',
+                'id' => 'edd_pup_license',
                 'name' => __( 'Easy Digital Downloads Software Licensing Integration', 'edd-pup' ),
                 'desc' => __( 'If enabled, only customers with active software licenses will receive update emails', 'edd-pup' ),
                 'type' => 'checkbox'
@@ -244,7 +252,7 @@ function edd_pup_trigger_email( $payment_id, $_subject, $_message, $headers ) {
 	}
 	
 	// Update payment notes to log this email being sent	
-	edd_insert_payment_note($payment_id, sprintf( __( 'Sent product update email "%s"', 'edd-pup' ), $subject ) );
+	edd_insert_payment_note( $payment_id, sprintf( __( 'Sent product update email "%s"', 'edd-pup' ), $subject ) );
     
     return $mailresult;
 }
@@ -368,7 +376,7 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = tru
 		$customer_updates = '';
 		$cart_items = edd_get_payment_meta_cart_details( $payment_id, false );
 			
-		if ( isset($edd_options['prod_updates_license']) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
+		if ( isset( $edd_options['edd_pup_license']) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
 			$licenses = edd_pup_get_license_keys($payment_id);
 		}
 		
@@ -376,7 +384,7 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = tru
 		
 			if ( array_key_exists( $item['id'], $updated_products ) ){
 				
-				if ( ! empty($licenses) && isset($edd_options['prod_updates_license']) && get_post_meta( $item['id'], '_edd_sl_enabled', true ) ) {
+				if ( ! empty($licenses) && isset($edd_options['edd_pup_license']) && get_post_meta( $item['id'], '_edd_sl_enabled', true ) ) {
 					
 					$checkargs = array(
 						'key'        => $licenses[$item['id']],
@@ -440,7 +448,7 @@ function edd_pup_get_license_keys( $payment_id ){
  * @return void
  */
 function edd_pup_create_email( $data ) {
-	if ( isset( $data['edd-pup-email-add-nonce'] ) && wp_verify_nonce( $data['edd-pup-email-add-nonce'], 'edd-pup-email-add-nonce' ) ) {
+	if ( isset( $data['edd_pup_nonce'] ) && wp_verify_nonce( $data['edd_pup_nonce'], 'edd_pup_nonce' ) ) {
 		
 		$posted = edd_pup_prepare_data( $data );
 		$email_id = 0;
@@ -452,11 +460,13 @@ function edd_pup_create_email( $data ) {
 		$post = edd_pup_save_email( $posted, $email_id );
 		
 		if ( 0 != $post ) {
-
-			wp_redirect( add_query_arg( array( 'view' => 'edit_pup_email' , 'id' => $post ), $data['edd-pup-email'] ) ); edd_die();
+			
+			wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 1 ) ) );
+			edd_die();
 
 		} else {
-			wp_die ( __( 'Something went wrong. Please contact support.', 'edd-pup' ) );
+		
+			wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 2 ) ) );
 			edd_die();
 			
 		}		
@@ -466,12 +476,13 @@ add_action( 'edd_add_pup_email', 'edd_pup_create_email' );
 add_action( 'edd_edit_pup_email', 'edd_pup_create_email' );
 
 function edd_pup_prepare_data( $data ) {
+
 	// Setup the email details
 	$posted = array();
 
 	foreach ( $data as $key => $value ) {
 		
-		if ( $key != 'edd-pup-email-add-nonce' && $key != 'edd-action' && $key != 'edd-pup-email' ) {
+		if ( $key != 'edd_pup_nonce' && $key != 'edd-action' && $key != 'edd_pup_edit_url' ) {
 
 			if ( 'email' == $key || 'product' == $key )
 				$posted[ $key ] = $value;
@@ -504,7 +515,12 @@ function edd_pup_save_email( $data, $email_id = null ) {
 	$products = isset( $data['product'] ) ? $data['product'] : '';
 		
 	if ( 0 != $email_id ) {
-	
+		
+		// Don't save any changes unless email is editable
+		if ( get_post_status( $email_id ) != 'draft' ) {
+			return;
+		}
+		
 		$updateargs = array(
 			'ID' => $email_id,
 			'post_content' => $data['message'],
@@ -558,7 +574,6 @@ function edd_pup_save_email( $data, $email_id = null ) {
 			add_post_meta ( $email_id, '_edd_pup_recipients', $data['recipients'] );	
 		}
 		
-		//set_transient( 'edd_pup_email_id', $create_id, 24 * 3600 );
     	if ( 0 != $create_id) {	
 			return $create_id;
 		}
@@ -572,9 +587,10 @@ function edd_pup_delete_email( $data ) {
 	$goodbye = wp_delete_post( $data['id'], true );
 	
 	if ( false === $goodbye || empty( $goodbye ) ) {
-		wp_redirect( add_query_arg( array( 'nope' => 'didntwork' ) ) );
+		wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 3, admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ) ) );
 	} else {
-		wp_redirect( admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) );
+		wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 4, admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ) ) );
+		
 	}
 	
     exit;
@@ -643,13 +659,15 @@ add_action( 'wp_ajax_edd_pup_ajax_preview', 'edd_pup_ajax_preview' );
  * @return void
  */
 function edd_pup_send_test_email() {
-	//if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'edd-pup-test-nonce' ) )
-	//	return;
+	$form = array();
+	parse_str( $_POST['form'], $form );
+	
+	if ( ! wp_verify_nonce( $form['edd-pup-test-nonce'], 'edd-pup-test-nonce' ) ) {
+		return;
+	}
 	
 	
 	$error = 0;	
-	$form = array();
-	parse_str($_POST['form'], $form );
 
 	if ( empty( $form['test-email'] ) ) {
 		_e( 'Please enter an email address to send the test to.', 'edd-pup' );		
@@ -772,7 +790,7 @@ function edd_pup_email_confirm_html(){
 	}
 
 	
-	$nonceurl = add_query_arg( array( 'view' => 'pup_send_ajax', 'id' => $email_id ), admin_url( 'wp-admin/edit.php?post_type=download&page=edd-prod-updates' ) );
+	$nonceurl = add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) );
 	
 	$customercount = edd_pup_customer_count( $email_id, $products );
 	
@@ -810,7 +828,7 @@ function edd_pup_email_confirm_html(){
 								</ul>
 							<li><strong><?php _e( 'Recipients:', 'edd-pup' ); ?></strong> <?php printf( _n( '1 customer will receive this email and have their downloads reset', '%s customers will receive this email and have their downloads reset', $customercount, 'edd-pup' ), $customercount ); ?></li>
 						</ul>
-						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_email_loop_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
+						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_send_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
 						<button class="closebutton button-secondary"><?php _e( 'Close without sending', 'edd-pup' ); ?></button>
 					</div>
 				</div>
@@ -821,3 +839,13 @@ function edd_pup_email_confirm_html(){
 	die();
 }
 add_action( 'wp_ajax_edd_pup_confirm_ajax', 'edd_pup_email_confirm_html' );
+
+// cron
+
+if( !wp_next_scheduled( 'feedburner_refresh' ) ) {
+   wp_schedule_event( time(), 'daily', 'feedburner_refresh' );
+}
+
+wp_clear_scheduled_hook( 'feedburner_refresh' );
+
+add_action( 'feedburner_refresh', 'update_rss_subscriber_count' );
