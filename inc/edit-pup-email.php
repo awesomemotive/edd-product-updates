@@ -15,8 +15,19 @@ $updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE 
 $recipients = edd_pup_customer_count( $email_id, $updated_products );
 $products = edd_pup_get_all_downloads();
 $tags = edd_get_email_tags();
+$status = get_post_status( $email_id );	
+
+// Redirect to view page if edit page is accessed directly
+if ( $status != 'draft' ) {
+	?>
+	<script type="text/javascript">
+		window.location.href = document.URL.replace('edit_pup_email', 'view_pup_email');
+	</script>
+	<?php
+}
 
 ?>
+
 <form id="edd-pup-email-edit" action="" method="POST">
 <div id="edd-pup-admin-email" class="wrap">
 <?php do_action( 'edd_add_receipt_form_top' ); ?>
@@ -102,7 +113,6 @@ $tags = edd_get_email_tags();
 							
 							<!-- recipients -->
 								<p><strong><?php _e( 'Recipients', 'edd-pup' ); ?>:</strong> <?php printf( _n( '1 customer will receive this email', '%s customers will receive this email', $recipients, 'edd-pup' ), $recipients ); ?></p>
-
 								<input type="hidden" name="recipients" value="<?php echo $recipients; ?>" />
 						</div>
 					</div>
@@ -137,8 +147,7 @@ $tags = edd_get_email_tags();
 	<div class="submit">
 		<input type="hidden" name="edd-action" value="edit_pup_email" />
 		<input type="hidden" name="email-id" value="<?php echo absint( $_GET['id'] ); ?>" />
-		<input type="hidden" name="edd-pup-email" value="<?php echo esc_url( admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=edit_pup_email&id='.$email_id ) ); ?>" />
-		<input type="hidden" name="edd-pup-email-add-nonce" value="<?php echo wp_create_nonce( 'edd-pup-email-add-nonce' ); ?>" />
+		<input type="hidden" name="edd_pup_nonce" value="<?php echo wp_create_nonce( 'edd_pup_nonce' ); ?>" />
 		<input type="submit" value="<?php _e( 'Save Email Changes', 'edd-pup' ); ?>" class="button-primary" />
 	</div>
 	<div class="edit-buttons">
