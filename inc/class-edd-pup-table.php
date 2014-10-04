@@ -47,12 +47,28 @@ class EDD_Pup_Table extends WP_List_Table {
 	public $sent_count;
 
 	/**
+	 * Number of pending emails
+	 *
+	 * @var string
+	 * @since 1.0
+	 */
+	public $queue_count;
+	
+	/**
 	 * Number of draft emails
 	 *
 	 * @var string
 	 * @since 1.0
 	 */
 	public $draft_count;
+	
+	/**
+	 * Number of cancelled/abandoned emails
+	 *
+	 * @var string
+	 * @since 1.0
+	 */
+	public $abandon_count;
 
 	/**
 	 * Get things started
@@ -118,12 +134,16 @@ class EDD_Pup_Table extends WP_List_Table {
 		$current        = isset( $_GET['status'] ) ? $_GET['status'] : '';
 		$total_count    = '&nbsp;<span class="count">(' . $this->total_count    . ')</span>';
 		$sent_count   = '&nbsp;<span class="count">(' . $this->sent_count . ')</span>';
+		$queue_count = '&nbsp;<span class="count">(' . $this->queue_count  . ')</span>';
 		$draft_count = '&nbsp;<span class="count">(' . $this->draft_count  . ')</span>';
+		$abandon_count = '&nbsp;<span class="count">(' . $this->abandon_count  . ')</span>';
 
 		$views = array(
 			'all'		=> sprintf( '<a href="%s"%s>%s</a>', remove_query_arg( 'status', $base ), $current === 'all' || $current == '' ? ' class="current"' : '', __('All', 'edd-ppe') . $total_count ),
 			'sent'	=> sprintf( '<a href="%s"%s>%s</a>', add_query_arg( 'status', 'publish', $base ), $current === 'publish' ? ' class="current"' : '', __('Sent', 'edd-pup') . $sent_count ),
+			'queue'	=> sprintf( '<a href="%s"%s>%s</a>', add_query_arg( 'status', 'pending', $base ), $current === 'pending' ? ' class="current"' : '', __('In Queue', 'edd-pup') . $queue_count ),
 			'draft'	=> sprintf( '<a href="%s"%s>%s</a>', add_query_arg( 'status', 'draft', $base ), $current === 'draft' ? ' class="current"' : '', __('Drafts', 'edd-pup') . $draft_count ),
+			'abandoned'	=> sprintf( '<a href="%s"%s>%s</a>', add_query_arg( 'status', 'abandoned', $base ), $current === 'abandoned' ? ' class="current"' : '', __('Cancelled', 'edd-pup') . $abandon_count )
 		);
 
 		return $views;
@@ -197,9 +217,13 @@ class EDD_Pup_Table extends WP_List_Table {
 	function column_status( $item ) {
 		switch ( $item[ 'status' ] ){
 			case 'Publish':
-				return '<span class="'.strtolower($item[ 'status' ]).'">Sent</span>';
+				return '<span class="'.strtolower($item[ 'status' ]).'">'. __( 'Sent', 'edd-pup' ) .'</span>';
+			case 'Pending':
+				return '<span class="'.strtolower($item[ 'status' ]).'">'. __( 'In Queue', 'edd-pup' ) .'</span>';
+			case 'Abandoned':
+				return '<span class="'.strtolower($item[ 'status' ]).'">'. __( 'Cancelled', 'edd-pup' ) .'</span>';
 			default:
-				return '<span class="'.strtolower($item[ 'status' ]).'">'.$item[ 'status' ].'</span>';
+				return '<span class="'.strtolower($item[ 'status' ]).'">'. $item[ 'status' ] .'</span>';
 		}
 	}
 
@@ -216,21 +240,26 @@ class EDD_Pup_Table extends WP_List_Table {
 	function column_email( $item ) {
 		$email        = get_post( $item['ID'] );
 		$status       = strtolower ( $item [ 'status' ] );
-		$view	      = $status == 'publish' ? 'view_pup_email' : 'edit_pup_email';
+		$view	      = $status == 'draft' ? 'edit_pup_email' : 'view_pup_email';
 		$emailname    = !empty( $email->post_title ) ? $email->post_title : __( '(no title)', 'edd-pup' );
 		$row_actions  = array();
 				
-		if ( $status == 'draft') {
-			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID ) ) . '">' . __( 'Edit', 'edd-pup' ) . '</a>';
+		if ( $status == 'draft' ) {
+			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false ) ) . '">' . __( 'Edit', 'edd-pup' ) . '</a>';
 		} else {
-			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID ) ) . '">' . __( 'View', 'edd-pup' ) . '</a>';
+			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false) ) . '">' . __( 'View', 'edd-pup' ) . '</a>';
+		}
+		
+		if ( $status == 'pending' ) {
+			$row_actions['send'] = '<a href="#">' . __( 'Send Remaining', 'edd-pup' ) . '</a>';
+			$row_actions['clear'] = '<a href="#" class="edd-pup-queue-button" data-action="edd_pup_clear_queue" data-email="'. $email->ID .'" >' . __( 'Clear from Queue', 'edd-pup' ) . '</a>';			
 		}
 	
 		$row_actions['delete'] = '<a href="' . wp_nonce_url( add_query_arg( array( 'edd_action' => 'pup_delete_email', 'id' => $email->ID ) ), 'edd-pup-delete-nonce' ) . '" onclick="var result=confirm(\''. __( 'Are you sure you want to permanently delete this email?', 'edd-pup' ).'\');return result;">' . __( 'Delete', 'edd-pup' ) . '</a>';
 
 		$row_actions = apply_filters( 'edd_pup_row_actions', $row_actions, $email );
 
-		return '<strong><a class="row-title" href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID ) ) . '">' . $emailname . '</a></strong>' . $this->row_actions( $row_actions );
+		return '<strong><a class="row-title" href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false ) ) . '">' . $emailname . '</a></strong>' . $this->row_actions( $row_actions );
 	}
 
 	/**
@@ -305,10 +334,12 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * @return void
 	 */
 	public function get_email_counts() {
-		$emails_count  = wp_count_posts( 'edd_pup_email' );
+		$emails_count  = wp_count_posts( 'edd_pup_email', 'readable' );
 		$this->sent_count   = $emails_count->publish; // related to post status
+		$this->queue_count = $emails_count->pending;
 		$this->draft_count = $emails_count->draft;
-		$this->total_count    = $emails_count->publish + $emails_count->draft;
+		$this->abandon_count = $emails_count->abandoned;
+		$this->total_count    = $emails_count->publish + $emails_count->draft + $emails_count->pending + $emails_count->abandoned;
 	}
 
 	/**
@@ -328,7 +359,7 @@ class EDD_Pup_Table extends WP_List_Table {
 		$orderby 		= isset( $_GET['orderby'] )  ? $_GET['orderby']                  : 'ID';
 		$order 			= isset( $_GET['order'] )    ? $_GET['order']                    : 'DESC';
 		$order_inverse 	= $order == 'DESC'           ? 'ASC'                             : 'DESC';
-		$status 		= isset( $_GET['status'] )   ? $_GET['status']                   : array( 'draft', 'publish' );
+		$status 		= isset( $_GET['status'] )   ? $_GET['status']                   : array( 'draft', 'pending', 'publish', 'abandoned' );
 		$meta_key		= isset( $_GET['meta_key'] ) ? $_GET['meta_key']                 : null;
 		$search         = isset( $_GET['s'] )        ? sanitize_text_field( $_GET['s'] ) : null;
 		$order_class 	= strtolower( $order_inverse );
@@ -413,6 +444,12 @@ class EDD_Pup_Table extends WP_List_Table {
 				break;
 			case 'draft':
 				$total_items = $this->draft_count;
+				break;
+			case 'pending':
+				$total_items = $this->queue_count;
+				break;
+			case 'abandoned':
+				$total_items = $this->abandon_count;
 				break;
 			case 'any':
 				$total_items = $this->total_count;
