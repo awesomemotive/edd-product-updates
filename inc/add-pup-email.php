@@ -124,8 +124,8 @@ $tags = edd_get_email_tags();
 	<div class="submit">
 		<input type="hidden" name="edd-action" value="edit_pup_email" />
 		<input type="hidden" name="email-id" value="<?php echo absint( $_GET['id'] ); ?>" />
-		<input type="hidden" name="edd-pup-email" value="<?php echo esc_url( admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ); ?>" />
-		<input type="hidden" name="edd-pup-email-add-nonce" value="<?php echo wp_create_nonce( 'edd-pup-email-add-nonce' ); ?>" />
+		<input type="hidden" name="edd_pup_edit_url" value="<?php echo esc_url( admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ); ?>" />
+		<input type="hidden" name="edd_pup_nonce" value="<?php echo wp_create_nonce( 'edd_pup_nonce' ); ?>" />
 		<input type="submit" value="<?php _e( 'Save Email', 'edd-pup' ); ?>" class="button-primary" />
 	</div>
 	<div class="edit-buttons">
