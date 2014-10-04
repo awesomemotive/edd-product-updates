@@ -27,24 +27,45 @@ jQuery(document).ready(function ($) {
 		
 		// used for queue resolution popup from alert
 		if ( $('#edd-pup-queue-details').length ){
+		
+		var url = document.URL;
+					
 			$('.edd-pup-queue-button').click( function() {
-				
-				var data = {
+			
+				var	data = {
 						'action' : $(this).attr('data-action'),
 						'email' : $(this).attr('data-email')
 						};
 				
-				if ( action == 'edd-pup-empty') {
+				if ( data['action'] == 'edd_pup_clear_queue' ) {
 					
-					if ( confirm('Empty the Queue? Action: ' +action + ' email: ' + email) ) {
-						$.fn.colorbox.close();
+					if ( confirm( 'Are you sure you wish to continue clearing the queue?' ) ) {
+						
+						$.post( ajaxurl, data ).error( function() {
+						
+								alert( 'Something went wrong' );
+								
+							}).success( function ( response ) {
+
+								window.location.href= url + '&edd_pup_cq=' + data['email'];
+								
+							});
 					}
 					
 				} else {
-					$.post( ajaxurl, data );
+				
+					alert ( 'Action: ' + data['action'] + ' email: ' + data['email'] )
 				}
 	
 			});
+			
+			// Opens queue details on page after having just cleared from queue
+			var clear = decodeURIComponent((new RegExp('[?|&]' + 'edd_pup_cq' + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+			
+			if ( clear > 0 || clear == 'all' ) {
+				$('#edd-pup-view-queue-alert').trigger('click');
+				window.history.replaceState({}, 'queueurl', url.replace(/&?edd_pup_cq=([^&]$|[^&]*)/i, "") );
+			}
 		}
     
 	function emailPreview() {
@@ -60,7 +81,7 @@ jQuery(document).ready(function ($) {
           		tinyMCE.triggerSave();
            		var url = document.URL,
            			form = $('#edd-pup-email-edit').serialize(),
-           			data = {'action': 'edd_pup_ajax_preview', 'form' : form };         
+           			data = { 'action': 'edd_pup_ajax_preview', 'form' : form };         
                 
                 $.post( ajaxurl, data ).error( function() {
                 
