@@ -29,14 +29,17 @@ function edd_pup_notices() {
 				$message = __( 'Product Update Email changes saved successfully.', 'edd-pup' );
 				break;
 			case 2:
+				$message = __( 'Product Update Email saved successfully.', 'edd-pup' );
+				break;
+			case 3:
 				$message = sprintf( __( 'Product Update Email changes <strong>did not save successfully</strong>. If the issue continues, please <a href="%s" target="_%s">contact Easy Digital Downloads support</a> for help.', 'edd-pup' ), $supporturl, '_blank' );
 				$style = 'error';
 				break;
-			case 3:
+			case 4:
 				$message = sprintf( __( 'Email was <strong>not deleted successfully</strong>. If the issue continues, please <a href="%s" target="_%s">contact Easy Digital Downloads support</a> for help.', 'edd-pup' ), $supporturl, '_blank' );
 				$style = 'error';
 				break;
-			case 4:
+			case 5:
 				$message = __( '1 email successfully deleted.', 'edd-pup' );
 				break;
 		}
