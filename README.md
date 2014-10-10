@@ -8,6 +8,10 @@ Version 0.9.2 – *This is a very early version that has been tested in a limite
 * **EDD:** 2.0.4
 * **PHP:** 5.4.26
 
+**Requirements:**
+* **Wordpress:** 3.0+
+* **jQuery:** 1.4 (included in WordPress above 3.0)
+
 This extension allows you to send specialized product update emails to your customers when using [Easy Digital Downloads](http://easydigitaldownloads.com/). For instance, if you release an updated edition of an eBook, instead of confusing customers by resending their purchase receipts – with purchase language, downloads to all the products they bought, and no context for the email – you can use this extension to send them an email with a message tailored to the update while taking full advantage of Easy Digital Download's powerful download link expiration system.
 
 ## Features
