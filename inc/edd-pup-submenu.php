@@ -97,7 +97,7 @@ function edd_pup_queue_details() {
 				<button class="closebutton button button-secondary"><?php _e( 'Close Window', 'edd-pup' ); ?></button>
 			</div><!-- end #edd-pup-queue-buttons -->
 		</div><!-- end #edd-pup-queue-details -->
-	</div><!-- end #edd-pup-queue-details-wrap -->';
+	</div><!-- end #edd-pup-queue-details-wrap -->
 <?php
 }
 
