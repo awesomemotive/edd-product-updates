@@ -16,8 +16,9 @@ $email_id  = absint( $_GET['id'] );
 $email     = get_post( $email_id );
 $emailmeta = get_post_custom( $email_id );
 $updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
+$recipients = get_post_meta( $email_id, '_edd_pup_recipients', TRUE );
 $queue = edd_pup_check_queue( $email_id );
-$processing = true;
+$processing = edd_pup_is_processing() ? true : false;
 
 switch ( strtolower( $email->post_status ) ){
 		case 'publish':
@@ -47,8 +48,14 @@ switch ( strtolower( $email->post_status ) ){
 							<?php if ( $queue['queue'] > 0 ): ?>
 							<p><strong><?php _e( 'Queued', 'edd-pup' ); ?>:</strong> <?php echo $queue['queue']; ?></p>
 							<p><strong><?php _e( 'Processed', 'edd-pup' ); ?>:</strong> <?php echo $queue['sent']; ?></p>
+							<?php endif;?>
+							<?php if ( is_array( $recipients ) ): ?>
+							<p><strong><?php _e( 'Sent', 'edd-pup' ); ?>:</strong> <?php echo $recipients['sent']; ?></p>
+							<p><strong><?php _e( 'Unsent', 'edd-pup' ); ?>:</strong> <?php echo $recipients['queue']; ?></p>
+							<p><strong><?php _e( 'Total Recipients', 'edd-pup' ); ?>:</strong> <?php echo $recipients['total']; ?></p>
+							<?php else: ?>
+							<p><strong><?php _e( 'Total Recipients', 'edd-pup' ); ?>:</strong> <?php echo $recipients; ?></p>
 							<?php endif; ?>
-							<p><strong><?php _e( 'Total Recipients', 'edd-pup' ); ?>:</strong> <?php echo $emailmeta['_edd_pup_recipients'][0]; ?></p>
 							<p><strong><?php _e( 'Updated Products', 'edd-pup' ); ?>:</strong></p>
 								<ul id="updated-products">
 								<?php foreach ( $updated_products as $id => $title ): ?>
