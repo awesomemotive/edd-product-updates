@@ -460,13 +460,21 @@ function edd_pup_create_email( $data ) {
 		$post = edd_pup_save_email( $posted, $email_id );
 		
 		if ( 0 != $post ) {
+			if ( $data['edd-action'] == 'add_pup_email' ) {
+				
+				wp_redirect( esc_url_raw( add_query_arg( array( 'view' => 'edit_pup_email', 'id' => $post, 'edd_pup_notice' => 2 ) ) ) );	
+				
+			} else {
 			
-			wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 1 ) ) );
+				wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 1 ) ) );	
+						
+			}
+			
 			edd_die();
 
 		} else {
 		
-			wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 2 ) ) );
+			wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 3 ) ) );
 			edd_die();
 			
 		}		
@@ -587,9 +595,9 @@ function edd_pup_delete_email( $data ) {
 	$goodbye = wp_delete_post( $data['id'], true );
 	
 	if ( false === $goodbye || empty( $goodbye ) ) {
-		wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 3, admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ) ) );
-	} else {
 		wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 4, admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ) ) );
+	} else {
+		wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 5, admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ) ) );
 		
 	}
 	
@@ -839,6 +847,28 @@ function edd_pup_email_confirm_html(){
 	die();
 }
 add_action( 'wp_ajax_edd_pup_confirm_ajax', 'edd_pup_email_confirm_html' );
+
+function edd_pup_is_processing( $emailid = null ) {
+	if ( empty( $emailid ) ) {
+		return;
+	}
+	
+	$email_list = edd_pup_queue_emails();
+	
+	if ( is_array( $email_list) && in_array( $emailid, $email_list ) ) {
+		$totals = edd_pup_check_queue( $emailid );
+		
+		if ( $totals['queue'] > 0 && $emailid == get_transient( 'edd-pup-sending' ) ) {
+			return true;
+		}
+		
+	} else {
+	
+		return false;
+		
+	}
+	
+}
 
 // cron
 
