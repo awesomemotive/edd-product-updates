@@ -42,7 +42,8 @@ jQuery(document).ready(function ($) {
 			
 				var	data = {
 						'action' : $(this).attr('data-action'),
-						'email' : $(this).attr('data-email')
+						'email' : $(this).attr('data-email'),
+						'url' : $(this).attr('data-url')
 						};
 				
 				if ( data['action'] == 'edd_pup_clear_queue' ) {
@@ -60,9 +61,10 @@ jQuery(document).ready(function ($) {
 							});
 					}
 					
-				} else {
+				} else if ( data['action'] == 'edd_pup_send_queue' ) {
 				
-					alert ( 'Action: ' + data['action'] + ' email: ' + data['email'] )
+					window.open(data['url'],'targetWindow', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=450');
+					return false;
 				}
 	
 			});
@@ -270,8 +272,6 @@ jQuery(document).ready(function ($) {
 			
 				var r = $.parseJSON(ret),
 					p = Math.round((r.sent / r.total) * 100);
-					 
-				alert ('status: ' + r.status + ' total: ' + r.total + ' sent: ' + r.sent);
 				
 				if ( r.status == 'restart' ) {						
 					$('.progress-sent').text(r.sent);
@@ -279,7 +279,7 @@ jQuery(document).ready(function ($) {
 					$('.progress-percent').text(p+'%');				
 				}
 				
-				$('.progress-wrap').show();
+				$('.progress-wrap').css('opacity', '1');
 				$('.progress-queue').text( r.total );
 				button.prop('disabled', false).attr({
 					'data-action': 'pause',
@@ -369,43 +369,6 @@ jQuery(document).ready(function ($) {
 		
 		function eddPupAjaxPause(){
 			
-		}
-		
-		function eddPupAjaxRestart(){
-		
-			var button = $('#edd-pup-ajax'),
-				clock = $('.progress-clock'),
-				bar = $('.progress-bar'),
-				emailid  = button.attr('data-email'),
-				i = 0,
-				s = 0,
-				data = {
-					'action': 'edd_pup_ajax_restart',
-					'email_id' : emailid
-				};
-						
-				$.post(ajaxurl, data).error( function() {
-				
-					alert('something went wrong');
-					
-				}).success( function( response ) {
-					
-					var resume  = parseJSON( response ),
-						percent = Math.round((resume.sent / resume.total) * 100);
-				
-					$('.progress-sent').text(resume.sent);
-					bar.attr('data-complete', percent).css('width', percent+'%');
-					$('.progress-percent').text(percent+'%');
-					$('.progress-wrap').show();
-					$('.progress-queue').text( resume.total );
-					
-					button.prop('disabled', false).attr({
-						'data-action': 'pause',
-						value: 'Pause'});
-					
-					eddPupAjaxTrigger(i, s, totalEmails, emailid);
-	
-				});		
 		}
 		
 		function eddPupAjaxRetry(seconds) {
