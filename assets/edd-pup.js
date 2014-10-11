@@ -1,5 +1,13 @@
 jQuery(document).ready(function ($) {
 
+		function eddPupRemoveMenus() {
+			if ( $('#progress-wrap').length ) {
+				$('#adminmenuwrap, #adminmenuback, #wpadminbar, #wpfooter, .update-nag').remove();
+				$('#wpcontent').css('margin', '-32px 0 0 0');
+			}
+		}
+		eddPupRemoveMenus();
+		
 	if( $('#prod-updates-email-preview-wrap').length ) {
 		var emailPreview = $('#prod-updates-email-preview');
 		$('#prod-updates-open-email-preview').colorbox({
@@ -24,7 +32,7 @@ jQuery(document).ready(function ($) {
 					height: 'auto'			
 			});
 		}
-		
+
 		// used for queue resolution popup from alert
 		if ( $('#edd-pup-queue-details').length ){
 		
@@ -113,20 +121,26 @@ jQuery(document).ready(function ($) {
            		var url = document.URL,
            			form = $('#edd-pup-email-edit').serialize(),
            			data = {'action': 'edd_pup_send_test_email', 'form' : form };
-           			       
+           		
+           		button.attr("disabled",true);
+		   		spinner.toggleClass('loading');
+				       
 		   		if ( emailValidate( $('#from_email').val() ) ) {
 		   		          
 	                $.post( ajaxurl, data ).error( function() {
 	                
 	                        alert('Could not process emails. Please try again.');
-							button.prop("disabled", false);
+							button.attr("disabled", false);
 												
 	                    }).success( function( response ) {
 	                    	
-							alert( response );
+	                    	alert( response );
+							button.attr("disabled", false);
 						
 						});
 				} else {
+				
+					 button.attr("disabled", false);
 		             alert( 'Please enter a valid email address under "From Email."');
 		             return false;				
 				}
@@ -283,7 +297,7 @@ jQuery(document).ready(function ($) {
 			}).success( function(s) {
 				
 				function progressColor( color1, color2 ){
-					bar.toggleClass(color1).toggleClass(color2);
+					bar.removeClass(color1).addClass(color2);
 				};
 				
 				var percent = Math.round((s / totalEmails) * 100);
@@ -293,9 +307,7 @@ jQuery(document).ready(function ($) {
 						bar.attr('data-complete', percent).css('width', percent+'%');
 						$('.progress-percent').text(percent+'%');
 						
-						if ( percent <= 24 ) {
-							progressColor('red', '');
-						} else if ( percent >= 25 && percent <= 49 ) {
+						if ( percent >= 25 && percent <= 49 ) {
 							progressColor('red','orange');
 						} else if ( percent >= 50 && percent <= 74 ) {
 							progressColor('orange','yellorange');
@@ -321,15 +333,28 @@ jQuery(document).ready(function ($) {
 			
 				button.prop('disabled', true).attr({
 						'data-action': 'complete',
-						value: 'Complete'});
+						value: 'Finished'});
 						
-					var t = clock.html().split(':');
+				var t = clock.html().split(':'),
+					hrs = $('.success-time-h'),
+					min = $('.success-time-m'),
+					sec = $('.success-time-s');
 				
 				clock.timer('pause');
 				$('.success-total').text(s);
-				$('.success-time-s').text(t[1]);
-				$('.success-time-m').text(t[0]);
-				$('.success-time-h').text(t[0]);
+				
+				if ( t.length > 2 ) {
+					hrs.show().text( parseInt(t[0]) + ' hr.');
+					min.show().text( parseInt(t[1]) + ' min.');
+					sec.text( parseInt(t[2]) + ' sec.');					
+				} else {
+				
+					if ( t[0] > 0 ) {
+						min.show().text( parseInt(t[0]) + ' min.');
+					}
+					sec.text( parseInt(t[1]) + ' sec.');					
+				}
+				
 				$('#completion').show();
 			});
 		}
@@ -338,8 +363,32 @@ jQuery(document).ready(function ($) {
 			
 		}
 		
-		function eddPupAjaxResume(){
-			
+		function eddPupAjaxRestart(){
+		
+			var button = $('#edd-pup-ajax'),
+				clock = $('.progress-clock'),
+				bar = $('.progress-bar'),
+				emailid  = button.attr('data-email'),
+				i = 0,
+				s = 0,
+				data = {
+					'action': 'edd_pup_ajax_restart',
+					'email_id' : emailid
+				};
+						
+				$.post(ajaxurl, data).error( function() {
+				
+					alert('something went wrong');
+					
+				}).success( function( totalEmails ) {
+					
+					bar.attr('data-complete', '0');
+					$('.progress-wrap').show();
+					$('.progress-queue').text( totalEmails );
+					
+					eddPupAjaxTrigger(i, s, totalEmails);
+	
+				});		
 		}
 		
 		function eddPupAjaxRetry(seconds) {
@@ -358,35 +407,6 @@ jQuery(document).ready(function ($) {
 	        }
 	
 		}
-		
-		/*function eddPupAjaxInitsss(){
-	        var me = this;
-	        jQuery('#cdn_export_file_start').click(function() {
-	            if (this.value == 'Pause') {
-	                me.paused = 1;
-	                me.set_button_text('Resume');
-	                me.set_status('paused');
-	                clearInterval(me.timer);
-	            } else {
-	                if (this.value == 'Start') {
-	                    me.offset = 0;
-	                    me.seconds_elapsed = 0;
-	                    me.clear_log();
-	                    me.set_progress(0);
-	                    me.set_elapsed('-');
-	                }
-	                me.paused = 0;
-	                me.set_button_text('Pause');
-	                me.set_status('processing');
-	                me.timer = setInterval(function() {
-	                    me.timer_callback();
-	                }, 1000);
-	            }
-	
-	            me.process();
-	        });
-	    
-		}*/
 	}
 	eddPupAjaxEmails();
 
