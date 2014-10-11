@@ -243,11 +243,15 @@
 }
 
 .progress-wrap {
-	width: 97%;
-	max-width: 500px;
+	width: 98%;
+	max-width: 578px;
 	text-align: center;
-	display: none;
+	opacity: 0;
 	padding-top: 15px;
+	-webkit-transition: all 1s;
+	-moz-transition: all 1s;
+	-o-transition: all 1s;
+	transition: all 1s;
 }
 
 .progress {
@@ -308,7 +312,7 @@
 }
 
 .progress-bar.orange {
-  background-color: #f27011;	
+  background-color: #f27011;
 }
 
 .progress-bar.yellorange {
