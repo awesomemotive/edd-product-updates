@@ -60,7 +60,7 @@ function edd_pup_ajax_start(){
 				if ( $i % 1000 == 0 ){
 
 					$queueinsert = implode(',', $queue );
-					$query = "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, sent) VALUES $queueinsert ON DUPLICATE KEY UPDATE customer_id=customer_id, email_id=email_id, sent=sent";
+					$query = "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, sent) VALUES $queueinsert";
 
 					$wpdb->query( $query );
 					
@@ -77,7 +77,7 @@ function edd_pup_ajax_start(){
 	// Insert leftovers or if batch is less than 1000
 	if ( !empty( $queue ) ) {
 		$queueinsert = implode(',', $queue );
-		$query = "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, sent) VALUES $queueinsert ON DUPLICATE KEY UPDATE customer_id=customer_id, email_id=email_id, sent=sent";
+		$query = "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, sent) VALUES $queueinsert";
 		$wpdb->query( $query );
 	}
     		
@@ -98,22 +98,24 @@ add_action( 'wp_ajax_edd_pup_ajax_start', 'edd_pup_ajax_start' );
  */
 function edd_pup_ajax_trigger(){
 	global $wpdb;
-
-	$email_id = get_transient( 'edd_pup_sending_email' );
+	
+	if ( !empty( $_POST['emailid'] ) && ( absint( $_POST['emailid'] ) != 0 ) ) {
+		$email_id = $_POST['emailid'];
+		
+	} else {
+		$email_id = get_transient( 'edd_pup_sending_email' );
+	}
 	
 	$batch = $_POST['iteration'];
 	$sent = $_POST['sent'];
 	$limit = 10;
-	$offset = $limit * $batch;
 	$rows = array();
 	
-	$query = "SELECT * FROM $wpdb->edd_pup_queue WHERE email_id = $email_id LIMIT $limit OFFSET $offset";
+	$query = "SELECT * FROM $wpdb->edd_pup_queue WHERE email_id = $email_id AND sent = 0 LIMIT $limit";
 	
 	$customers = $wpdb->get_results( $query , ARRAY_A);
 
 	foreach ( $customers as $customer ) {
-	
-		if ( $customer['sent'] == 0 ) {
 	
 			$trigger = edd_pup_ajax_send_email( $customer['customer_id'], $email_id );
 						
@@ -130,8 +132,6 @@ function edd_pup_ajax_trigger(){
 				$rows[] = $customer['eddpup_id'];
 				$sent++;
 			}
-		}
-		
 	}
 	
 	// Designate emails in database as having been sent
@@ -201,8 +201,8 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 	// Allow add-ons to add file attachments
 	$attachments = apply_filters( 'edd_pup_attachments', array(), $payment_id, $payment_data );
 	if ( apply_filters( 'edd_email_purchase_receipt', true ) ) {
-		$mailresult = wp_mail( $email, $subject, $message, '', $attachments );
-		//$mailresult = true;
+		//$mailresult = wp_mail( $email, $subject, $message, '', $attachments );
+		$mailresult = true;
 	}
 	
 	// Update payment notes to log this email being sent	
@@ -263,6 +263,77 @@ function edd_pup_clear_queue( $email = null ) {
 		// Build array of queued emails before clearing table
 		$queueemails = edd_pup_queue_emails();
 		
+		// Build array of sent email data before clearing table
+		foreach ( $queueemails as $email => $id ) {
+			$recipients[$id] = edd_pup_check_queue( $id );
+		}
+		
+		// Clear the database table
+		$qr = $wpdb->query( "TRUNCATE TABLE $wpdb->edd_pup_queue" );
+		
+	} else {
+		
+		$recipients = edd_pup_check_queue( $_POST['email'] );
+		
+		// Delete the rows WHERE the specified email_id matches
+		$qr = $wpdb->delete( "$wpdb->edd_pup_queue", array( 'email_id' => $_POST['email'] ), array( '%d' ) );
+		
+	}
+	
+	// If clear queue fails, bail out of function with error message, otherwise change post statuses
+	if ( false === $qr ) {
+		wp_die( __( 'Error: could not complete database query.', 'edd-pup' ), __( 'Clear Queue Error', 'edd-pup' ) );
+		
+	} else {
+		
+		if ( !empty( $queueemails ) ) {
+		
+			foreach ( $queueemails as $email => $id ) {
+				$post[] = wp_update_post( array( 'ID' => $id, 'post_status' => 'abandoned' ) );
+				update_post_meta ( $id, '_edd_pup_recipients', $recipients[$id] );
+			}	
+			
+		} else if ( absint( $_POST['email'] ) != 0 ) {
+			
+			$post = wp_update_post( array( 'ID' => $_POST['email'], 'post_status' => 'abandoned' ) );
+			update_post_meta ( $post, '_edd_pup_recipients', $recipients );
+		
+		} else {
+			
+			wp_die( __( 'Error: Valid email ID not supplied.', 'edd-pup' ), __( 'Clear Queue Error', 'edd-pup' ) );
+		}
+	
+	// Clear customer transients
+	$payments = edd_pup_get_all_customers();
+	
+	foreach ($payments as $customer){
+		delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
+	}
+
+	// Flush remaining transients
+	/*delete_transient( 'edd_pup_sending_email' );
+	delete_transient( 'edd_pup_all_customers' );
+	delete_transient( 'edd_pup_subject' );	
+	delete_transient( 'edd_pup_email_body_header' );
+	delete_transient( 'edd_pup_email_body_footer' );*/
+	
+	//echo $qr;
+	}
+	
+	die();
+}
+add_action( 'wp_ajax_edd_pup_clear_queue', 'edd_pup_clear_queue' );
+
+
+function edd_pup_ajax_restart( $email = null ) {
+	global $wpdb;
+	
+	// Clear queue
+	if ( $_POST['email'] == 'all' ) {
+	
+		// Build array of queued emails before clearing table
+		$queueemails = edd_pup_queue_emails();
+		
 		// Clear the database table
 		$qr = $wpdb->query( "TRUNCATE TABLE $wpdb->edd_pup_queue" );
 		
@@ -300,16 +371,8 @@ function edd_pup_clear_queue( $email = null ) {
 		delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
 	}
 
-	// Flush remaining transients
-	/*delete_transient( 'edd_pup_sending_email' );
-	delete_transient( 'edd_pup_all_customers' );
-	delete_transient( 'edd_pup_subject' );	
-	delete_transient( 'edd_pup_email_body_header' );
-	delete_transient( 'edd_pup_email_body_footer' );*/
-	
-	//echo $qr;
 	}
 	
 	die();
 }
-add_action( 'wp_ajax_edd_pup_clear_queue', 'edd_pup_clear_queue' );
+add_action( 'wp_ajax_edd_pup_ajax_restart', 'edd_pup_ajax_restart' );
