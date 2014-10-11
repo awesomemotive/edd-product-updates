@@ -572,6 +572,9 @@ function edd_pup_save_email( $data, $email_id = null ) {
 		// Create post and get the ID
 		$create_id = wp_insert_post( $post );
 		
+		// Get number of recipients for this email
+		$recipients = edd_pup_customer_count( $create_id, $products );
+		
 		// Insert custom meta for newly created post
 		if ( 0 != $create_id )	{
 			add_post_meta ( $create_id, '_edd_pup_from_name', $from_name, true );
@@ -613,7 +616,7 @@ function edd_pup_ajax_save( $posted ) {
 	
 	//Sanitize our data
 	$data['message'] 	= wp_kses_post( $data['message'] );
-	$data['email-id']	= absint( $data['email-id'] );
+	$data['email-id']	= isset( $data['email-id'] ) ? absint( $data['email-id'] ) : 0;
 	$data['recipients']	= absint( $data['recipients'] );
 	$data['from_name'] 	= sanitize_text_field( $data['from_name'] );
 	$data['from_email'] = sanitize_email( $data['from_email'] );
@@ -836,7 +839,7 @@ function edd_pup_email_confirm_html(){
 								</ul>
 							<li><strong><?php _e( 'Recipients:', 'edd-pup' ); ?></strong> <?php printf( _n( '1 customer will receive this email and have their downloads reset', '%s customers will receive this email and have their downloads reset', $customercount, 'edd-pup' ), $customercount ); ?></li>
 						</ul>
-						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_send_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
+						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_send_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>" onclick="window.open(this.href,'targetWindow', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=450');return false;"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
 						<button class="closebutton button-secondary"><?php _e( 'Close without sending', 'edd-pup' ); ?></button>
 					</div>
 				</div>
