@@ -253,7 +253,6 @@ jQuery(document).ready(function ($) {
 			bar = $('.progress-bar'),
 			emailid  = button.attr('data-email'),
 			i = 0,
-			s = 0,
 			data = {
 				'action': 'edd_pup_ajax_start',
 				'email_id' : emailid
@@ -267,29 +266,38 @@ jQuery(document).ready(function ($) {
 			
 				alert('something went wrong');
 				
-			}).success( function( totalEmails ) {
+			}).success( function( ret ) {
+			
+				var r = $.parseJSON(ret),
+					p = Math.round((r.sent / r.total) * 100);
+					 
+				alert ('status: ' + r.status + ' total: ' + r.total + ' sent: ' + r.sent);
 				
+				if ( r.status == 'restart' ) {						
+					$('.progress-sent').text(r.sent);
+					bar.attr('data-complete', p).css('width', p+'%');
+					$('.progress-percent').text(p+'%');				
+				}
+				
+				$('.progress-wrap').show();
+				$('.progress-queue').text( r.total );
 				button.prop('disabled', false).attr({
 					'data-action': 'pause',
 					value: 'Pause'});
 				
-				bar.attr('data-complete', '0');
-				$('.progress-wrap').show();
-				$('.progress-queue').text( totalEmails );
-				
-				eddPupAjaxTrigger(i, s, totalEmails);
+				eddPupAjaxTrigger(i, r.sent, r.total, emailid);
 
 			});
 		});
 			
-		function eddPupAjaxTrigger(i, s, totalEmails) {
+		function eddPupAjaxTrigger(i, s, totalEmails, emailid) {
 		
 			if (+s >= +totalEmails) {
-				eddPupAjaxEnd(i, s, totalEmails);
+				eddPupAjaxEnd(i, s, totalEmails, emailid);
 				return false;
 			}
 			
-			$.post(ajaxurl, {'action':'edd_pup_ajax_trigger', 'iteration': i, 'sent' : s}).error( function() {
+			$.post(ajaxurl, {'action':'edd_pup_ajax_trigger', 'iteration': i, 'sent' : s, 'email_id' : emailid }).error( function() {
 				alert('something went wrong');
 				
 				// Try to redo what went wrong, add e++. When e = 5, bail out of the operation completely. Set e back to 0 upon success.
@@ -322,12 +330,12 @@ jQuery(document).ready(function ($) {
 				
 				i++;
 				
-				eddPupAjaxTrigger(i, s, totalEmails);
+				eddPupAjaxTrigger(i, s, totalEmails, emailid);
 			});
 		}
 		
-		function eddPupAjaxEnd(i,s,totalEmails){
-			$.post(ajaxurl, {'action':'edd_pup_ajax_end'}).error( function() {
+		function eddPupAjaxEnd(i,s,totalEmails, emailid){
+			$.post(ajaxurl, {'action':'edd_pup_ajax_end', 'email_id' : emailid}).error( function() {
 				alert('something went wrong');
 			}).success( function (response) {
 			
@@ -380,13 +388,22 @@ jQuery(document).ready(function ($) {
 				
 					alert('something went wrong');
 					
-				}).success( function( totalEmails ) {
+				}).success( function( response ) {
 					
-					bar.attr('data-complete', '0');
+					var resume  = parseJSON( response ),
+						percent = Math.round((resume.sent / resume.total) * 100);
+				
+					$('.progress-sent').text(resume.sent);
+					bar.attr('data-complete', percent).css('width', percent+'%');
+					$('.progress-percent').text(percent+'%');
 					$('.progress-wrap').show();
-					$('.progress-queue').text( totalEmails );
+					$('.progress-queue').text( resume.total );
 					
-					eddPupAjaxTrigger(i, s, totalEmails);
+					button.prop('disabled', false).attr({
+						'data-action': 'pause',
+						value: 'Pause'});
+					
+					eddPupAjaxTrigger(i, s, totalEmails, emailid);
 	
 				});		
 		}
