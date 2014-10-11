@@ -14,7 +14,7 @@ switch ( get_post_status( $_GET['id'] ) ) {
 		if ( edd_pup_is_processing( $_GET['id'] ) ) {
 			_e( 'This email is processing.', 'edd-pup' );
 			return;
-		} else if ( empty( $_GET['resume'] ) ) {
+		} else if ( empty( $_GET['restart'] ) ) {
 			_e( 'This email is in the queue and has remaining messages to send. If you would like to send those messages now, click the send button below.', 'edd-pup' );
 			break;		
 		}
