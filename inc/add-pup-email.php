@@ -13,7 +13,7 @@ $tags = edd_get_email_tags();
 
 ?>
 <form id="edd-pup-email-edit" action="" method="POST">
-<div id="edd-pup-admin-email" class="wrap">
+<div id="edd-pup-single-email" class="wrap">
 <?php do_action( 'edd_add_receipt_form_top' ); ?>
 <h2><?php _e( 'Add Product Update Email', 'edd-pup' ); ?></h2>
 <br>
@@ -46,7 +46,7 @@ $tags = edd_get_email_tags();
 								</div>
 								<div id="major-publishing-actions">
 									<div id="publishing-action">
-										<?php submit_button('Send Update Email', 'primary', 'send-prod-updates', false);?><span class="edd-pu-spin spinner"></span>
+										<?php submit_button('Send Update Email', 'primary', 'send-prod-updates', false);?><span class="edd-pup-spin spinner"></span>
 									</div>
 									<div class="clear"></div>
 								</div>

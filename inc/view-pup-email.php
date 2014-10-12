@@ -35,7 +35,7 @@ switch ( strtolower( $email->post_status ) ){
 }
 
 ?>
-<div id="edd-pup-admin-email" class="wrap">
+<div id="edd-pup-single-email" class="wrap">
 	<h2><?php echo $email->post_title; ?></h2>
 	<div id="poststuff">
 		<div id="post-body" class="metabox-holder columns-2">

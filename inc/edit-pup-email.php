@@ -29,7 +29,7 @@ if ( $status != 'draft' ) {
 ?>
 
 <form id="edd-pup-email-edit" action="" method="POST">
-<div id="edd-pup-admin-email" class="wrap">
+<div id="edd-pup-single-email" class="wrap">
 <?php do_action( 'edd_add_receipt_form_top' ); ?>
 <h2><?php _e( 'Edit Product Update Email', 'edd-pup' ); ?></h2>
 <br>
@@ -65,7 +65,7 @@ if ( $status != 'draft' ) {
 										<a class="submitdelete deletion" href="<?php echo wp_nonce_url( add_query_arg( 'edd_action' , 'pup_delete_email' ), 'edd-pup-delete-nonce' ); ?>" onclick="var result=confirm(<?php _e( "'Are you sure you want to permanently delete this email?'", 'edd-pup' ); ?>);return result;"><span class="delete"><?php _e( 'Delete Email' , 'edd-pup'); ?></span></a>
 									</div>
 									<div id="publishing-action">
-										<?php submit_button( __( 'Send Update Email', 'edd-pup' ), 'primary', 'send-prod-updates', false);?><span class="edd-pu-spin spinner"></span>
+										<?php submit_button( __( 'Send Update Email', 'edd-pup' ), 'primary', 'send-prod-updates', false);?><span class="edd-pup-spin spinner"></span>
 									</div>
 									<div class="clear"></div>
 								</div>
