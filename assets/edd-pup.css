@@ -2,140 +2,183 @@
  * EDD Product Updates Style
  *
  * @project   Easy Digital Downloads - Product Updates Extension
- * @version   0.9.1
+ * @version   0.9.3
  * @author    Evan Luzi
  * @copyright 2014 by the author
  * @cssdoc    version 1.0-pre
  *
 */
 
-/* List table stylings */
+/* List Table
+--------------------------------------------- */
+
+.edd-pup-list .wp-list-table .column-email { 
+	width: 30%;
+}
+
+.edd-pup-list .wp-list-table .column-status {
+	width: 10%; 
+}
+
+.edd-pup-list .wp-list-table .column-subject {
+	width: 30%;
+}
+
+.edd-pup-list .wp-list-table .column-recipients {
+	width: 10%;
+}
+
+.edd-pup-list .wp-list-table .column-date {
+	width: 20%;
+}
+
 .edd-pup-list #the-list .column-status {
 	font-weight: bold;
 }
 
 .edd-pup-list #the-list .column-status .publish,
-#edd-pup-admin-email .status-publish {
+#edd-pup-single-email .status-publish {
 	color: #27ae60;
 }
 
 .edd-pup-list #the-list .column-status .pending,
-#edd-pup-admin-email .status-pending {
+#edd-pup-single-email .status-pending {
 	color: #f39c12;
 }
 
 .edd-pup-list #the-list .column-status .abandoned,
-#edd-pup-admin-email .status-abandoned {
+#edd-pup-single-email .status-abandoned {
 	color: #c0392b;
 }
 
-#edd-pup-admin-email #minor-publishing-actions a {
+/* Single Email Edit Page
+--------------------------------------------- */
+
+#edd-pup-single-email #minor-publishing-actions a {
 	text-align: center;
 }
 
-#edd-pup-admin-email #edd-pup-save-email-changes {
+#edd-pup-single-email #edd-pup-save-email-changes {
 	float: left;
 }
 
-#edd-pup-admin-email #test-action {
+#edd-pup-single-email #test-action {
 	padding: 10px;
 }
 
-#edd-pup-admin-email #test-action input {
+#edd-pup-single-email #test-action input {
 	width: 95%;
 	margin: 0 auto;
 }
 
-#edd-pup-admin-email .tag-list {
+#edd-pup-single-email .tag-list {
 	padding: 10px;
 }
 
-#edd-pup-admin-email .tag-list .template-tag {
+#edd-pup-single-email .tag-list .template-tag {
 	margin: 0.5em 0 0;
 }
 
-#edd-pup-admin-email .tag-list .tag-description {
+#edd-pup-single-email .tag-list .tag-description {
 	margin-top: 0;
 	font-style: italic;
 	color: #666;
 }
 
-#edd-pup-admin-email p.description {
+#edd-pup-single-email p.description {
 	margin-bottom: 15px;
 }
 
-#edd-pup-admin-email .edd-pup-action {
+#edd-pup-single-email .edd-pup-action {
 	display: inline-block;
 	padding: 20px 0;
 }
 
-/* Admin email stylings */
-#edd-pup-admin-email #message-preview {
+#edd-pup-single-email #message-preview {
 	padding: 10px 20px;
 	border: 1px solid #e6e6e6;
 }
 
-#edd-pup-admin-email .view-buttons {
+#edd-pup-single-email .view-buttons {
 	display: block;
 	clear: both;
 }
 
-#edd-pup-admin-email #updated-products {
+#edd-pup-single-email #updated-products {
 	list-style-type: disc;
     margin-left: 1.5em;
     list-style-position: inside;
 }
 
 
-#edd-pup-admin-email #updated-products li a {
+#edd-pup-single-email #updated-products li a {
 	text-decoration: none;
 }
 
-#prod-updates-email-confirm-titles,
-#prod-updates-email-preview-confirm h3,
-#prod-updates-email-preview-footer {
+.edd-pup-spin {
+	margin: 5px 0 0 10px; 
+	float: none; 
+}
+
+.edd-pup-spin.loading {
+	display: inline-block; 
+}
+
+/* Fix for view email page */
+.postbox #edd-pup-popup-preview {
+	padding: 0;
+	max-width: 100%;
+	margin: 0 auto;
+}
+
+/* Final Email Confirmation
+--------------------------------------------- */
+
+#edd-pup-confirm-title,
+#edd-pup-confirm-message h3,
+#edd-pup-confirm-footer {
 	text-align:center; 
 }
 
-#prod-updates-email-confirm-titles h2 {
+#edd-pup-confirm-title {
 	font-size:28px; 
 }
 
-#prod-updates-email-preview-confirm h3 {
+#edd-pup-confirm-message h3 {
 	margin-top:0; 
 	color:#999; 
 }
 
-#prod-updates-email-preview-message {
+#edd-pup-confirm-message {
 	max-width: 560px; 
 	margin:0 auto; 
 	padding: 20px; 
 	border: 1px solid #e6e6e6; 
 }
 
-#prod-updates-email-preview-header {
+#edd-pup-confirm-header {
 	padding:0 0 10px; 
 	border-bottom:1px solid #e6e6e6; 
 }
 
-#prod-updates-email-preview-footer {
-	padding:20px 0 0; 
+#edd-pup-confirm-footer {
+	padding:20px 0 0;
+	margin: 0;
 	border-top:1px solid #e6e6e6; 
 }
 
-#prod-updates-email-preview-footer ul {
-	padding-bottom:10px; 
-}
-
-#prod-updates-email-confirm-prod-list {
-	margin-left:25px; 
-	list-style-type: disc; 
-}
-
-.prod-updates-email-confirm-info {
-	margin:0; 
+#edd-pup-confirm-footer ul {
+	padding-bottom:10px;
 	text-align:left; 
 }
+
+#edd-pup-confirm-products {
+	margin-left:25px; 
+	list-style-type: disc; 	
+}
+
+/* Colorbox Modifications
+--------------------------------------------- */
 
 #colorbox #cboxClose {
 	top: 0; 
@@ -146,14 +189,8 @@
 	margin: 28px 0 0;  
 }
 
-.edd-pu-spin {
-	margin: 5px 0 0 10px; 
-	float: none; 
-}
-
-.edd-pu-spin.loading {
-	display: inline-block; 
-}
+/* View Queue Details
+--------------------------------------------- */
 
 #edd-pup-queue-details {
 	margin: 0 auto;
@@ -181,20 +218,8 @@
 	margin: 20px auto 0;
 }
 
-.wp-list-table .column-email { width: 30%; }
-.wp-list-table .column-status { width: 10%; }
-.wp-list-table .column-subject { width: 30%; }
-.wp-list-table .column-recipients { width: 10%;}
-.wp-list-table .column-date { width: 20%;}
-
-
-.postbox #edd-pup-popup-preview {
-	padding: 0;
-	max-width: 100%;
-	margin: 0 auto;
-}
-
-/* Preview styles */
+/* Popup Preview
+--------------------------------------------- */
 #edd-pup-popup-preview {
 	padding: 0 20px;
 	max-width: 600px;
@@ -212,7 +237,8 @@
 	margin-left: 25px;
 }
 
-/* View Alert */
+/* Alerts
+--------------------------------------------- */
 .edd-pup-view-alert .postbox {
 	background: rgba(231, 76, 60,.4);
 	border: 2px solid rgba(192, 57, 43,1.0);
@@ -231,11 +257,8 @@
 	border-bottom-color: rgba(39, 174, 96,1.0);
 }
 
-/* Progress Bar */
-
-#prod-updates-email-ajax-start {
-	margin-bottom: 20px;
-}
+/* Send Emails Popup
+--------------------------------------------- */
 
 @-webkit-keyframes animatedProgress {
 	0% { background-position: 0 0; }
@@ -301,12 +324,6 @@
 	background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
 }
 
-/*
- * Note: using adjacent or general sibling selectors combined with
- *       pseudo classes doesn't work in Safari 5.0 and Chrome 12.
- *       See this article for more info and a potential fix:
- *       http://css-tricks.com/webkit-sibling-bug/
- */
 .progress-bar.red {
   background-color: #f63a0f;	
 }
@@ -324,111 +341,6 @@
 }
 
 .progress-bar.green {
-  background-color: #86e01e;
-}
-
-.progress-bar[data-complete="0"],
-.progress-bar[data-complete="5"],
-.progress-bar[data-complete="10"],
-.progress-bar[data-complete="15"],
-.progress-bar[data-complete="20"] {
-  width: 1%;
-  background-color: #f63a0f;
-}
-
-.progress-bar[data-complete="5"] {
-  width: 5%;
-}
-
-.progress-bar[data-complete="10"] {
-  width: 10%;
-}
-
-.progress-bar[data-complete="15"] {
-  width: 15%;
-}
-
-.progress-bar[data-complete="20"] {
-  width: 20%;
-}
-
-.progress-bar[data-complete="25"],
-.progress-bar[data-complete="30"],
-.progress-bar[data-complete="35"],
-.progress-bar[data-complete="40"],
-.progress-bar[data-complete="45"] {
-  width: 25%;
-  background-color: #f27011;
-}
-
-.progress-bar[data-complete="30"] {
-  width: 30%;
-}
-
-.progress-bar[data-complete="35"] {
-  width: 35%;
-}
-
-.progress-bar[data-complete="40"] {
-  width: 40%;
-}
-
-.progress-bar[data-complete="45"] {
-  width: 45%;
-}
-
-.progress-bar[data-complete="50"],
-.progress-bar[data-complete="55"],
-.progress-bar[data-complete="60"],
-.progress-bar[data-complete="65"],
-.progress-bar[data-complete="70"] {
-  width: 50%;
-  background-color: #f2b01e;
-}
-
-.progress-bar[data-complete="55"] {
-  width: 55%;
-}
-
-.progress-bar[data-complete="60"] {
-  width: 60%;
-}
-
-.progress-bar[data-complete="65"] {
-  width: 65%;
-}
-
-.progress-bar[data-complete="70"] {
-  width: 70%;
-}
-
-.progress-bar[data-complete="75"],
-.progress-bar[data-complete="80"],
-.progress-bar[data-complete="85"],
-.progress-bar[data-complete="90"],
-.progress-bar[data-complete="95"] {
-  width: 75%;
-  background-color: #f2d31b;
-}
-
-.progress-bar[data-complete="80"] {
-  width: 80%;
-}
-
-.progress-bar[data-complete="85"] {
-  width: 85%;
-}
-
-.progress-bar[data-complete="90"] {
-  width: 90%;
-}
-
-.progress-bar[data-complete="95"] {
-  width: 95%;
-}
-
-.progress-bar[data-complete="100"] {
-  width: 100%;
   background-color: #86e01e;
 }
 
