@@ -21,7 +21,8 @@ switch ( get_post_status( $_GET['id'] ) ) {
 }
 
 ?>
-		<div id="progress-wrap">
+		<div id="popup-wrap">
+			<a href="#" class="progress-close" onclick="window.close()">Close Window</a>
 			<h2><?php printf( __('Sending "%s"', 'edd-pup'), get_the_title( $_GET['id'] ) );?></h2>
 				<p><strong><?php _e( 'WARNING: Do not refresh this page or close this window until sending is complete.', 'edd-pup' ); ?></strong></p>
 				<?php echo submit_button( __( 'Start Sending', 'edd-pup' ), 'primary', 'edd-pup-ajax', false, array( 'data-email'=> $_GET['id'], 'data-action' => 'start' ) );?>
