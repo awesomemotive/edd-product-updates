@@ -4,12 +4,12 @@
  * Description: Batch send product update emails to EDD customers
  * Author: Evan Luzi
  * Author URI: http://evanluzi.com
- * Version: 0.9
+ * Version: 0.9.3
  * Text Domain: edd-pup
  *
  * @package EDD_PUP
  * @author Evan Luzi
- * @version 0.9.2
+ * @version 0.9.3
  */
 
 // Exit if accessed directly
@@ -816,25 +816,22 @@ function edd_pup_email_confirm_html(){
 	ob_start();
 	?>
 		<!-- Begin send email confirmation message -->
-			<div id="prod-updates-email-preview-confirm">
-				<div id="prod-updates-email-confirm-titles">
-					<h2><strong><?php _e( 'Almost Ready to Send!', 'edd-pup' ); ?></strong></h2>
+					<h2 id="edd-pup-confirm-title"><strong><?php _e( 'Almost Ready to Send!', 'edd-pup' ); ?></strong></h2>
 					<p><?php _e( 'Please carefully check the information below before sending your emails.', 'edd-pup' ); ?></p>
-				</div>
-					<div id="prod-updates-email-preview-message">
-						<div id="prod-updates-email-preview-header">
+					<div id="edd-pup-confirm-message">
+						<div id="edd-pup-confirm-header">
 							<h3><?php _e( 'Email Message Preview', 'edd-pup' ); ?></h3>
-							<ul class="prod-updates-email-confirm-info">
+							<ul>
 								<li><strong><?php _e( 'From:', 'edd-pup' ); ?></strong> <?php echo $emailmeta['_edd_pup_from_name'][0];?> (<?php echo $emailmeta['_edd_pup_from_email'][0];?>)</li>
 								<li><strong><?php _e( 'Subject:', 'edd-pup' ); ?></strong> <?php echo $emailmeta['_edd_pup_subject'][0];?></li>
 							</ul>
 						</div>
 				<?php echo $message ?>
-				<div id="prod-updates-email-preview-footer">
+				<div id="edd-pup-confirm-footer">
 					<h3><?php _e( 'Additional Information', 'edd-pup' ); ?></h3>
-						<ul class="prod-updates-email-confirm-info">
+						<ul>
 							<li><strong><?php _e( 'Updated Products:', 'edd-pup' ); ?></strong></li>
-								<ul id="prod-updates-email-confirm-prod-list">
+								<ul id="edd-pup-confirm-products">
 									<?php echo $productlist;?>
 								</ul>
 							<li><strong><?php _e( 'Recipients:', 'edd-pup' ); ?></strong> <?php printf( _n( '1 customer will receive this email and have their downloads reset', '%s customers will receive this email and have their downloads reset', $customercount, 'edd-pup' ), $customercount ); ?></li>
@@ -842,7 +839,6 @@ function edd_pup_email_confirm_html(){
 						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_send_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>" onclick="window.open(this.href,'targetWindow', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=450');return false;"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
 						<button class="closebutton button-secondary"><?php _e( 'Close without sending', 'edd-pup' ); ?></button>
 					</div>
-				</div>
 			<!-- End send email confirmation message -->
 	<?php
 	echo ob_get_clean();
