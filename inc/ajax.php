@@ -16,6 +16,123 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
+ * Generates HTML for email confirmation via AJAX on send button press
+ * 
+ * @access public
+ * @return void
+ * @since 0.9
+ */
+function edd_pup_email_confirm_html(){
+	global $edd_options;
+	
+	$form = array();
+	parse_str( $_POST['form'], $form );
+	parse_str( $_POST['url'], $url );
+	
+	if ( empty( $form['product'] ) ) {
+		echo 'nocheck';
+		die();
+	}
+		
+	$email_id = edd_pup_ajax_save( $_POST );
+
+	// Necessary for preview HTML
+	set_transient ( 'edd_pup_preview_email', $email_id, 60 );
+	
+	$email     = get_post( $email_id );
+	$emailmeta = get_post_custom( $email_id );
+    
+	$products = get_post_meta( $email_id, '_edd_pup_updated_products', true );
+	$productlist = '';
+		
+	if ( $url['view'] == 'add_pup_email' ) {
+		echo absint( $email_id );
+		die();
+	}
+	
+	foreach ( $products as $product_id => $product ) {
+		$productlist .= '<li data-id="'. $product_id .'">'.$product.'</li>';
+	}
+
+	
+	$nonceurl = add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) );
+	
+	$customercount = edd_pup_customer_count( $email_id, $products );
+	
+	// Construct the email message
+	$default_email_body = 'Cannot retrieve message content';
+	$email_body = isset( $email->post_content ) ? stripslashes( $email->post_content ) : $default_email_body;
+	
+	// Construct templated email HTML
+	add_filter('edd_email_template', 'edd_pup_template' );
+	$message = edd_apply_email_template( $email_body, null, null );
+	
+	ob_start();
+	?>
+		<!-- Begin send email confirmation message -->
+					<h2 id="edd-pup-confirm-title"><strong><?php _e( 'Almost Ready to Send!', 'edd-pup' ); ?></strong></h2>
+					<p style="text-align: center;"><?php _e( 'Please carefully check the information below before sending your emails.', 'edd-pup' ); ?></p>
+					<div id="edd-pup-confirm-message">
+						<div id="edd-pup-confirm-header">
+							<h3><?php _e( 'Email Message Preview', 'edd-pup' ); ?></h3>
+							<ul>
+								<li><strong><?php _e( 'From:', 'edd-pup' ); ?></strong> <?php echo $emailmeta['_edd_pup_from_name'][0];?> (<?php echo $emailmeta['_edd_pup_from_email'][0];?>)</li>
+								<li><strong><?php _e( 'Subject:', 'edd-pup' ); ?></strong> <?php echo $emailmeta['_edd_pup_subject'][0];?></li>
+							</ul>
+						</div>
+				<?php echo $message ?>
+				<div id="edd-pup-confirm-footer">
+					<h3><?php _e( 'Additional Information', 'edd-pup' ); ?></h3>
+						<ul>
+							<li><strong><?php _e( 'Updated Products:', 'edd-pup' ); ?></strong></li>
+								<ul id="edd-pup-confirm-products">
+									<?php echo $productlist;?>
+								</ul>
+							<li><strong><?php _e( 'Recipients:', 'edd-pup' ); ?></strong> <?php printf( _n( '1 customer will receive this email and have their downloads reset', '%s customers will receive this email and have their downloads reset', $customercount, 'edd-pup' ), $customercount ); ?></li>
+						</ul>
+						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_send_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>" onclick="window.open(this.href,'targetWindow', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=450');return false;"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
+						<button class="closebutton button-secondary"><?php _e( 'Close without sending', 'edd-pup' ); ?></button>
+					</div>
+			<!-- End send email confirmation message -->
+	<?php
+	echo ob_get_clean();
+	
+	die();
+}
+add_action( 'wp_ajax_edd_pup_confirm_ajax', 'edd_pup_email_confirm_html' );
+
+/**
+ * Generates HTML for preview of email on edit email screen
+ * 
+ * @access public
+ * @return void
+ */
+function edd_pup_ajax_preview() {
+	
+	$email_id = edd_pup_ajax_save( $_POST );
+	
+	// Necessary for preview HTML
+	set_transient ( 'edd_pup_preview_email', $email_id, 60 );
+	
+	if ( 0 != $email_id ){
+	
+		$email = get_post( $email_id );
+		
+		// Use $template_name = apply_filters( 'edd_email_template', $template_name, $payment_id );
+		add_filter('edd_email_template', 'edd_pup_template' );
+		
+		echo edd_apply_email_template( $email->post_content, null, null );
+		
+	} else {
+	
+		_e('There was an error generating a preview. Please contact support with error code 001.', 'edd-pup');
+	}
+	
+	die();
+}
+add_action( 'wp_ajax_edd_pup_ajax_preview', 'edd_pup_ajax_preview' );
+
+/**
  * Builds the email queue and stores it in the edd_pup_queue db table
  * 
  * @access public
@@ -112,8 +229,6 @@ add_action( 'wp_ajax_edd_pup_ajax_start', 'edd_pup_ajax_start' );
  */
 function edd_pup_ajax_trigger(){
 	global $wpdb;
-
-	$email_id = intval( $_POST['email_id'] );
 	
 	if ( !empty( $_POST['emailid'] ) && ( absint( $_POST['emailid'] ) != 0 ) ) {
 		$email_id = $_POST['emailid'];
@@ -209,20 +324,30 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 		
 		set_transient( 'edd_pup_email_body_footer', $email_body_footer, 60 * 60 );
 	}
-
+	
+	$from_name = $emailmeta['_edd_pup_from_name'][0];
+	$from_email = $emailmeta['_edd_pup_from_email'][0];
+	
 	$message = $email_body_header;
 	$message .= apply_filters( 'edd_purchase_receipt', edd_email_template_tags( $emailpost->post_content, $payment_data, $payment_id ), $payment_id, $payment_data );
 	$message .= $email_body_footer;
+	
+	$headers = "From: " . stripslashes_deep( html_entity_decode( $from_name, ENT_COMPAT, 'UTF-8' ) ) . " <$from_email>\r\n";
+	$headers .= "Reply-To: ". $from_email . "\r\n";
+	//$headers .= "MIME-Version: 1.0\r\n";
+	$headers .= "Content-Type: text/html; charset=utf-8\r\n";
+	$headers = apply_filters( 'edd_test_purchase_headers', $headers );
 
 	// Allow add-ons to add file attachments
 	$attachments = apply_filters( 'edd_pup_attachments', array(), $payment_id, $payment_data );
 	if ( apply_filters( 'edd_email_purchase_receipt', true ) ) {
-		//$mailresult = wp_mail( $email, $subject, $message, '', $attachments );
-		$mailresult = true;
+		$mailresult = wp_mail( $email, $subject, $message, $headers, $attachments );
+		// For testing purposes only - comment the above line and uncomment this line below
+		//$mailresult = true;
 	}
 	
 	// Update payment notes to log this email being sent	
-	edd_insert_payment_note($payment_id, 'Sent product update email "'. $subject .'." <a href="/wp-admin/edit.php?post_type=download&page=edd-prod-updates&view=view_pup_email&id='.$email_id.'">View Email</a>');
+	edd_insert_payment_note($payment_id, 'Sent product update email "'. $subject .'" <a href="/wp-admin/edit.php?post_type=download&page=edd-prod-updates&view=view_pup_email&id='.$email_id.'">View Email</a>');
     
     return $mailresult;
 }
@@ -238,7 +363,12 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 function edd_pup_ajax_end(){
 	global $wpdb;
 
-	$email_id = $_POST['email_id'];
+	if ( !empty( $_POST['emailid'] ) && ( absint( $_POST['emailid'] ) != 0 ) ) {
+		$email_id = $_POST['emailid'];
+		
+	} else {
+		$email_id = get_transient( 'edd_pup_sending_email' );
+	}
 	
 	// Update email post status to publish
 	wp_publish_post( $email_id );
@@ -259,6 +389,7 @@ function edd_pup_ajax_end(){
 	delete_transient( 'edd_pup_subject' );	
 	delete_transient( 'edd_pup_email_body_header' );
 	delete_transient( 'edd_pup_email_body_footer' );
+	delete_transient( 'edd_pup_from_name' );
 		
 }
 add_action( 'wp_ajax_edd_pup_ajax_end', 'edd_pup_ajax_end' );
@@ -271,8 +402,15 @@ add_action( 'wp_ajax_edd_pup_ajax_end', 'edd_pup_ajax_end' );
  * @param mixed $email (default: null)
  * @return void
  */
-function edd_pup_clear_queue( $email = null ) {
+function edd_pup_clear_queue() {
 	global $wpdb;
+	
+	if ( !empty( $_POST['emailid'] ) && ( absint( $_POST['emailid'] ) != 0 ) ) {
+		$email_id = $_POST['emailid'];
+		
+	} else {
+		$email_id = get_transient( 'edd_pup_sending_email' );
+	}
 	
 	// Clear queue
 	if ( $_POST['email'] == 'all' ) {
@@ -341,7 +479,36 @@ function edd_pup_clear_queue( $email = null ) {
 }
 add_action( 'wp_ajax_edd_pup_clear_queue', 'edd_pup_clear_queue' );
 
+function edd_pup_ajax_save( $posted ) {
+	
+	// Convert form data to array
+	$data = array();
+	parse_str($posted['form'], $data );
+	
+	//Sanitize our data
+	$data['message'] 	= wp_kses_post( $data['message'] );
+	$data['email-id']	= isset( $data['email-id'] ) ? absint( $data['email-id'] ) : 0;
+	$data['recipients']	= absint( $data['recipients'] );
+	$data['from_name'] 	= sanitize_text_field( $data['from_name'] );
+	$data['from_email'] = sanitize_email( $data['from_email'] );
+	$data['title']		= sanitize_text_field( $data['title'], 'ID:'. $data['email-id'], 'save' );
+	$data['subject']	= sanitize_text_field( $data['subject'] );
+	
+	if ( isset( $data['product'] ) ) {
+		$data['product'] = filter_var_array( $data['product'], FILTER_SANITIZE_STRING );
+	} else {
+		$data['product'] = '';
+	}
+	
+	return edd_pup_save_email( $data, $data['email-id'] );
+}
+
 function edd_pup_is_ajax_restart( $emailid = null ) {
+	
+	if ( empty( $emailid ) ) {
+		return;
+	}
+	
 	$queue = edd_pup_check_queue( $emailid );
 	
 	if ( $queue['queue'] > 0 ) {
