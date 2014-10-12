@@ -817,7 +817,7 @@ function edd_pup_email_confirm_html(){
 	?>
 		<!-- Begin send email confirmation message -->
 					<h2 id="edd-pup-confirm-title"><strong><?php _e( 'Almost Ready to Send!', 'edd-pup' ); ?></strong></h2>
-					<p><?php _e( 'Please carefully check the information below before sending your emails.', 'edd-pup' ); ?></p>
+					<p style="text-align: center;"><?php _e( 'Please carefully check the information below before sending your emails.', 'edd-pup' ); ?></p>
 					<div id="edd-pup-confirm-message">
 						<div id="edd-pup-confirm-header">
 							<h3><?php _e( 'Email Message Preview', 'edd-pup' ); ?></h3>
