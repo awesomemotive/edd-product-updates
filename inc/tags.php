@@ -97,12 +97,10 @@ add_filter('edd_email_preview_template_tags', 'edd_pup_preview_tags', 999);
  */
 function edd_pup_products_tag( $payment_id, $email = null ) {
 
-	$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );	
 	
 	// Used to generate accurate tag outputs for preview and test emails
-	if ( !empty( $email ) ) {
-		
-		// Convert string to array if needed
+	if ( isset( $email ) && absint( $email ) != 0 ) {
+		$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );		
 		$updated_products = is_array( $updated_products ) ? $updated_products : array ( $updated_products );
 
 		foreach ( $updated_products as $id => $name ) {
@@ -113,13 +111,15 @@ function edd_pup_products_tag( $payment_id, $email = null ) {
 		
 	} else {
 	
-		$email = get_transient( 'edd_pup_sending_email' ); 
+		$email = get_transient( 'edd_pup_sending_email' );
+		$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );	
 		$customer_updates = edd_pup_eligible_updates( $payment_id, $updated_products );
+		$customer_updates = is_array( $customer_updates ) ? $customer_updates : array( $customer_updates );
 	
 	}
 	
 	$productlist = '<ul>';
-
+	
 	foreach ( $customer_updates as $product ) {
 
 		if ( edd_is_bundled_product( $product['id'] ) ) {
@@ -153,14 +153,12 @@ function edd_pup_products_tag( $payment_id, $email = null ) {
  * @param mixed $payment_id
  * @return void
  */
-function edd_pup_products_links_tag( $payment_id, $email = null ) {
-
-	$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );	
+function edd_pup_products_links_tag( $payment_id, $email = null ) {	
 	
 	// Used to generate accurate tag outputs for preview and test emails
-	if ( !empty( $email ) ) {
-	
-		// Convert string to array if needed
+	if ( isset( $email ) && absint( $email ) != 0 ) {
+		
+		$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );
 		$updated_products = is_array( $updated_products ) ? $updated_products : array ( $updated_products );
 
 		foreach ( $updated_products as $id => $name ) {
@@ -171,16 +169,18 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 		
 	} else {
 	
-		$email = get_transient( 'edd_pup_sending_email' ); 
+		$email = get_transient( 'edd_pup_sending_email' );
+		$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );
 		$customer_updates = edd_pup_eligible_updates( $payment_id, $updated_products );
-	
+		$customer_updates = is_array( $customer_updates ) ? $customer_updates : array( $customer_updates );
 	}
 
 	$payment_data  = edd_get_payment_meta( $payment_id );
 	$download_list = '<ul>';
-	$email         = edd_get_payment_user_email( $payment_id );
+	$useremail     = edd_get_payment_user_email( $payment_id );
 	
 	if ( $customer_updates ) {
+		
 		$show_names = apply_filters( 'edd_email_show_names', true );
 		
 		foreach ( $customer_updates as $item ) {
@@ -210,14 +210,16 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 				$files = edd_get_download_files( $item['id'], $price_id );
 
 				if ( $files ) {
+				
 					foreach ( $files as $filekey => &$file ) {
 						$download_list .= '<li>';
-						$file_url = edd_get_download_file_url( $payment_data['key'], $email, $filekey, $item['id'], $price_id );
+						$file_url = edd_get_download_file_url( $payment_data['key'], $useremail, $filekey, $item['id'], $price_id );
 						$download_list .= '<a href="' . esc_url( $file_url ) . '">' . edd_get_file_name( $file ) . '</a>';
 						$download_list .= '</li>';
 					}
 				}
-				elseif ( edd_is_bundled_product( $item['id'] ) ) {
+				
+				if ( edd_is_bundled_product( $item['id'] ) ) {
 
 					$bundled_products = edd_get_bundled_products( $item['id'] );
 					
@@ -231,7 +233,7 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 
 							foreach ( $files as $filekey => $file ) {
 								$download_list .= '<li>';
-								$file_url = edd_get_download_file_url( $payment_data['key'], $email, $filekey, $bundle_item, $price_id );
+								$file_url = edd_get_download_file_url( $payment_data['key'], $useremail, $filekey, $bundle_item, $price_id );
 								$download_list .= '<a href="' . esc_url( $file_url ) . '">' . $file['name'] . '</a>';
 								$download_list .= '</li>';
 							}
@@ -255,7 +257,7 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 		}
 	
 	$download_list .= '</ul>';
-    
+
 	return $download_list;
 }
 
