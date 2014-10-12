@@ -16,12 +16,12 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 // Includes
-require( 'inc/edd-pup-payment.php');
-require( 'inc/edd-pup-tags.php');
-require( 'inc/edd-pup-post-types.php');
-require( 'inc/edd-pup-submenu.php');
-require( 'inc/edd-pup-ajax.php');
-require( 'inc/edd-pup-notices.php');
+require( 'inc/payment.php');
+require( 'inc/tags.php');
+require( 'inc/post-types.php');
+require( 'inc/submenu.php');
+require( 'inc/ajax.php');
+require( 'inc/notices.php');
 
 /**
  * Register custom database table name into $wpdb global
