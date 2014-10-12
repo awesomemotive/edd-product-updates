@@ -101,7 +101,10 @@ function edd_pup_products_tag( $payment_id, $email = null ) {
 	
 	// Used to generate accurate tag outputs for preview and test emails
 	if ( !empty( $email ) ) {
-	
+		
+		// Convert string to array if needed
+		$updated_products = is_array( $updated_products ) ? $updated_products : array ( $updated_products );
+
 		foreach ( $updated_products as $id => $name ) {
 		
 			$customer_updates[] = array( 'id' => $id, 'name' => $name);
@@ -157,6 +160,9 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 	// Used to generate accurate tag outputs for preview and test emails
 	if ( !empty( $email ) ) {
 	
+		// Convert string to array if needed
+		$updated_products = is_array( $updated_products ) ? $updated_products : array ( $updated_products );
+
 		foreach ( $updated_products as $id => $name ) {
 		
 			$customer_updates[] = array( 'id' => $id, 'name' => $name);
@@ -271,7 +277,7 @@ function edd_pup_unsub_tag( $payment_id ) {
 		'edd_action' => 'prod_update_unsub'
 	);
 	$unsublink = add_query_arg( $unsub_link_params, ''.home_url() );
-	$unsubscribe = printf( '<a href="%1$s">%2$s</a>', $unsublink, apply_filters( 'edd_pup_unsubscribe_text', __( 'Unsubscribe', 'edd-pup' ) ) );
+	$unsubscribe = sprintf( '<a href="%1$s">%2$s</a>', $unsublink, apply_filters( 'edd_pup_unsubscribe_text', __( 'Unsubscribe', 'edd-pup' ) ) );
 
 	return $unsubscribe;
 }
