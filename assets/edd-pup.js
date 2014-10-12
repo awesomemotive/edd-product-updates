@@ -1,7 +1,7 @@
 jQuery(document).ready(function ($) {
 
 		function eddPupRemoveMenus() {
-			if ( $('#progress-wrap').length ) {
+			if ( $('#popup-wrap').length ) {
 				$('#adminmenuwrap, #adminmenuback, #wpadminbar, #wpfooter, .update-nag').remove();
 				$('#wpcontent').css('margin', '-32px 0 0 0');
 			}
