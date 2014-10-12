@@ -150,7 +150,7 @@ jQuery(document).ready(function ($) {
 	function emailConfirmPreview() {
 	
 		var	button = $('#send-prod-updates'),
-			spinner = $('.edd-pu-spin');
+			spinner = $('.edd-pup-spin');
 		
            button.mousedown( function () {
            		
@@ -209,7 +209,7 @@ jQuery(document).ready(function ($) {
 	
 	function emailConfirmRedirect() {
 		var	button = $('#send-prod-updates'),
-			spinner = $('.edd-pu-spin'),
+			spinner = $('.edd-pup-spin'),
 			url = document.URL,
 			form = $('#edd-pup-email-edit').serialize(),
 			data = {'action': 'edd_pup_confirm_ajax', 'form' : form, 'url' : url },
