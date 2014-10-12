@@ -115,7 +115,6 @@ jQuery(document).ready(function ($) {
            			data = {'action': 'edd_pup_send_test_email', 'form' : form };
            		
            		button.attr("disabled",true);
-		   		spinner.toggleClass('loading');
 				       
 		   		if ( emailValidate( $('#from_email').val() ) ) {
 		   		          
