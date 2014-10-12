@@ -8,16 +8,6 @@ jQuery(document).ready(function ($) {
 		}
 		eddPupRemoveMenus();
 		
-	if( $('#prod-updates-email-preview-wrap').length ) {
-		var emailPreview = $('#prod-updates-email-preview');
-		$('#prod-updates-open-email-preview').colorbox({
-			inline: true,
-			href: emailPreview,
-			width: '80%',
-			height: 'auto'
-		});
-	}
-		
 		$('#cboxContent .closebutton').live('click', function(){
 			$.fn.colorbox.close();
 			
