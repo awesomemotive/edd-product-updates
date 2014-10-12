@@ -517,3 +517,104 @@ function edd_pup_is_ajax_restart( $emailid = null ) {
 		return false;
 	}
 }
+
+/**
+ * Trigger the sending of a Product Update Test Email
+ *
+ * @param array $data Parameters sent from Settings page
+ * @return void
+ */
+function edd_pup_send_test_email() {
+	$form = array();
+	parse_str( $_POST['form'], $form );
+	
+	if ( ! wp_verify_nonce( $form['edd-pup-test-nonce'], 'edd-pup-test-nonce' ) ) {
+		return;
+	}
+	
+	
+	$error = 0;	
+
+	if ( empty( $form['test-email'] ) ) {
+		_e( 'Please enter an email address to send the test to.', 'edd-pup' );		
+	} else {
+		
+		$emails = explode( ',', $form['test-email'], 6 );
+		
+		if ( count( $emails ) > 5 ) {
+			array_pop( $emails );
+		}
+		
+		// Sanitize our email addresses to make sure they're valid
+		foreach ( $emails as $key => $address ) {
+			$clean = sanitize_email( $address );
+			
+			if ( is_email( $clean ) ) {
+				$to[$key] = $clean;
+			} else {
+				$error++;
+			}
+		}
+		
+		if ( !empty( $to ) ) {
+			$email_id = edd_pup_ajax_save( $_POST );
+			
+			// Set transient for custom tags in test email
+			set_transient( 'edd_pup_preview_email', $email_id, 60 );
+				
+			// Send a test email
+	    	$sent = edd_pup_test_email( $email_id, $to );
+	    	
+	    	if ( $error > 0 ) {
+				_e( 'One or more of the emails entered were invalid. Test emails sent to: ' . implode(', ', $sent), 'edd-pup' );	    	
+	    	} else {
+	    	
+				_e( 'Test email sent to: ' . implode(', ', $sent), 'edd-pup' );
+			}
+			
+		} else if ( empty( $to ) && $error > 0 ) {
+			_e( 'Your email address was invalid. Please enter a valid email address to send the test.', 'edd-pup' );
+		}
+	
+	}	
+	
+    die();
+}
+add_action( 'wp_ajax_edd_pup_send_test_email', 'edd_pup_send_test_email' );
+
+/**
+ * Email the product update test email to the admin account
+ *
+ * @global $edd_options Array of all the EDD Options
+ * @return void
+ */
+function edd_pup_test_email( $email_id, $to = null ) {	
+	
+	$email     = get_post( $email_id );
+	$emailmeta = get_post_custom( $email_id );
+	
+	add_filter('edd_email_template', 'edd_pup_template' );
+	
+	$message = edd_get_email_body_header();
+	$message .= apply_filters( 'edd_pup_test_message', edd_apply_email_template( $email->post_content, $email_id, null ), 0, array() );
+	$message .= edd_get_email_body_footer();
+
+	$from_name = isset( $emailmeta['_edd_pup_from_name'][0] ) ? $emailmeta['_edd_pup_from_name'][0] : get_bloginfo('name');
+	$from_email = isset( $emailmeta['_edd_pup_from_email'][0] ) ? $emailmeta['_edd_pup_from_email'][0] : get_option('admin_email');
+
+	$subject = apply_filters( 'edd_pup_test_subject', isset( $email->post_excerpt )
+		? trim( $email->post_excerpt )
+		: __( '(no subject)', 'edd-pup' ), 0 );
+	$subject = edd_do_email_tags( $subject, $email_id );
+
+	$headers = "From: " . stripslashes_deep( html_entity_decode( $from_name, ENT_COMPAT, 'UTF-8' ) ) . " <$from_email>\r\n";
+	$headers .= "Reply-To: ". $from_email . "\r\n";
+	$headers .= "Content-Type: text/html; charset=utf-8\r\n";
+	$headers = apply_filters( 'edd_pup_test_headers', $headers );
+	
+	foreach ( $to as $recipient ) {
+		wp_mail( $recipient, $subject, $message, $headers );
+	}
+	
+	return $to;
+}
