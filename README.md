@@ -1,7 +1,7 @@
 EDD Product Updates Extension
 ===================
 
-Version 0.9.2 – *This is a very early version that has been tested in a limited WordPress environment*
+Version 0.9.3 – *This is a very early version that has been tested in a limited WordPress environment*
 
 **Testing Environment:**
 * **Wordpress:** 3.9.1
@@ -25,6 +25,8 @@ This extension allows you to send specialized product update emails to your cust
 
 **Email Preview Confirmation**. The "Send Emails" button triggers an AJAX call that saves any changes made to your email message and then shows you a preview of it along with essential info like products slated for updates and number of recipients. This ensures you don't accidentally send an email blast before it's ready!
 
+**Send Test Emails**. If you'd rather preview your email message inside different email clients, you can easily send test emails to up to five different email addresses – with tags interpreted and displayed just as your customers will see them.
+
 **EDD Software Licensing Integration**. Choose whether to send product update emails to those customers who have active subscription licenses for those products in which EDD Software Licensing is being used. Customers with expired or inactive licenses won't receive update emails when enabled.
 
 **Batch Sending of Emails**. For those with large customer lists, the extension breaks up emails into batches and sends them in the background (with a front-end UI to show you the progress) so you don't have to worry about the process timing out PHP on your server.
@@ -37,6 +39,17 @@ This extension allows you to send specialized product update emails to your cust
 5. Activate plugin (Must have Easy Digital Downloads installed and activated)
 6. Go to Downloads -> Settings -> Emails and scroll to the bottom
 7. Customize your product update emails!
+
+## Known Issues
+* Bulk actions delete email redirects strangely
+* Pause button does not currently work
+* Auto-clear of queue is not currently running
+* Separate emails are saved when trying to Send an email from the Add Email screen and a product is not selected
+* Generic error "something went wrong" on sending when page is refreshed
+* edd_pup_is_processing function has potential loopholes
+* Javascript is not localized
+* Needs to be tested with more email templates
+* Some functions still require nonce checks
 
 ## Questions?
 Email evan [at] theblackandblue.com
