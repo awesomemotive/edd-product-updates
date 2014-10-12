@@ -28,7 +28,7 @@ switch ( get_post_status( $_GET['id'] ) ) {
 				<?php wp_nonce_field( 'edd_pup_ajax_start', 'edd_pup_sajax_nonce', false, true ); ?>
 			<div class="progress-wrap">
 				<div class="progress">
-				  <div class="progress-bar red" data-complete="0"></div>
+				  <div class="progress-bar red" data-complete="0" style="width: 0%;"></div>
 				</div>
 				<div class="progress-text">
 					<p><span class="progress-clock badge">00:00:00</span></p>
