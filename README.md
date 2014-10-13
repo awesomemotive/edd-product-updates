@@ -44,10 +44,8 @@ This extension allows you to send specialized product update emails to your cust
 * Bulk actions delete email redirects strangely
 * Pause button does not currently work
 * Auto-clear of queue is not currently running
-* Separate emails are saved when trying to Send an email from the Add Email screen and a product is not selected
-* Generic error "something went wrong" on sending when page is refreshed
-* edd_pup_is_processing function has potential loopholes
-* Javascript is not localized
+* edd_pup_is_processing function does not work totally reliably, especially in cases where the processing email has an error or is abandoned early
+* Javascript is not completely internationalized
 * Needs to be tested with more email templates
 * Some functions still require nonce checks
 
