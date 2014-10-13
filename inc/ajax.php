@@ -1,9 +1,10 @@
 <?php
 /**
- * EDD Product Updates Email Tags
+ * EDD Product Updates Email AJAX
  *
- * Functions and actions that register tags for use in the EDD email system,
- * as well as functions and actions that interpret those tags on email send.
+ * Functions and actions for processing various AJAX requests in
+ * the Product Updates plugin – specifically for batch sending of emails,
+ * generating previews, and sending test emails from the admin pages.
  *
  *
  * @package    EDD_PUP
@@ -42,6 +43,7 @@ function edd_pup_email_confirm_html(){
 	$email     = get_post( $email_id );
 	$emailmeta = get_post_custom( $email_id );
     
+    $subject = empty( $emailmeta['_edd_pup_subject'][0] ) ? '(no subject)' : $emailmeta['_edd_pup_subject'][0];
 	$products = get_post_meta( $email_id, '_edd_pup_updated_products', true );
 	$productlist = '';
 		
@@ -77,7 +79,7 @@ function edd_pup_email_confirm_html(){
 							<h3><?php _e( 'Email Message Preview', 'edd-pup' ); ?></h3>
 							<ul>
 								<li><strong><?php _e( 'From:', 'edd-pup' ); ?></strong> <?php echo $emailmeta['_edd_pup_from_name'][0];?> (<?php echo $emailmeta['_edd_pup_from_email'][0];?>)</li>
-								<li><strong><?php _e( 'Subject:', 'edd-pup' ); ?></strong> <?php echo $emailmeta['_edd_pup_subject'][0];?></li>
+								<li><strong><?php _e( 'Subject:', 'edd-pup' ); ?></strong> <?php echo $subject;?></li>
 							</ul>
 						</div>
 				<?php echo $message ?>
@@ -228,6 +230,7 @@ add_action( 'wp_ajax_edd_pup_ajax_start', 'edd_pup_ajax_start' );
  * @return $sent (number of emails successfully processed)
  */
 function edd_pup_ajax_trigger(){
+	
 	global $wpdb;
 	
 	if ( !empty( $_POST['emailid'] ) && ( absint( $_POST['emailid'] ) != 0 ) ) {
@@ -298,6 +301,15 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 		
 	if (false === $subject) {
 		
+		if ( empty( $subject ) ) {
+			$updateargs = array(
+				'ID' => $email_id,
+				'post_excerpt' => '(no subject)'
+				);	
+			wp_update_post( $updateargs );
+			update_post_meta ( $email_id, '_edd_pup_subject', '(no subject)' );
+		}
+		
 		$_subject = edd_do_email_tags( $emailmeta['_edd_pup_subject'][0], $payment_id );
 		
 		if ( $subject == $_subject ) {
@@ -340,7 +352,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 
 	// Allow add-ons to add file attachments
 	$attachments = apply_filters( 'edd_pup_attachments', array(), $payment_id, $payment_data );
-	if ( apply_filters( 'edd_email_purchase_receipt', true ) ) {
+	if ( apply_filters( 'edd_pup_email_message', true ) ) {
 		$mailresult = wp_mail( $email, $subject, $message, $headers, $attachments );
 		// For testing purposes only - comment the above line and uncomment this line below
 		//$mailresult = true;
@@ -479,6 +491,14 @@ function edd_pup_clear_queue() {
 }
 add_action( 'wp_ajax_edd_pup_clear_queue', 'edd_pup_clear_queue' );
 
+
+/**
+ * Sanitizes posted data from AJAX calls before saving an email
+ * 
+ * @access public
+ * @param mixed $posted
+ * @return string email id of saved email
+ */
 function edd_pup_ajax_save( $posted ) {
 	
 	// Convert form data to array
@@ -503,6 +523,15 @@ function edd_pup_ajax_save( $posted ) {
 	return edd_pup_save_email( $data, $data['email-id'] );
 }
 
+
+/**
+ * Determines whether an AJAX send is from the queue (a restart)
+ * or fresh (no previous attempts to send).
+ * 
+ * @access public
+ * @param mixed $emailid (default: null)
+ * @return mixed array of queue totals if it's a restart, false if not a restart
+ */
 function edd_pup_is_ajax_restart( $emailid = null ) {
 	
 	if ( empty( $emailid ) ) {
