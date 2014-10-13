@@ -1,8 +1,8 @@
 <?php
 /**
  * Product Update Emails Table Class
- * Based largely on existing code from the Easy Digital Downloads plugin
- * @since 1.0
+ * 
+ * @since 0.9.3
  */
 
 
@@ -19,14 +19,14 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
  *
  * Renders the Product Update Emails table on the Product Updates submenu page
  *
- * @since 1.0
+ * @since 0.9.3
  */
 class EDD_Pup_Table extends WP_List_Table {
 	/**
 	 * Number of results to show per page
 	 *
 	 * @var string
-	 * @since 1.0
+	 * @since 0.9.3
 	 */
 	public $per_page = 30;
 
@@ -34,7 +34,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 *
 	 * Total number of emails stored
 	 * @var string
-	 * @since 1.0
+	 * @since 0.9.3
 	 */
 	public $total_count;
 
@@ -42,7 +42,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Number of sent emails
 	 *
 	 * @var string
-	 * @since 1.0
+	 * @since 0.9.3
 	 */
 	public $sent_count;
 
@@ -50,7 +50,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Number of pending emails
 	 *
 	 * @var string
-	 * @since 1.0
+	 * @since 0.9.3
 	 */
 	public $queue_count;
 	
@@ -58,7 +58,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Number of draft emails
 	 *
 	 * @var string
-	 * @since 1.0
+	 * @since 0.9.3
 	 */
 	public $draft_count;
 	
@@ -66,7 +66,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Number of cancelled/abandoned emails
 	 *
 	 * @var string
-	 * @since 1.0
+	 * @since 0.9.3
 	 */
 	public $abandon_count;
 
@@ -74,7 +74,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Get things started
 	 *
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 * @uses EDD_Pup_Table::get_email_counts()
 	 * @see WP_List_Table::__construct()
 	 * @return void
@@ -95,7 +95,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Show the search field
 	 *
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 *
 	 * @param string $text Label for the search box
 	 * @param string $input_id ID of the search box
@@ -125,7 +125,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Retrieve the view types
 	 *
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 * @return array $views All the views available
 	 */
 	public function get_views() {
@@ -153,7 +153,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Retrieve the table columns
 	 *
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 * @return array $columns Array of all the list table columns
 	 */
 	public function get_columns() {
@@ -173,7 +173,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Retrieve the table's sortable columns
 	 *
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 * @return array Array of all the sortable columns
 	 */
 	public function get_sortable_columns() {
@@ -189,7 +189,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * This function renders most of the columns in the list table.
 	 *
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 *
 	 * @param array $item Contains all the data of the email
 	 * @param string $column_name The name of the column
@@ -207,7 +207,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Render the Status Column
 	 *
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 *
 	 * @param array $item Contains all the data of the email
 	 * @param string $column_name The name of the column
@@ -219,7 +219,11 @@ class EDD_Pup_Table extends WP_List_Table {
 			case 'Publish':
 				return '<span class="'.strtolower($item[ 'status' ]).'">'. __( 'Sent', 'edd-pup' ) .'</span>';
 			case 'Pending':
+				if ( edd_pup_is_processing( $item['ID'] ) ) {
+				return '<span class="'.strtolower($item[ 'status' ]).'">'. __( 'Processing', 'edd-pup' ) .'</span>';				
+				} else {
 				return '<span class="'.strtolower($item[ 'status' ]).'">'. __( 'In Queue', 'edd-pup' ) .'</span>';
+				}
 			case 'Abandoned':
 				return '<span class="'.strtolower($item[ 'status' ]).'">'. __( 'Cancelled', 'edd-pup' ) .'</span>';
 			default:
@@ -233,7 +237,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Render the Email Column
 	 *
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 * @param array $item Contains all the data of the email
 	 * @return string Data shown in the Name column
 	 */
@@ -266,7 +270,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Render the checkbox column
 	 *
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 * @param array $item Contains all the data for the checkbox column
 	 * @return string Displays a checkbox
 	 */
@@ -282,7 +286,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Retrieve the bulk actions
 	 *
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 * @return array $actions Array of the bulk actions
 	 */
 	public function get_bulk_actions() {
@@ -296,7 +300,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	/**
 	 * Message to be displayed when there are no items
 	 *
-	 * @since 1.0
+	 * @since 0.9.3
 	 * @access public
 	 */
 	function no_items() {
@@ -307,7 +311,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	/**
 	 * Process the bulk actions
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 * @return void
 	 */
 
@@ -330,7 +334,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Retrieve the email counts
 	 *
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 * @return void
 	 */
 	public function get_email_counts() {
@@ -346,7 +350,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Retrieve all the data for all the emails
 	 *
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 * @return array $email_data Array of all the data for the email
 	 */
 	public function pup_emails_data() {
@@ -410,7 +414,7 @@ class EDD_Pup_Table extends WP_List_Table {
 	 * Setup the final data for the table
 	 *
 	 * @access public
-	 * @since 1.0
+	 * @since 0.9.3
 	 * @uses EDD_Pup_Table::get_columns()
 	 * @uses EDD_Pup_Table::get_sortable_columns()
 	 * @uses EDD_Pup_Table::process_bulk_action()

@@ -1,8 +1,8 @@
 <?php
 /**
- * View sent email page
+ * View Product Update Email Page
  *
- * @since       1.0
+ * @since 0.9.3
  */
 
 // Exit if accessed directly
@@ -18,14 +18,18 @@ $emailmeta = get_post_custom( $email_id );
 $updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
 $recipients = get_post_meta( $email_id, '_edd_pup_recipients', TRUE );
 $queue = edd_pup_check_queue( $email_id );
-$processing = edd_pup_is_processing() ? true : false;
+$processing = edd_pup_is_processing( $email_id ) ? true : false;
 
 switch ( strtolower( $email->post_status ) ){
 		case 'publish':
 			$status = __( 'Sent', 'edd-pup' );
 			break;
 		case 'pending':
-			$status = __( 'In Queue', 'edd-pup' );
+			if ( $processing ) {
+				$status = __( 'Processing', 'edd-pup' );				
+			} else {
+				$status = __( 'In Queue', 'edd-pup' );
+			}
 			break;
 		case 'abandoned':
 			$status = __( 'Cancelled', 'edd-pup' );
@@ -37,6 +41,8 @@ switch ( strtolower( $email->post_status ) ){
 ?>
 <div id="edd-pup-single-email" class="wrap">
 	<h2><?php echo $email->post_title; ?></h2>
+	<br>
+	<a href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ); ?>" class="button-secondary"><?php _e( 'Go Back', 'edd-pup' ); ?></a>
 	<div id="poststuff">
 		<div id="post-body" class="metabox-holder columns-2">
 			<div id="postbox-container-1" class="postbox-container">
@@ -67,7 +73,7 @@ switch ( strtolower( $email->post_status ) ){
 				</div>	
 			</div>
 
-			<?php if ( $queue['queue'] > 0 ) : ?>
+			<?php if ( $queue['queue'] > 0 && false == $processing ) : ?>
 			<div id="postbox-container-2" class="postbox-container edd-pup-view-alert">
 				<div id="normal-sortables" class="meta-box-sortables ui-sortable">
 					<div class="postbox">
