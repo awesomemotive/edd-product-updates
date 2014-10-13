@@ -240,10 +240,13 @@ jQuery(document).ready(function ($) {
 	function eddPupAjaxEmails() {
 		
 		var button = $('#edd-pup-ajax'),
+			action = button.attr('data-action'),
 			clock = $('.progress-clock'),
 			bar = $('.progress-bar'),
 			emailid  = button.attr('data-email'),
 			i = 0,
+			status = $('.progress-status .status-text'),
+			ogurl = window.opener.document.location.href,
 			data = {
 				'action': 'edd_pup_ajax_start',
 				'email_id' : emailid
@@ -251,11 +254,15 @@ jQuery(document).ready(function ($) {
 		
 		button.click( function() {
 			
+			if ( $(this).attr('data-action') == 'pause' ) {
+				return false;
+			}
+			
 			$(this).prop('disabled', true);
 			clock.timer('start');
 			$.post(ajaxurl, data).error( function() {
 			
-				alert('something went wrong');
+				alert('Something went wrong preparing your emails to send.');
 				
 			}).success( function( ret ) {
 			
@@ -273,31 +280,64 @@ jQuery(document).ready(function ($) {
 				button.prop('disabled', false).attr({
 					'data-action': 'pause',
 					value: 'Pause'});
+				window.opener.location.href = ogurl.replace(/&?edit_pup_email=([^&]$|[^&]*)/i, "view_pup_email");
 				
-				eddPupAjaxTrigger(i, r.sent, r.total, emailid);
+				eddPupAjaxTrigger(i, r.sent, r.total, emailid, 0);
 
 			});
 		});
 			
-		function eddPupAjaxTrigger(i, s, totalEmails, emailid) {
-		
+		function eddPupAjaxTrigger(i, s, totalEmails, emailid, err) {
+				
+			if ( err == 0 ) {
+				status.fadeIn('fast').text('Sending emails');
+			} else {
+				status.fadeIn('fast').text('Attempting to re-establish connection with server.');				
+			}
+			
 			if (+s >= +totalEmails) {
 				eddPupAjaxEnd(i, s, totalEmails, emailid);
 				return false;
 			}
 			
-			$.post(ajaxurl, {'action':'edd_pup_ajax_trigger', 'iteration': i, 'sent' : s, 'email_id' : emailid }).error( function() {
-				alert('something went wrong');
+			$.post(ajaxurl, {'action':'edd_pup_ajax_trigger', 'iteration': i, 'sent' : s, 'email_id' : emailid, 'errors' : err }).error( function() {
+
+				err++;
 				
-				// Try to redo what went wrong, add e++. When e = 5, bail out of the operation completely. Set e back to 0 upon success.
+				status.html('Trouble communicating with the server. Retrying in <span class="count">15</span> seconds.');
+						
+				var errsec = 14,
+					errtimer = setInterval(function() { 
+				   $('.progress-status .count').text(errsec--);
+				   if (errsec == 0) {
+				      clearInterval(errtimer);
+				   } 
+				}, 1000);
+				
+				// Retrty establishing connection up to 5 times before completely bailing out.
+				if ( err == 6 ) {
+					alert('Something went wrong with triggering the emails. Please try again later or contact support.');
+					return false;
+				}	
+				
+				setTimeout(
+				  function() 
+				  {
+				    eddPupAjaxTrigger(i, s, totalEmails, emailid, err);
+				  }, 15000);		
 							
 			}).success( function(s) {
+				if ( err > 0 ) {
+					status.text('Connection re-established. Resuming email send.');
+				}
+				var err = 0;
 				
 				function progressColor( color1, color2 ){
 					bar.removeClass(color1).addClass(color2);
 				};
 				
-				var percent = Math.round((s / totalEmails) * 100);
+				// Multiply by 99 to save the last part of the progress bar for eddPupAjaxEnd completion
+				var percent = Math.round((s / totalEmails) * 99);
 				
 					if (percent != e) {
 						$('.progress-sent').text(s);
@@ -308,9 +348,9 @@ jQuery(document).ready(function ($) {
 							progressColor('red','orange');
 						} else if ( percent >= 50 && percent <= 74 ) {
 							progressColor('orange','yellorange');
-						} else if ( percent >= 75 && percent <= 99 ) {
+						} else if ( percent >= 75 && percent <= 98 ) {
 							progressColor('yellorange', 'yellow');
-						} else if ( percent == 100 ) {
+						} else if ( percent == 99 ) {
 							progressColor('yellow','green');
 						}
 						
@@ -319,15 +359,23 @@ jQuery(document).ready(function ($) {
 				
 				i++;
 				
-				eddPupAjaxTrigger(i, s, totalEmails, emailid);
+				eddPupAjaxTrigger(i, s, totalEmails, emailid, err);
 			});
 		}
 		
 		function eddPupAjaxEnd(i,s,totalEmails, emailid){
-			$.post(ajaxurl, {'action':'edd_pup_ajax_end', 'email_id' : emailid}).error( function() {
-				alert('something went wrong');
-			}).success( function (response) {
+		
+			status.text('Finishing up.');
 			
+			$.post(ajaxurl, {'action':'edd_pup_ajax_end', 'email_id' : emailid}).error( function() {
+				alert('Something went wrong when finishing your email send.');
+			}).success( function (response) {
+
+				status.fadeIn('fast').text('Sending complete.');
+					
+				bar.attr('data-complete', 100).css('width', 100+'%');
+				$('.progress-percent').text(100+'%');
+								
 				button.prop('disabled', true).attr({
 						'data-action': 'complete',
 						value: 'Finished'});
@@ -353,6 +401,10 @@ jQuery(document).ready(function ($) {
 				}
 				
 				$('#completion').show();
+				
+				if ( window.opener && !window.opener.closed ) {
+					window.opener.location.reload();
+				}
 			});
 		}
 		

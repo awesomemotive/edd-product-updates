@@ -282,6 +282,11 @@
 	margin: 0 20px 0 0;
 }
 
+.progress-status {
+	text-align: left;
+	margin-top: 0;
+}
+
 .progress {
 
 	padding: 4px;
