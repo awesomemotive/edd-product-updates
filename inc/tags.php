@@ -203,7 +203,7 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 						$title .= "&nbsp;&ndash;&nbsp;" . edd_get_price_option_name( $item['id'], $price_id );
 					}
 
-					$download_list .= '<li>' . apply_filters( 'edd_email_receipt_download_title', $title, $item, $price_id, $payment_id ) . '<br/>';
+					$download_list .= '<li>' . apply_filters( 'edd_pup_email_download_title', $title, $item, $price_id, $payment_id ) . '<br/>';
 					$download_list .= '<ul>';
 				}
 
