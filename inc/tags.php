@@ -112,8 +112,7 @@ function edd_pup_products_tag( $payment_id, $email = null ) {
 	} else {
 	
 		$email = get_transient( 'edd_pup_sending_email' );
-		$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );	
-		$customer_updates = edd_pup_eligible_updates( $payment_id, $updated_products );
+		$customer_updates = edd_pup_get_customer_updates( $payment_id, $email );
 		$customer_updates = is_array( $customer_updates ) ? $customer_updates : array( $customer_updates );
 	
 	}
@@ -136,7 +135,7 @@ function edd_pup_products_tag( $payment_id, $email = null ) {
 			$productlist .= '</ul>';
 			
 		} else {
-			$productlist .= '<li>'. get_the_title( $product['id'] ) .'</li>';
+			$productlist .= '<li>'. $product['name'] .'</li>';
 		}
 	}
 
@@ -170,18 +169,15 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 	} else {
 	
 		$email = get_transient( 'edd_pup_sending_email' );
-		$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );
-		$customer_updates = edd_pup_eligible_updates( $payment_id, $updated_products );
+		$customer_updates = edd_pup_get_customer_updates( $payment_id, $email );
 		$customer_updates = is_array( $customer_updates ) ? $customer_updates : array( $customer_updates );
 	}
 
-	$payment_data  = edd_get_payment_meta( $payment_id );
-	$download_list = '<ul>';
-	$useremail     = edd_get_payment_user_email( $payment_id );
-	
 	if ( $customer_updates ) {
-		
-		$show_names = apply_filters( 'edd_email_show_names', true );
+	
+		$show_names    = apply_filters( 'edd_pup_email_show_names', true );
+		$payment_data  = edd_get_payment_meta( $payment_id );
+		$download_list = '<ul>';
 		
 		foreach ( $customer_updates as $item ) {
 				
@@ -193,7 +189,7 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 
 				if ( $show_names ) {
 					
-					$title = get_the_title( $item['id'] );
+					$title = $item['name'];
 
 					if ( ! empty( $sku ) ) {
 						$title .= "&nbsp;&ndash;&nbsp;" . __( 'SKU', 'edd' ) . ': ' . $sku;
@@ -213,7 +209,7 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 				
 					foreach ( $files as $filekey => &$file ) {
 						$download_list .= '<li>';
-						$file_url = edd_get_download_file_url( $payment_data['key'], $useremail, $filekey, $item['id'], $price_id );
+						$file_url = edd_get_download_file_url( $payment_data['key'], $payment_data['email'], $filekey, $item['id'], $price_id );
 						$download_list .= '<a href="' . esc_url( $file_url ) . '">' . edd_get_file_name( $file ) . '</a>';
 						$download_list .= '</li>';
 					}
@@ -233,7 +229,7 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 
 							foreach ( $files as $filekey => $file ) {
 								$download_list .= '<li>';
-								$file_url = edd_get_download_file_url( $payment_data['key'], $useremail, $filekey, $bundle_item, $price_id );
+								$file_url = edd_get_download_file_url( $payment_data['key'], $payment_data['email'], $filekey, $bundle_item, $price_id );
 								$download_list .= '<a href="' . esc_url( $file_url ) . '">' . $file['name'] . '</a>';
 								$download_list .= '</li>';
 							}
@@ -254,11 +250,12 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 					$download_list .= '</li>';
 				}
 			}
-		}
 	
-	$download_list .= '</ul>';
+		$download_list .= '</ul>';
 
-	return $download_list;
+		return $download_list;
+	}
+	
 }
 
 /**
@@ -273,15 +270,14 @@ function edd_pup_unsub_tag( $payment_id ) {
 	
 	$purchase_data = get_post_meta( $payment_id, '_edd_payment_meta', true );
 	$unsub_link_params = array(
-		'order_id'  => $payment_id,
+		'order_id'     => $payment_id,
 		'email'        => rawurlencode( $purchase_data['user_info']['email'] ),
-		'purchase_key' => $purchase_data['key'],
-		'edd_action' => 'prod_update_unsub'
+		'purchase_key' => isset( $purchase_data['key'] ) ? $purchase_data['key'] : edd_get_payment_key( $payment_id ),
+		'edd_action'   => 'prod_update_unsub'
 	);
 	$unsublink = add_query_arg( $unsub_link_params, ''.home_url() );
-	$unsubscribe = sprintf( '<a href="%1$s">%2$s</a>', $unsublink, apply_filters( 'edd_pup_unsubscribe_text', __( 'Unsubscribe', 'edd-pup' ) ) );
 
-	return $unsubscribe;
+	return sprintf( '<a href="%1$s">%2$s</a>', $unsublink, apply_filters( 'edd_pup_unsubscribe_text', __( 'Unsubscribe', 'edd-pup' ) ) );
 }
 
 /**
