@@ -112,7 +112,7 @@ switch ( strtolower( $email->post_status ) ){
 							<p><strong><?php _e( 'Subject', 'edd-pup' ); ?>:</strong> <?php echo $emailmeta['_edd_pup_subject'][0]; ?></p>
 							<p><strong><?php _e( 'Message', 'edd-pup' ); ?>:</strong></p>
 							<div id="message-preview">
-								<?php echo edd_apply_email_template( $email->post_content, null, null ); ?>
+								<?php echo $emailmeta['_edd_pup_message'][0]; ?>
 							</div>
 						</div>
 					</div>

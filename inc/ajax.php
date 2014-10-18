@@ -68,6 +68,7 @@ function edd_pup_email_confirm_html(){
 	// Construct templated email HTML
 	add_filter('edd_email_template', 'edd_pup_template' );
 	$message = edd_apply_email_template( $email_body, null, null );
+	update_post_meta( $email_id, '_edd_pup_message' ,$message );
 	
 	ob_start();
 	?>
