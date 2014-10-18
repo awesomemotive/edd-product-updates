@@ -173,11 +173,11 @@ jQuery(document).ready(function ($) {
 												
 	                    }).success( function(r) {
 	                    	
-							if ( r === 'nocheck' ) {
+							if ( r == 'nocheck' ) {
 							
 								alert( 'Please choose at least one product whose customers will receive this email update.');
 								spinner.toggleClass('loading');
-								button.prop("disabled", false);	
+								button.prop("disabled", false);
 														
 							} else if ( r % 1 == 0 ) {
 	
@@ -236,10 +236,12 @@ jQuery(document).ready(function ($) {
          }
 	}
 	emailConfirmRedirect();
+});// End of document ready
 	
 	function eddPupAjaxEmails() {
 		
-		var button = $('#edd-pup-ajax'),
+		var $ = jQuery,
+			button = $('#edd-pup-ajax'),
 			action = button.attr('data-action'),
 			clock = $('.progress-clock'),
 			bar = $('.progress-bar'),
@@ -270,13 +272,13 @@ jQuery(document).ready(function ($) {
 					p = Math.round((r.sent / r.total) * 100);
 				
 				if ( r.status == 'restart' ) {						
-					$('.progress-sent').text(r.sent);
+					$('.progress-sent').text( prettyNumber(r.sent) );
 					bar.attr('data-complete', p).css('width', p+'%');
 					$('.progress-percent').text(p+'%');				
 				}
 				
 				$('.progress-wrap').css('opacity', '1');
-				$('.progress-queue').text( r.total );
+				$('.progress-queue').text( prettyNumber(r.total) );
 				button.prop('disabled', false).attr({
 					'data-action': 'pause',
 					value: 'Pause'});
@@ -340,7 +342,7 @@ jQuery(document).ready(function ($) {
 				var percent = Math.round((s / totalEmails) * 99);
 				
 					if (percent != e) {
-						$('.progress-sent').text(s);
+						$('.progress-sent').text(prettyNumber(s));
 						bar.attr('data-complete', percent).css('width', percent+'%');
 						$('.progress-percent').text(percent+'%');
 						
@@ -386,7 +388,7 @@ jQuery(document).ready(function ($) {
 					sec = $('.success-time-s');
 				
 				clock.timer('pause');
-				$('.success-total').text(s);
+				$('.success-total').text(prettyNumber(s));
 				
 				if ( t.length > 2 ) {
 					hrs.show().text( parseInt(t[0]) + ' hr.');
@@ -407,31 +409,11 @@ jQuery(document).ready(function ($) {
 				}
 			});
 		}
-		
-		function eddPupAjaxPause(){
-			
-		}
-		
-		function eddPupAjaxRetry(seconds) {
-	        if (this.paused) {
-	            return;
-	        }
-	        this.set_status('request failed (retry in ' + seconds + 's)');
-	        if (seconds) {
-	            var me = this;
-	            setTimeout(function() {
-	                me.retry(--seconds);
-	            }, 1000);
-	        } else {
-	            this.set_status('processing');
-	            this.process();
-	        }
-	
-		}
 	}
-	eddPupAjaxEmails();
 
-});// End of document ready
+	function prettyNumber(x) {
+	    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
 
 /*
  * =======================
