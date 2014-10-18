@@ -105,7 +105,7 @@ add_action( 'edd_updated_edited_purchase', 'edd_pup_updated_edited_purchase' );
  * @param mixed $products (array of products using id => name format. default: null)
  * @param bool $subscribed (whether to query for subscribed - true - or unsubscribed - false - customers. default: true)
  *
- * @return obj array of payment_ids that are subscribed for updates and have purchashed at least one product being updated.
+ * @return array payment_ids that are subscribed/unsubscribed for updates and have purchashed at least one product being updated.
  */
 function edd_pup_user_send_updates( $products = null, $subscribed = true ){
     if ( empty( $products ) ) {
@@ -125,12 +125,12 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true ){
 		if ($i === $n) {
 			$q .= "meta_value LIKE '%\"id\";i:$prod_id%')";		
 		} else {
-			$q .= "meta_value LIKE '%\"id\";i:$prod_id%' OR";
+			$q .= "meta_value LIKE '%\"id\";i:$prod_id%' OR ";
 		}
 		
 		$i++;
 	}
     
-    return $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_payment_meta' AND meta_value LIKE '%\"edd_send_prod_updates\";b:$bool%' AND ($q", OBJECT_K );
+    return $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_payment_meta' AND meta_value LIKE '%\"edd_send_prod_updates\";b:$bool%' AND ($q", ARRAY_A );
     
 }
