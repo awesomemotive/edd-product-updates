@@ -66,7 +66,7 @@ add_filter( 'edd_payment_meta', 'edd_pup_store_field');
 function edd_pup_send_updates_default( $payment_id ) {
 
     // get the payment meta
-    $payment_meta = edd_get_payment_meta( $payment_id );
+    $payment_meta = get_post_meta( $payment_id, '_edd_payment_meta', true );
  
     // update our checkbox
     $payment_meta['edd_send_prod_updates'] = true;
@@ -76,6 +76,7 @@ function edd_pup_send_updates_default( $payment_id ) {
 
 }
 add_action( 'edd_complete_purchase', 'edd_pup_send_updates_default' );
+add_action( 'edd_insert_payment', 'edd_pup_send_updates_default' );
 
 /**
  * Save unsubscribe field when modified on payment history page
@@ -87,7 +88,7 @@ add_action( 'edd_complete_purchase', 'edd_pup_send_updates_default' );
 function edd_pup_updated_edited_purchase( $payment_id ) {
  
     // get the payment meta
-    $payment_meta = edd_get_payment_meta( $payment_id );
+    $payment_meta = get_post_meta( $payment_id, '_edd_payment_meta', true );
  
     // update our checkbox
     $payment_meta['edd_send_prod_updates'] = isset( $_POST['edd-send-product-updates'] ) ? true : false;
@@ -98,17 +99,40 @@ function edd_pup_updated_edited_purchase( $payment_id ) {
 add_action( 'edd_updated_edited_purchase', 'edd_pup_updated_edited_purchase' );
 
 /**
- * Returns boolean whether or not customer is subscribed for updates
+ * Checks the users that are eligible for updates
  * 
  * @access public
- * @param mixed $payment_id
- * @return bool $sendupdates 
+ * @param mixed $products (array of products using id => name format. default: null)
+ * @param bool $subscribed (whether to query for subscribed - true - or unsubscribed - false - customers. default: true)
+ *
+ * @return int when $count is set to true, returns number of rows in query
+ * @return obj when $count is set to false, array of payment_ids that are subscribed for updates
+ * and have purchashed at least one product being updated.
  */
-function edd_pup_user_send_updates($payment_id){
+function edd_pup_user_send_updates( $products = null, $subscribed = true ){
+    if ( empty( $products ) ) {
+	    return;
+    }
     
-    $payment_meta = edd_get_payment_meta( $payment_id );
+    global $wpdb;
+      
+    $bool = $subscribed ? 1 : 0;
+        
+    $i = 1;
+    $n = count($products);
+    $q = '';
     
-	$sendupdates = isset( $payment_meta['edd_send_prod_updates'] ) ? $payment_meta['edd_send_prod_updates'] : true ;
-
-	return $sendupdates;
+	foreach ( $products as $prod_id => $prod_name ) {
+		
+		if ($i === $n) {
+			$q .= "meta_value LIKE '%\"id\";i:$prod_id%')";		
+		} else {
+			$q .= "meta_value LIKE '%\"id\";i:$prod_id%' OR";
+		}
+		
+		$i++;
+	}
+    
+    return $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_payment_meta' AND meta_value LIKE '%\"edd_send_prod_updates\";b:$bool%' AND ($q", OBJECT_K );
+    
 }
