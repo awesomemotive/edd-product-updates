@@ -134,39 +134,115 @@ function edd_pup_save_email( $data, $email_id = null ) {
  * @access public
  * @return $customercount (number of customers eligible for product updates)
  */
-function edd_pup_customer_count( $email_id = null, $products = null ){
-	
-	if ( empty( $email_id ) && empty( $products ) ) {
+function edd_pup_customer_count( $email_id = null, $products = null, $subscribed = true ){
+		
+	if ( empty( $email_id ) && !is_numeric( $email_id ) ) {
 		return false;
 	}
 	
-	if ( isset( $email_id ) ) {
-		$products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
+	if ( empty( $products ) ) {
+		return 0;
 	}
 	
-	$total = 0;
-	$payments = edd_pup_get_all_customers();
+	global $edd_options;
+    global $wpdb;
+    
+    $count = 0;
+    $b = $subscribed ? 1 : 0;
+	$products = !empty( $products ) ? $products : get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
+        
+    // EDD Software Licensing integration
+	if ( isset( $edd_options['edd_pup_license'] ) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
 	
-	foreach ( $payments as $customer ){	
-		
-		if ( edd_pup_user_send_updates( $customer->ID ) ){
-		
-			$customer_updates = edd_pup_eligible_updates( $customer->ID, $products, false );
+		// Get customers who have a completed payment and are subscribed for updates
+		$customers = $wpdb->get_results(
+	    	"
+	    	SELECT post_id, meta_value
+	    	FROM $wpdb->posts, $wpdb->postmeta
+	    	WHERE $wpdb->posts.ID = $wpdb->postmeta.post_id
+	    		AND post_type = 'edd_payment'
+	    		AND post_status = 'publish'
+	    		AND meta_key = '_edd_payment_meta'
+				AND meta_value LIKE '%%\"edd_send_prod_updates\";b:1%%'
+			", OBJECT_K);
+					
+		// Get updated products with EDD software licensing enabled
+		$products_imp = implode( ',' , array_keys( $products ) );
+		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1 AND post_id IN ( $products_imp )", OBJECT_K );
 			
-			if ( ! empty( $customer_updates ) ) {
-				$total++;
+		foreach ( $customers as $customer ) {
+			
+			$paymentmeta = unserialize( $customer->meta_value );
+
+			foreach ( $paymentmeta['cart_details'] as $item ) {
+				
+				// Skip $item if it is not a product being updated
+				if ( !isset( $products[ $item['id'] ] ) ){
+					continue;
+				}
+			
+				// Check if they have purchased any non-licensed products which would send them the email anyway
+				if ( !isset( $licenseditems[ $item['id'] ] ) && isset( $products[ $item['id'] ] ) ) {
+					$count++;
+					break;
+					
+				// Finally check to make sure customer has licenses then check that it is valid for that item.						
+				} else {
+				
+					$licenses = edd_pup_get_license_keys( $customer->post_id );
+					
+					if ( !empty( $licenses ) && edd_software_licensing()->check_license( array( 'key' => $licenses[ $item['id'] ], 'item_name' => $item['name']) ) === 'valid' ) {
+						$count++;
+						break;
+					}
+				}
 			}
 		}
+		
+	} else {
+	
+	    $n = count( $products );
+	    $i = 1;
+	    $q = '';
+	    
+		foreach ( $products as $id => $name ) {
+			
+			if ( is_numeric( $id ) ) {
+				$id = absint( $id );
+			
+				if ($i === $n) {
+					$q .= "meta_value LIKE '%\"id\";i:$id%')";		
+				} else {
+					$q .= "meta_value LIKE '%\"id\";i:$id%' OR ";
+				}
+	
+			}
+			$i++;
+		}
+	
+		$customers = $wpdb->get_results(
+	    	"
+	    	SELECT post_id, meta_value
+	    	FROM $wpdb->posts, $wpdb->postmeta
+	    	WHERE $wpdb->posts.ID = $wpdb->postmeta.post_id
+	    		AND post_type = 'edd_payment'
+	    		AND post_status = 'publish'
+	    		AND meta_key = '_edd_payment_meta'
+				AND (meta_value LIKE '%%\"edd_send_prod_updates\";b:$b%%'
+					AND ($q )
+			", OBJECT );
+	
+		$count = $wpdb->num_rows;
 	}
-    
-    return $total;
+	
+    return $count;
 }
 
 /**
- * Returns all payment history posts / customers
+ * Returns all customers
  * 
  * @access public
- * @return object (all edd_payment post types)
+ * @return array (all customers regardless of status)
  */
 function edd_pup_get_all_customers(){
 
@@ -174,23 +250,9 @@ function edd_pup_get_all_customers(){
 	
 	if ( false === $customers ) {
 	
-		$queryargs = array(
-			'posts_per_page'   => -1,
-			'offset'           => 0,
-			'category'         => '',
-			'orderby'          => 'ID',
-			'order'            => 'DESC',
-			'include'          => '',
-			'exclude'          => '',
-			'meta_key'         => '',
-			'meta_value'       => '',
-			'post_type'        => 'edd_payment',
-			'post_mime_type'   => '',
-			'post_parent'      => '',
-			'post_status'      => 'publish',
-			'suppress_filters' => true
-			);
-		$customers = get_posts($queryargs);
+		global $wpdb;
+		
+		$customers = $wpdb->get_results( "SELECT ID FROM $wpdb->posts WHERE post_type = 'edd_payment' AND post_status = 'publish'", ARRAY_A );
 		
 		set_transient( 'edd_pup_all_customers', $customers, 60 );
 	}
@@ -198,6 +260,13 @@ function edd_pup_get_all_customers(){
 	return $customers;
 }
 
+
+/**
+ * Gets a list of all the downloads and formats them as an array
+ * 
+ * @access public
+ * @return array with download IDs as keys and the name of the download as values
+ */
 function edd_pup_get_all_downloads(){
 
 	$products = get_transient( 'edd_pup_all_downloads' );
@@ -227,64 +296,75 @@ function edd_pup_get_all_downloads(){
  * @param mixed $updated_products	array of products selected to update stored
  * @param bool $object	determines whether to return array of item IDs or item objects
  * in $edd_options['prod_updates_products']
+ * @param array $licenseditems	array of products that have software licensing enabled
  *
- * @return array $customer_updates
+ * @return array/object $customer_updates
  */
-function edd_pup_eligible_updates( $payment_id, $updated_products, $object = true ){
-	
-	//$customer_updates = get_transient( 'edd_pup_eligible_updates_'.$payment_id );
+function edd_pup_eligible_updates( $payment_id, $updated_products, $object = true, $licenseditems = null ){
 	
 	if ( empty( $payment_id) || empty( $updated_products ) ) {
 		return false;
 	}
 	
-	$customer_updates = false;
+	if ( is_null( $licenseditems ) ) {
+		global $wpdb;
+		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1", OBJECT_K );
+	}
 	
-	if ( false === $customer_updates ) {
-		global $edd_options;
+	global $edd_options;
+	$customer_updates = '';
+	$payment_meta = get_post_meta( $payment_id, '_edd_payment_meta', true );
+	
+	if ( isset( $edd_options['edd_pup_license'] ) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
+		$licenses = edd_pup_get_license_keys( $payment_id );
+	}
+	
+	foreach ( $payment_meta['cart_details'] as $item ){
 		
-		$customer_updates = '';
-		$cart_items = edd_get_payment_meta_cart_details( $payment_id, false );
+		// Skip $item if it is not a product being updated
+		if ( !isset( $updated_products[ $item['id'] ] ) ){
+			continue;
+		}
+		
+		// If Software Licensing integration is active and the $item has software licensing enabled
+		if ( isset( $edd_options['edd_pup_license'] ) && isset( $licenseditems[ $item['id'] ] ) ) {
 			
-		if ( isset( $edd_options['edd_pup_license']) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
-			$licenses = edd_pup_get_license_keys($payment_id);
-		}
-		
-		foreach ( $cart_items as $item ){
-		
-			if ( array_key_exists( $item['id'], $updated_products ) ){
+			// If the customer has licenses and the license for this $item is valid
+			if ( !empty( $licenses ) && edd_software_licensing()->check_license( array( 'key' => $licenses[ $item['id'] ], 'item_name' => $item['name']) ) === 'valid' ) {	
 				
-				if ( ! empty($licenses) && isset($edd_options['edd_pup_license']) && get_post_meta( $item['id'], '_edd_sl_enabled', true ) ) {
-					
-					$checkargs = array(
-						'key'        => $licenses[$item['id']],
-						'item_name'  => $item['name']
-					);
-					
-					$check = edd_software_licensing()->check_license($checkargs);
-					
-					if ( $check === 'valid' ) {				
-						if ( $object ){
-							$customer_updates[] = $item;
-						} else {
-							$customer_updates[] = $item['id'];
-						}		
-					}
-					
-				} else {
-						if ( $object ){
-							$customer_updates[] = $item;
-						} else {
-							$customer_updates[] = $item['id'];
-						}		
-				}
-			}	
+				// Add the $item as an eligible updates
+				$customer_updates[ $item['id'] ] = $object ? $item : $item['name'];
+			}
+			
+		} else {
+				// Add the $item as an eligible updates
+				$customer_updates[ $item['id'] ] = $object ? $item : $item['name'];
 		}
-	
-		set_transient( 'edd_pup_eligible_updates_'.$payment_id, $customer_updates, 60*60 );
 	}
 	
 	return $customer_updates;
+}
+
+
+/**
+ * Gets the updates customers will be sent from the email queue
+ * 
+ * @access public
+ * @param mixed $payment_id
+ * @param mixed $email_id
+ * @return array of products
+ */
+function edd_pup_get_customer_updates( $payment_id, $email_id ) {
+	
+	if ( empty( $payment_id ) || empty( $email_id ) ) {
+		return;
+	}
+	
+	global $wpdb;
+	$payment_id = absint( $payment_id );
+	$email_id = absint( $email_id );
+	
+	return unserialize( $wpdb->get_var( $wpdb->prepare( "SELECT products FROM $wpdb->edd_pup_queue WHERE email_id = %d AND customer_id = %d", $email_id, $payment_id ) ) );
 }
 
 /**
@@ -296,19 +376,18 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = tru
  * @return array $key
  */
 function edd_pup_get_license_keys( $payment_id ){
-	$key = '';
+	$keys = '';
 	$licenses = edd_software_licensing()->get_licenses_of_purchase( $payment_id );
 	
 	if ( $licenses ) {	
 		foreach ( $licenses as $license ){
-			$id = get_post_meta( $license->ID, '_edd_sl_download_id', true );
-			$key[$id] = get_post_meta( $license->ID, '_edd_sl_key', true );
+			$meta = get_post_custom( $license->ID );
+			$keys[ $meta['_edd_sl_download_id'][0] ] = $meta['_edd_sl_key'][0];
 		}
 	}
 	
-	return $key;
+	return $keys;
 }
-
 
 /**
  * Checks database for specified email in queue to see if there are
@@ -416,3 +495,26 @@ function edd_pup_is_processing( $emailid = null ) {
 	}
 	
 }
+
+if (!function_exists('write_log')) {
+
+    function write_log ( $log )  {
+
+        if ( true === WP_DEBUG ) {
+
+            if ( is_array( $log ) || is_object( $log ) ) {
+
+                error_log( print_r( $log, true ) );
+
+            } else {
+
+                error_log( $log );
+
+            }
+
+        }
+
+    }
+
+}
+
