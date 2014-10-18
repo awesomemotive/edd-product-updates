@@ -331,6 +331,11 @@ jQuery(document).ready(function ($) {
 				}
 				var err = 0;
 				
+				if ( !isNumeric(s) ) {
+					alert ('Error communicating with server. Please try again or contact support.');
+					return false;
+				}
+				
 				function progressColor( color1, color2 ){
 					bar.removeClass(color1).addClass(color2);
 				};
