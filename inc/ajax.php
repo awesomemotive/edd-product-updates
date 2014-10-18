@@ -231,7 +231,7 @@ function edd_pup_ajax_start(){
 	/**/
 	/**/ $time_end = microtime(true);
 	/**/ $time = $time_end - $time_start;   
-	/**/ write_log('Executed "edd_pup_ajax_start" in: '. $time .' seconds');
+	/**/ write_log('Executed "edd_pup_ajax_start" for '.$email_id.' in: '. $time .' seconds');
 	/**/
 	/********************************
 	/** For testing purposes only ***
