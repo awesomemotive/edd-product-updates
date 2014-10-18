@@ -141,11 +141,6 @@ jQuery(document).ready(function ($) {
             
 	emailTest();
 	
-	function emailValidate(email) {
-		var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-		return regex.test(email);
-	}
-	
 	function emailConfirmPreview() {
 	
 		var	button = $('#send-prod-updates'),
@@ -240,15 +235,17 @@ jQuery(document).ready(function ($) {
 	
 	function eddPupAjaxEmails() {
 		
-		var $ = jQuery,
-			button = $('#edd-pup-ajax'),
-			action = button.attr('data-action'),
-			clock = $('.progress-clock'),
-			bar = $('.progress-bar'),
-			emailid  = button.attr('data-email'),
+		var $       = jQuery,
+			status  = $('.progress-status .status-text'),
+			button  = $('#edd-pup-ajax'),
+			action  = button.attr('data-action'),
+			clock   = $('.progress-clock'),
+			bar     = $('.progress-bar'),
+			psent   = $('.progress-sent'),
+			pperc   = $('.progress-percent'),
+			emailid = button.attr('data-email'),
+			ogurl   = window.opener.document.location.href,
 			i = 0,
-			status = $('.progress-status .status-text'),
-			ogurl = window.opener.document.location.href,
 			data = {
 				'action': 'edd_pup_ajax_start',
 				'email_id' : emailid
@@ -272,9 +269,9 @@ jQuery(document).ready(function ($) {
 					p = Math.round((r.sent / r.total) * 100);
 				
 				if ( r.status == 'restart' ) {						
-					$('.progress-sent').text( prettyNumber(r.sent) );
+					psent.text( prettyNumber(r.sent) );
 					bar.attr('data-complete', p).css('width', p+'%');
-					$('.progress-percent').text(p+'%');				
+					pperc.text(p+'%');				
 				}
 				
 				$('.progress-wrap').css('opacity', '1');
@@ -342,9 +339,9 @@ jQuery(document).ready(function ($) {
 				var percent = Math.round((s / totalEmails) * 99);
 				
 					if (percent != e) {
-						$('.progress-sent').text(prettyNumber(s));
+						psent.text(prettyNumber(s));
 						bar.attr('data-complete', percent).css('width', percent+'%');
-						$('.progress-percent').text(percent+'%');
+						pperc.text(percent+'%');
 						
 						if ( percent >= 25 && percent <= 49 ) {
 							progressColor('red','orange');
@@ -376,7 +373,7 @@ jQuery(document).ready(function ($) {
 				status.fadeIn('fast').text('Sending complete.');
 					
 				bar.attr('data-complete', 100).css('width', 100+'%');
-				$('.progress-percent').text(100+'%');
+				pperc.text(100+'%');
 								
 				button.prop('disabled', true).attr({
 						'data-action': 'complete',
@@ -413,6 +410,11 @@ jQuery(document).ready(function ($) {
 
 	function prettyNumber(x) {
 	    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
+	
+	function emailValidate(email) {
+		var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+		return regex.test(email);
 	}
 
 /*
