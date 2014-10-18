@@ -105,9 +105,7 @@ add_action( 'edd_updated_edited_purchase', 'edd_pup_updated_edited_purchase' );
  * @param mixed $products (array of products using id => name format. default: null)
  * @param bool $subscribed (whether to query for subscribed - true - or unsubscribed - false - customers. default: true)
  *
- * @return int when $count is set to true, returns number of rows in query
- * @return obj when $count is set to false, array of payment_ids that are subscribed for updates
- * and have purchashed at least one product being updated.
+ * @return obj array of payment_ids that are subscribed for updates and have purchashed at least one product being updated.
  */
 function edd_pup_user_send_updates( $products = null, $subscribed = true ){
     if ( empty( $products ) ) {
