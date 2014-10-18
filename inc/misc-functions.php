@@ -496,6 +496,43 @@ function edd_pup_is_processing( $emailid = null ) {
 	
 }
 
+/**
+ * Checks the users that are eligible for updates
+ * 
+ * @access public
+ * @param mixed $products (array of products using id => name format. default: null)
+ * @param bool $subscribed (whether to query for subscribed - true - or unsubscribed - false - customers. default: true)
+ *
+ * @return array payment_ids that are subscribed/unsubscribed for updates and have purchashed at least one product being updated.
+ */
+function edd_pup_user_send_updates( $products = null, $subscribed = true ){
+    if ( empty( $products ) ) {
+	    return;
+    }
+    
+    global $wpdb;
+      
+    $bool = $subscribed ? 1 : 0;
+        
+    $i = 1;
+    $n = count($products);
+    $q = '';
+    
+	foreach ( $products as $prod_id => $prod_name ) {
+		
+		if ($i === $n) {
+			$q .= "meta_value LIKE '%\"id\";i:$prod_id%')";		
+		} else {
+			$q .= "meta_value LIKE '%\"id\";i:$prod_id%' OR ";
+		}
+		
+		$i++;
+	}
+    
+    return $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_payment_meta' AND meta_value LIKE '%\"edd_send_prod_updates\";b:$bool%' AND ($q", ARRAY_A );
+    
+}
+
 if (!function_exists('write_log')) {
 
     function write_log ( $log )  {
