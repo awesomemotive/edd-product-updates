@@ -52,15 +52,15 @@ switch ( strtolower( $email->post_status ) ){
 						<div class="inside">
 							<p><strong><?php _e( 'Status', 'edd-pup' ); ?>:</strong> <span class="status-<?php echo $email->post_status; ?>"><?php echo $status; ?></span></p>							
 							<?php if ( $queue['queue'] > 0 ): ?>
-							<p><strong><?php _e( 'Queued', 'edd-pup' ); ?>:</strong> <?php echo $queue['queue']; ?></p>
-							<p><strong><?php _e( 'Processed', 'edd-pup' ); ?>:</strong> <?php echo $queue['sent']; ?></p>
+							<p><strong><?php _e( 'Queued', 'edd-pup' ); ?>:</strong> <?php echo number_format( $queue['queue'] ); ?></p>
+							<p><strong><?php _e( 'Processed', 'edd-pup' ); ?>:</strong> <?php echo number_format( $queue['sent'] ); ?></p>
 							<?php endif;?>
 							<?php if ( is_array( $recipients ) ): ?>
-							<p><strong><?php _e( 'Sent', 'edd-pup' ); ?>:</strong> <?php echo $recipients['sent']; ?></p>
-							<p><strong><?php _e( 'Unsent', 'edd-pup' ); ?>:</strong> <?php echo $recipients['queue']; ?></p>
-							<p><strong><?php _e( 'Total Recipients', 'edd-pup' ); ?>:</strong> <?php echo $recipients['total']; ?></p>
+							<p><strong><?php _e( 'Sent', 'edd-pup' ); ?>:</strong> <?php echo number_format( $recipients['sent'] ); ?></p>
+							<p><strong><?php _e( 'Unsent', 'edd-pup' ); ?>:</strong> <?php echo number_format( $recipients['queue'] ); ?></p>
+							<p><strong><?php _e( 'Total Recipients', 'edd-pup' ); ?>:</strong> <?php echo number_format( $recipients['total'] ); ?></p>
 							<?php else: ?>
-							<p><strong><?php _e( 'Total Recipients', 'edd-pup' ); ?>:</strong> <?php echo $recipients; ?></p>
+							<p><strong><?php _e( 'Total Recipients', 'edd-pup' ); ?>:</strong> <?php echo number_format( $recipients ); ?></p>
 							<?php endif; ?>
 							<p><strong><?php _e( 'Updated Products', 'edd-pup' ); ?>:</strong></p>
 								<ul id="updated-products">
@@ -112,7 +112,7 @@ switch ( strtolower( $email->post_status ) ){
 							<p><strong><?php _e( 'Subject', 'edd-pup' ); ?>:</strong> <?php echo $emailmeta['_edd_pup_subject'][0]; ?></p>
 							<p><strong><?php _e( 'Message', 'edd-pup' ); ?>:</strong></p>
 							<div id="message-preview">
-								<?php echo edd_apply_email_template( $emailmeta['_edd_pup_message'][0], null, null ); ?>
+								<?php echo edd_apply_email_template( $email->post_content, null, null ); ?>
 							</div>
 						</div>
 					</div>
