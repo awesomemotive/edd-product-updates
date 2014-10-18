@@ -51,6 +51,8 @@ switch ( get_post_status( $_GET['id'] ) ) {
 	</div><!-- end #completion -->
 </div><!-- end #progress-wrap -->
 <script type="text/javascript">
+	eddPupAjaxEmails();
+	
 	jQuery(window).bind('beforeunload', function(){
 		if ( jQuery('.progress-bar').data('complete') <= 99 && parseInt( jQuery('.progress-queue').html() ) > 0 ) {
 			return '<?php _e( 'This will cause your emails to stop sending.', 'edd-pup' ); ?>';
