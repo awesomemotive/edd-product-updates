@@ -1,12 +1,12 @@
 EDD Product Updates Extension
 ===================
 
-Version 0.9.3.1 – *This is a very early version that has been tested in a limited WordPress environment*
+Version 0.9.3.1 – *This is an early version that has been tested in a limited WordPress environment*
 
-**Testing Environment:**
-* **Wordpress:** 3.9.1
+**Tested With:**
+* **Wordpress:** 3.9.1 / 4.0
 * **EDD:** 2.0.4
-* **PHP:** 5.4.26
+* **PHP:** 5.4 / 5.6.1
 
 **Requirements:**
 * **Wordpress:** 3.0+
@@ -23,13 +23,15 @@ This extension allows you to send specialized product update emails to your cust
 
 **Customer History Logs**. Major actions are logged to each customer's payment history page. This includes log notes when they are sent an update email and when they unsubscribe/resubscribe from updates.
 
+**Complete Email Management UI**. Edit multiple email drafts or view sent, cancelled, and queued emails all from the Wordpress Dashboard. Perfect for planning email updates in advance or remembering when previous updates were sent.
+
 **Email Preview Confirmation**. The "Send Emails" button triggers an AJAX call that saves any changes made to your email message and then shows you a preview of it along with essential info like products slated for updates and number of recipients. This ensures you don't accidentally send an email blast before it's ready!
 
 **Send Test Emails**. If you'd rather preview your email message inside different email clients, you can easily send test emails to up to five different email addresses – with tags interpreted and displayed just as your customers will see them.
 
-**EDD Software Licensing Integration**. Choose whether to send product update emails to those customers who have active subscription licenses for those products in which EDD Software Licensing is being used. Customers with expired or inactive licenses won't receive update emails when enabled.
+**EDD Software Licensing Integration**. Choose whether to send product update emails to those customers who have active subscription licenses for products using EDD Software Licensing. Customers with expired or inactive licenses won't receive update emails when enabled.
 
-**Batch Sending of Emails**. For those with large customer lists, the extension breaks up emails into batches and sends them in the background (with a front-end UI to show you the progress) so you don't have to worry about the process timing out PHP on your server.
+**Batch Sending of Emails**. The extension breaks up emails into batches and sends them in the background (with a front-end UI to show you the progress) so you don't have to worry about the process timing out PHP on your server.
 
 ## Installation
 1. Download plugin as .zip
