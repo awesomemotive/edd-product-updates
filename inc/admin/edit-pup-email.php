@@ -15,7 +15,9 @@ $updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE 
 $recipients = edd_pup_customer_count( $email_id, $updated_products );
 $products = edd_pup_get_all_downloads();
 $tags = edd_get_email_tags();
-$status = get_post_status( $email_id );	
+$status = get_post_status( $email_id );
+$fromname = !empty( $emailmeta['_edd_pup_from_name'][0] ) ? $emailmeta['_edd_pup_from_name'][0] : '';
+$fromemail = !empty( $emailmeta['_edd_pup_from_email'][0] ) ? $emailmeta['_edd_pup_from_email'][0] : '';
 
 // Redirect to view page if edit page is accessed directly
 if ( $status != 'draft' ) {
@@ -25,7 +27,6 @@ if ( $status != 'draft' ) {
 	</script>
 	<?php
 }
-
 ?>
 
 <form id="edd-pup-email-edit" action="" method="POST">
@@ -112,8 +113,8 @@ if ( $status != 'draft' ) {
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
 							
 							<!-- recipients -->
-								<p><strong><?php _e( 'Recipients', 'edd-pup' ); ?>:</strong> <?php printf( _n( '1 customer will receive this email', '%s customers will receive this email', $recipients, 'edd-pup' ), $recipients ); ?></p>
-								<input type="hidden" name="recipients" value="<?php echo $recipients; ?>" />
+								<p><strong><?php _e( 'Recipients', 'edd-pup' ); ?>:</strong> <?php printf( _n( '<span class="recipient-count">1</span> customer will receive this email', '<span class="recipient-count">%s</span> customers will receive this email', $recipients, 'edd-pup' ), number_format( $recipients ) ); ?></p>
+								<input type="hidden" name="recipients" class="recipient-input" value="<?php echo absint($recipients); ?>" />
 						</div>
 					</div>
 					
@@ -122,11 +123,11 @@ if ( $status != 'draft' ) {
 						<div class="inside">
 							<!-- from name  -->
 							<strong><?php _e( 'From Name', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="regular-text" name="from_name" id="from_name" placeholder="<?php echo get_bloginfo('name'); ?>" value="<?php echo $emailmeta['_edd_pup_from_name'][0]; ?>" />
+							<input type="text" class="regular-text" name="from_name" id="from_name" placeholder="<?php echo get_bloginfo('name'); ?>" value="<?php echo $fromname; ?>" />
 							<p class="description"><?php _e( 'The name customers will see the product update coming from.' , 'edd-pup' ); ?></p>
 							<!-- from email -->
 							<strong><?php _e( 'From Email', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="regular-text" name="from_email" id="from_email" placeholder="<?php echo get_bloginfo('admin_email'); ?>" value="<?php echo $emailmeta['_edd_pup_from_email'][0]; ?>" />
+							<input type="text" class="regular-text" name="from_email" id="from_email" placeholder="<?php echo get_bloginfo('admin_email'); ?>" value="<?php echo $fromemail; ?>" />
 							<p class="description"><?php _e( 'The email address customers will receive the product update from.' , 'edd-pup' ); ?></p>
 							<!-- subject    -->
 							<strong><?php _e( 'Subject', 'edd-pup' ); ?>:</strong>
