@@ -505,13 +505,15 @@ function edd_pup_is_processing( $emailid = null ) {
  *
  * @return array payment_ids that are subscribed/unsubscribed for updates and have purchashed at least one product being updated.
  */
-function edd_pup_user_send_updates( $products = null, $subscribed = true ){
+function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit = null, $offset = null ){
     if ( empty( $products ) ) {
 	    return;
     }
     
     global $wpdb;
-      
+     
+    $limit = !empty( $limit ) ? 'LIMIT '. $limit : '';
+    $offset = !empty( $offset ) ? 'OFFSET '. $offset : '';
     $bool = $subscribed ? 1 : 0;
         
     $i = 1;
@@ -529,7 +531,7 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true ){
 		$i++;
 	}
     
-    return $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_payment_meta' AND meta_value LIKE '%\"edd_send_prod_updates\";b:$bool%' AND ($q", ARRAY_A );
+    return $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_payment_meta' AND meta_value LIKE '%\"edd_send_prod_updates\";b:$bool%' AND ($q $limit $offset", ARRAY_A );
     
 }
 
