@@ -513,7 +513,7 @@ function edd_pup_ajax_save( $posted ) {
 	
 	// Convert form data to array
 	$data = array();
-	parse_str($posted['form'], $data );
+	parse_str( $posted['form'], $data );
 	
 	//Sanitize our data
 	$data['message'] 	= wp_kses_post( $data['message'] );
