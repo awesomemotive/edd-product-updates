@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 $products = edd_pup_get_all_downloads();
 $tags = edd_get_email_tags();
+$recipients = 0;
 
 ?>
 <form id="edd-pup-email-edit" action="" method="POST">
