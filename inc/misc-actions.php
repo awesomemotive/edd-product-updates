@@ -68,7 +68,8 @@ function edd_pup_delete_email( $data ) {
 
 	if ( false !== edd_pup_check_queue( $data['id'] ) ) {
 		// Clear instances of this email in the queue
-		$wpdb->delete( "$wpdb->edd_pup_queue", array( 'email_id' => $email_id ), array( '%d' ) );
+		global $wpdb;
+		$wpdb->delete( "$wpdb->edd_pup_queue", array( 'email_id' => $data['id'] ), array( '%d' ) );
 	}
 			
 	$goodbye = wp_delete_post( $data['id'], true );
