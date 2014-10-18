@@ -106,14 +106,15 @@ function edd_pup_queue_details() {
 			$queue = edd_pup_check_queue( $email );
 			$i = 1;
 			$email_data = get_post_custom( $email );
+			$subject = isset( $email_data['_edd_pup_subject'][0] ) ? $email_data['_edd_pup_subject'][0] : '<em>Unable to find subject</em>';
 		?>
 			<div id="edd-pup-queue-email-<?php echo $i;?>" class="edd-pup-queue-email">
 					<ul>
 						<li><strong><?php _e( 'Email ID:', 'edd-pup' ); ?></strong> <?php echo $email;?></li>
-						<li><strong><?php _e( 'Subject:', 'edd-pup' ); ?></strong> <?php echo $email_data['_edd_pup_subject'][0];?></li>
-						<li><strong><?php _e( 'Total Recipients:', 'edd-pup' ); ?></strong> <?php echo $queue['total'];?></li>
-						<li><strong><?php _e( 'Processed:', 'edd-pup' ); ?></strong> <?php echo $queue['sent'];?></li>
-						<li><strong><?php _e( 'Queued:', 'edd-pup' ); ?></strong> <?php echo $queue['queue'];?></li>
+						<li><strong><?php _e( 'Subject:', 'edd-pup' ); ?></strong> <?php echo $subject;?></li>
+						<li><strong><?php _e( 'Total Recipients:', 'edd-pup' ); ?></strong> <?php echo number_format( $queue['total'] );?></li>
+						<li><strong><?php _e( 'Processed:', 'edd-pup' ); ?></strong> <?php echo number_format( $queue['sent'] );?></li>
+						<li><strong><?php _e( 'Queued:', 'edd-pup' ); ?></strong> <?php echo number_format( $queue['queue'] );?></li>
 						<li><strong><?php _e( 'Last Send Attempt:', 'edd-pup' ); ?></strong> <?php echo date( 'M jS, Y g:i A T', strtotime($queue['date']) );?></li>
 						<li><a href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=view_pup_email&id='. $email ); ?>"><?php _e( 'View Email Details', 'edd-pup' ); ?></a></li>				
 					</ul>
