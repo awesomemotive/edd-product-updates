@@ -20,24 +20,24 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @return array $posted (processed array of email data)
  */
 function edd_pup_prepare_data( $data ) {
-
-	// Setup the email details
-	$posted = array();
-
-	foreach ( $data as $key => $value ) {
-		
-		if ( $key != 'edd_pup_nonce' && $key != 'edd-action' && $key != 'edd_pup_edit_url' ) {
-
-			if ( 'email' == $key || 'product' == $key )
-				$posted[ $key ] = $value;
-			elseif ( is_string( $value ) || is_int( $value ) )
-				$posted[ $key ] = strip_tags( addslashes( $value ) );
-			elseif ( is_array( $value ) )
-				$posted[ $key ] = array_map( 'absint', $value );
-		}
+	
+	//Sanitize our data
+	$data['message'] 	= wp_kses_post( $data['message'] );
+	$data['email-id']	= isset( $data['email-id'] ) ? absint( $data['email-id'] ) : 0;
+	$data['recipients']	= absint( $data['recipients'] );
+	$data['from_name'] 	= sanitize_text_field( $data['from_name'] );
+	$data['from_email'] = sanitize_email( $data['from_email'] );
+	$data['title']		= sanitize_text_field( $data['title'], 'ID:'. $data['email-id'], 'save' );
+	$data['subject']	= sanitize_text_field( $data['subject'] );
+	
+	if ( isset( $data['product'] ) ) {
+		$data['product'] = filter_var_array( $data['product'], FILTER_SANITIZE_STRING );
+	} else {
+		$data['product'] = '';
 	}
 	
-	return $posted;
+	return $data;
+	
 }
 
 /**
