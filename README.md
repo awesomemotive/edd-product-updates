@@ -21,7 +21,7 @@ This extension allows you to send specialized product update emails to your cust
 
 **Complete Unsubscribe System**. The added {unsubscribe} email tag outputs a link customers can click on to be removed from future product updates. If clicked on accident, it's easy to re-subscribe via single button click. Additionally, admins have the ability to unsubscribe/resubscribe customers on their payment history page.
 
-**Customer History Logs**. Major actions are logged to each customer's payment history page. This includes log notes when they are sent an update email and when they unsubscribe/resubscribe from updates.
+**Customer History Logs**. Major actions are logged to each customer's payment history page including when they are sent an update email and when they unsubscribe/resubscribe from updates.
 
 **Complete Email Management UI**. Edit multiple email drafts or view sent, cancelled, and queued emails all from the Wordpress Dashboard. Perfect for planning email updates in advance or remembering when previous updates were sent.
 
