@@ -61,6 +61,7 @@ function edd_pup_create_tables() {
           eddpup_id bigint(20) unsigned NOT NULL auto_increment,
           customer_id bigint(20) unsigned NOT NULL default '0',
           email_id bigint(20) unsigned NOT NULL default '0',
+          products longtext NOT NULL,
           sent bool NOT NULL default '0',
           sent_date timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
           PRIMARY KEY  (eddpup_id),
@@ -96,11 +97,6 @@ function edd_pup_uninstall(){
     delete_option('wptuts_activity_log_version');
  
     //Remove any leftover transients
-	$customers = edd_pup_get_all_customers();	
-	
-	foreach ($customers as $customer){
-		delete_transient( 'edd_pup_eligible_updates_'. $customer->ID );
-	}
 	delete_transient( 'edd_pup_email_id' );
 	delete_transient( 'edd_pup_all_customers' );
 	delete_transient( 'edd_pup_subject' );	
