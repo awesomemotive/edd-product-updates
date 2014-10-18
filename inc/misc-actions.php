@@ -65,7 +65,12 @@ add_action( 'edd_edit_pup_email', 'edd_pup_create_email' );
 function edd_pup_delete_email( $data ) {
 	if ( ! wp_verify_nonce( $data['_wpnonce'], 'edd-pup-delete-nonce' ) )
 		return;
-		
+
+	if ( false !== edd_pup_check_queue( $data['id'] ) ) {
+		// Clear instances of this email in the queue
+		$wpdb->delete( "$wpdb->edd_pup_queue", array( 'email_id' => $email_id ), array( '%d' ) );
+	}
+			
 	$goodbye = wp_delete_post( $data['id'], true );
 	
 	if ( false === $goodbye || empty( $goodbye ) ) {
