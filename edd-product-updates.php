@@ -36,7 +36,7 @@ function edd_pup_register_table() {
     global $wpdb;
     $wpdb->edd_pup_queue = "{$wpdb->prefix}edd_pup_queue";
     
-    update_option( 'edd_pup_version', '0.9.3' );
+    update_option( 'edd_pup_version', '0.9.3.1' );
 }
 add_action( 'init', 'edd_pup_register_table', 1 );
 add_action( 'switch_blog', 'edd_pup_register_table' );
