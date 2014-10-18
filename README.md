@@ -1,7 +1,7 @@
 EDD Product Updates Extension
 ===================
 
-Version 0.9.3 – *This is a very early version that has been tested in a limited WordPress environment*
+Version 0.9.3.1 – *This is a very early version that has been tested in a limited WordPress environment*
 
 **Testing Environment:**
 * **Wordpress:** 3.9.1

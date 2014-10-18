@@ -4,12 +4,12 @@
  * Description: Batch send product update emails to EDD customers
  * Author: Evan Luzi
  * Author URI: http://evanluzi.com
- * Version: 0.9.3
+ * Version: 0.9.3.1
  * Text Domain: edd-pup
  *
  * @package EDD_PUP
  * @author Evan Luzi
- * @version 0.9.3
+ * @version 0.9.3.1
  */
 
 // Exit if accessed directly
