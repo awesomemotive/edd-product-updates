@@ -266,8 +266,12 @@ jQuery(document).ready(function ($) {
 			
 			$.post(ajaxurl, data).error( function() {
 			
-				alert('Something went wrong preparing your emails to send. Please contact support.');
-				
+				alert('Trouble starting email send. Please try again or contact support.');
+				button.prop('disabled', false).attr({
+					'data-action': 'start',
+					value: 'Start Sending'});
+				spinner.hide();
+							
 			}).success( function( ret ) {
 			
 				var r = $.parseJSON(ret),
@@ -295,7 +299,13 @@ jQuery(document).ready(function ($) {
 		});
 		
 		function eddPupAjaxBuild( r, emailid, it, err ) {
-			
+
+			if ( err == 0 ) {
+				status.text('Preparing emails to send. ' +prettyNumber(r.processed)+' emails added to the queue so far.');
+			} else {
+				status.text('Attempting to re-establish connection with server.');				
+			}
+					
 			if ( +r.processed >= +r.total ) {
 				eddPupAjaxTrigger(0, r.sent, r.total, emailid, 0);
 				return false;
@@ -306,16 +316,45 @@ jQuery(document).ready(function ($) {
 				'email_id': emailid,
 				'iteration': it,
 				'processed': r.processed,
-				'status': 'processing'
+				'status': 'processing',
+				'error' : err
 				};
 			
 			$.post(ajaxurl, data).error( function() {	
 				
-				alert('Something went wrong preparing your emails to send. Please contact support.');
+				err++;
+				
+				status.html('Trouble communicating with the server. Retrying in <span class="count">15</span> seconds.');
+						
+				var errsec = 14,
+					errtimer = setInterval(function() { 
+				   $('.progress-status .count').text(errsec--);
+				   if (errsec == 0) {
+				      clearInterval(errtimer);
+				   } 
+				}, 1000);
+				
+				// Retry establishing connection up to 5 times before completely bailing out.
+				if ( err == 6 ) {
+					alert('Something happened when preparing your emails to send. Please try again later or contact support.');
+					return false;
+				}	
+				
+				setTimeout(
+				  function() 
+				  {
+					 eddPupAjaxBuild( r, emailid, it, err );
+				  }, 15000);
+				
+				console.log('Here is the error var:');
+				console.log(err);
 				
 			}).success( function( ret ) {
-				
-				var r = $.parseJSON(ret);			
+				if ( err > 0 ) {
+					status.text('Connection re-established. Resuming email send.');
+				}
+				var err = 0,		
+					r = $.parseJSON(ret);			
 				it++;
 				if ( r.processed > 0 ) {
 					status.text('Preparing emails to send. ' +prettyNumber(r.processed)+' emails added to the queue so far.');
