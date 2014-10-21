@@ -66,10 +66,15 @@ function edd_pup_delete_email( $data ) {
 	if ( ! wp_verify_nonce( $data['_wpnonce'], 'edd-pup-delete-nonce' ) )
 		return;
 
+	// Clear instances of this email in the queue
 	if ( false !== edd_pup_check_queue( $data['id'] ) ) {
-		// Clear instances of this email in the queue
 		global $wpdb;
 		$wpdb->delete( "$wpdb->edd_pup_queue", array( 'email_id' => $data['id'] ), array( '%d' ) );
+	}
+	
+	// Remove transient if it had been set by this email
+	if ( get_transient( 'edd_pup_sending_email' ) == $data['id'] ) {
+		delete_transient( 'edd_pup_sending_email' );
 	}
 			
 	$goodbye = wp_delete_post( $data['id'], true );
