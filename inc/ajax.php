@@ -163,29 +163,36 @@ function edd_pup_ajax_start(){
 	
     $restart = edd_pup_is_ajax_restart( $_POST['email_id'] );
     
-    if ( false != $restart && is_array( $restart ) ) {
+    if ( false != $restart && is_array( $restart ) && empty( $_POST['status'] ) ) {
 
 		set_transient( 'edd_pup_sending_email', $_POST['email_id'] );
 		$restart['status'] = 'restart';
-	    
+		   
 	    echo json_encode($restart);
 	    exit;
 	    
     } else {
-    
+		
 		global $wpdb;
 		$email_id = intval( $_POST['email_id'] );
 		$products = get_post_meta( $email_id, '_edd_pup_updated_products', true );
-		$customers = edd_pup_user_send_updates( $products, true );
+		$limit = 1000;
+		$total = isset( $_POST['total'] ) ? absint( $_POST['total'] ) : get_post_meta( $email_id, '_edd_pup_recipients', TRUE );
+		$processed = isset( $_POST['processed'] ) ? absint( $_POST['processed'] ) : 0;
+		$status = $processed > 0 ? 'processing' : 'new';
+		$customers = edd_pup_user_send_updates( $products, true, $limit, $processed );
 		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1", OBJECT_K );
 		$count = 0;
 		$i = 1;
-			
-		// Set email ID transient
-		set_transient( 'edd_pup_sending_email', $email_id );
 		
-		// Update email status as in queue
-		wp_update_post( array( 'ID' => $email_id, 'post_status' => 'pending' ) );
+		if ( $_POST['iteration'] == 0 ) {
+			// Set email ID transient
+			set_transient( 'edd_pup_sending_email', $email_id );
+			
+			// Update email status as in queue
+			wp_update_post( array( 'ID' => $email_id, 'post_status' => 'pending' ) );
+			
+		}
 		
 		// Start building queue
 		foreach ( $customers as $customer ){
@@ -200,15 +207,15 @@ function edd_pup_ajax_start(){
 				$count++;
 								
 				// Insert into database in batches of 1000
-				if ( $i % 1000 == 0 ){
+				if ( $i % $limit == 0 ){
 
 					$queueinsert = implode(',', $queue );
-					$query = "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, products, sent) VALUES $queueinsert";
-
-					$wpdb->query( $query );
+					$wpdb->query( "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, products, sent) VALUES $queueinsert" );
 					
 					// Reset defaults for next batch
 					$queue = '';
+					
+					break;
 				}
 			
 			}
@@ -219,11 +226,10 @@ function edd_pup_ajax_start(){
 		// Insert leftovers or if batch is less than 1000
 		if ( !empty( $queue ) ) {
 			$queueinsert = implode(',', $queue );
-			$query = "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, products, sent) VALUES $queueinsert";
-			$wpdb->query( $query );
+			$wpdb->query( "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, products, sent) VALUES $queueinsert" );
 		}
 	    		
-		echo json_encode(array('status'=>'new','sent'=>0,'total'=>$count));
+		echo json_encode(array('status'=>'new','sent'=>0,'total'=>absint($total),'processed'=>absint($processed+$count)));
 		
 	/********************************
 	/** For testing purposes only ***
