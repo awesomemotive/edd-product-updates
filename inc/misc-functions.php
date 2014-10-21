@@ -148,7 +148,7 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
     global $wpdb;
     
     $count = 0;
-    $b = $subscribed ? 1 : 0;
+    $b = $subscribed ? 0 : 1;
 	$products = !empty( $products ) ? $products : get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
         
     // EDD Software Licensing integration
@@ -163,7 +163,7 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 	    		AND post_type = 'edd_payment'
 	    		AND post_status = 'publish'
 	    		AND meta_key = '_edd_payment_meta'
-				AND meta_value LIKE '%%\"edd_send_prod_updates\";b:1%%'
+				AND meta_value NOT LIKE '%%\"edd_send_prod_updates\";b:0%%'
 			", OBJECT_K);
 					
 		// Get updated products with EDD software licensing enabled
@@ -228,7 +228,7 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 	    		AND post_type = 'edd_payment'
 	    		AND post_status = 'publish'
 	    		AND meta_key = '_edd_payment_meta'
-				AND (meta_value LIKE '%%\"edd_send_prod_updates\";b:$b%%'
+				AND (meta_value NOT LIKE '%%\"edd_send_prod_updates\";b:$b%%'
 					AND ($q )
 			", OBJECT );
 	
@@ -514,7 +514,7 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
      
     $limit = !empty( $limit ) ? 'LIMIT '. $limit : '';
     $offset = !empty( $offset ) ? 'OFFSET '. $offset : '';
-    $bool = $subscribed ? 1 : 0;
+    $bool = $subscribed ? 0 : 1;
         
     $i = 1;
     $n = count($products);
@@ -531,7 +531,7 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
 		$i++;
 	}
     
-    return $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_payment_meta' AND meta_value LIKE '%\"edd_send_prod_updates\";b:$bool%' AND ($q $limit $offset", ARRAY_A );
+    return $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_payment_meta' AND meta_value NOT LIKE '%\"edd_send_prod_updates\";b:$bool%' AND ($q $limit $offset", ARRAY_A );
     
 }
 
