@@ -254,7 +254,7 @@ class EDD_Pup_Table extends WP_List_Table {
 			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false) ) . '">' . __( 'View', 'edd-pup' ) . '</a>';
 		}
 
-		if ( $status == 'pending' ) {
+		if ( $status == 'pending' && edd_pup_is_processing( $item['ID'] ) == false ) {
 			$row_actions['send'] = '<a href="#" class="edd-pup-queue-button" data-action="edd_pup_send_queue" data-email="'. $email->ID .'" data-url="'. wp_nonce_url( add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email->ID, 'restart' => 1 ) ), 'edd_pup_restart_ajax' ).'">' . __( 'Send Remaining', 'edd-pup' ) . '</a>';
 			$row_actions['clear'] = '<a href="#" class="edd-pup-queue-button" data-action="edd_pup_clear_queue" data-email="'. $email->ID .'" >' . __( 'Clear from Queue', 'edd-pup' ) . '</a>';			
 		}
