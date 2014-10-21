@@ -238,6 +238,7 @@ jQuery(document).ready(function ($) {
 		var $       = jQuery,
 			status  = $('.progress-status .status-text'),
 			button  = $('#edd-pup-ajax'),
+			spinner = $('.edd-pup-popup-spin'),
 			action  = button.attr('data-action'),
 			clock   = $('.progress-clock'),
 			bar     = $('.progress-bar'),
@@ -260,6 +261,7 @@ jQuery(document).ready(function ($) {
 			}
 			
 			$(this).prop('disabled', true);
+			spinner.show();
 			clock.timer('start');
 			
 			$.post(ajaxurl, data).error( function() {
@@ -276,6 +278,7 @@ jQuery(document).ready(function ($) {
 				button.prop('disabled', false).attr({
 					'data-action': 'pause',
 					value: 'Pause'});
+				spinner.hide();
 					
 				if ( r.status == 'restart' ) {						
 					psent.text( prettyNumber(r.sent) );

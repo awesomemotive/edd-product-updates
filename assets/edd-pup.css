@@ -287,6 +287,14 @@
 	margin-top: 0;
 }
 
+.progress-start-wrap {
+	max-width: 150px;
+}
+
+.progress-start-wrap .edd-pup-popup-spin {
+	margin-top: 7px;
+}
+
 .progress {
 
 	padding: 4px;

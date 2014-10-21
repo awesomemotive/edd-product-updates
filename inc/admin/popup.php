@@ -31,7 +31,10 @@ switch ( get_post_status( $_GET['id'] ) ) {
 	<a href="#" class="progress-close" onclick="window.close()">Close Window</a>
 	<h2><?php printf( __('Sending "%s"', 'edd-pup'), get_the_title( $_GET['id'] ) );?></h2>
 		<p><strong><?php _e( 'WARNING: Do not refresh this page or close this window until sending is complete.', 'edd-pup' ); ?></strong></p>
-		<?php echo submit_button( __( 'Start Sending', 'edd-pup' ), 'primary', 'edd-pup-ajax', false, array( 'data-email'=> $_GET['id'], 'data-action' => 'start' ) );?>
+		<div class="progress-start-wrap">
+			<?php echo submit_button( __( 'Start Sending', 'edd-pup' ), 'primary', 'edd-pup-ajax', false, array( 'data-email'=> $_GET['id'], 'data-action' => 'start' ) );?>
+			<span class="edd-pup-popup-spin spinner"></span>
+		</div>
 		<?php wp_nonce_field( 'edd_pup_ajax_start', 'edd_pup_sajax_nonce', false, true ); ?>
 	<div class="progress-wrap">
 		<p class="progress-status"><strong><?php _e( 'Status:', 'edd-pup' ); ?></strong> <span class="status-text"><?php _e( 'Preparing Emails to Send', 'edd-pup' ); ?></span></p>
