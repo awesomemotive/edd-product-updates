@@ -327,26 +327,24 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 	/* If subject doesn't use tags (and thus is the same for each customer)
 	 * then store it in a transient for quick access on subsequent loops. */
 	$subject = get_transient( 'edd_pup_subject' );
+
+	if ( false === $subject ) {
 		
-	if (false === $subject) {
-				
-		$_subject = edd_do_email_tags( $emailmeta['_edd_pup_subject'][0], $payment_id );
+		if ( empty( $emailmeta['_edd_pup_subject'][0] ) ) {		
 		
-		if ( $subject == $_subject ) {
-			$subject = set_transient( 'edd_pup_subject', $subject, 60 * 60 );
+			$subject = '(no subject)';
+			wp_update_post( array( 'ID' => $email_id, 'post_excerpt' => $subject ) );
+			update_post_meta ( $email_id, '_edd_pup_subject', $subject );
+			set_transient( 'edd_pup_subject', $subject, 60 * 60 );
+			
 		} else {
-			$subject = $_subject;
-		}
 		
-		if ( empty( $subject ) ) {
-			$updateargs = array(
-				'ID' => $email_id,
-				'post_excerpt' => '(no subject)'
-				);	
-			wp_update_post( $updateargs );
-			update_post_meta ( $email_id, '_edd_pup_subject', '(no subject)' );
+			$subject = edd_do_email_tags( $emailmeta['_edd_pup_subject'][0], $payment_id );
+			
+			if ( $subject == $emailmeta['_edd_pup_subject'][0] ) {
+				set_transient( 'edd_pup_subject', $subject, 60 * 60 );					
+			}		
 		}
-		
 	}
 	
 	$email_body_header = get_transient( 'edd_pup_email_body_header' );
@@ -383,9 +381,9 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 	// Allow add-ons to add file attachments
 	$attachments = apply_filters( 'edd_pup_attachments', array(), $payment_id, $payment_data );
 	if ( apply_filters( 'edd_pup_email_message', true ) ) {
-		//$mailresult = wp_mail( $email, $subject, $message, $headers, $attachments );
+		$mailresult = wp_mail( $email, $subject, $message, $headers, $attachments );
 		// For testing purposes only - comment the above line and uncomment this line below
-		$mailresult = true;
+		//$mailresult = true;
 	}
 	
 	// Update payment notes to log this email being sent	
