@@ -246,9 +246,11 @@ jQuery(document).ready(function ($) {
 			emailid = button.attr('data-email'),
 			ogurl   = window.opener.document.location.href,
 			i = 0,
+			it = 0,
 			data = {
 				'action': 'edd_pup_ajax_start',
-				'email_id' : emailid
+				'email_id' : emailid,
+				'iteration' : it
 			};
 		
 		button.click( function() {
@@ -259,32 +261,66 @@ jQuery(document).ready(function ($) {
 			
 			$(this).prop('disabled', true);
 			clock.timer('start');
+			
 			$.post(ajaxurl, data).error( function() {
 			
-				alert('Something went wrong preparing your emails to send.');
+				alert('Something went wrong preparing your emails to send. Please contact support.');
 				
 			}).success( function( ret ) {
 			
 				var r = $.parseJSON(ret),
 					p = Math.round((r.sent / r.total) * 100);
 				
-				if ( r.status == 'restart' ) {						
-					psent.text( prettyNumber(r.sent) );
-					bar.attr('data-complete', p).css('width', p+'%');
-					pperc.text(p+'%');				
-				}
-				
 				$('.progress-wrap').css('opacity', '1');
 				$('.progress-queue').text( prettyNumber(r.total) );
 				button.prop('disabled', false).attr({
 					'data-action': 'pause',
 					value: 'Pause'});
+					
+				if ( r.status == 'restart' ) {						
+					psent.text( prettyNumber(r.sent) );
+					bar.attr('data-complete', p).css('width', p+'%');
+					pperc.text(p+'%');	
+					eddPupAjaxTrigger(i, r.sent, r.total, emailid, 0);
+				} else {
+					eddPupAjaxBuild(r, emailid, 1, 0);		
+				}
+				
 				window.opener.location.href = ogurl.replace(/&?edit_pup_email=([^&]$|[^&]*)/i, "view_pup_email");
 				
-				eddPupAjaxTrigger(i, r.sent, r.total, emailid, 0);
-
 			});
 		});
+		
+		function eddPupAjaxBuild( r, emailid, it, err ) {
+			
+			if ( +r.processed >= +r.total ) {
+				eddPupAjaxTrigger(0, r.sent, r.total, emailid, 0);
+				return false;
+			}
+			
+			var data = {
+				'action': 'edd_pup_ajax_start',
+				'email_id': emailid,
+				'iteration': it,
+				'processed': r.processed,
+				'status': 'processing'
+				};
+			
+			$.post(ajaxurl, data).error( function() {	
+				
+				alert('Something went wrong preparing your emails to send. Please contact support.');
+				
+			}).success( function( ret ) {
+				
+				var r = $.parseJSON(ret);			
+				it++;
+				if ( r.processed > 0 ) {
+					status.text('Preparing emails to send. ' +prettyNumber(r.processed)+' emails added to the queue so far.');
+				}
+				
+				eddPupAjaxBuild( r, emailid, it, err );
+			});	
+		}
 			
 		function eddPupAjaxTrigger(i, s, totalEmails, emailid, err) {
 				
@@ -331,7 +367,7 @@ jQuery(document).ready(function ($) {
 				}
 				var err = 0;
 				
-				if ( !isNumeric(s) ) {
+				if ( !$.isNumeric(s) ) {
 					alert ('Error communicating with server. Please try again or contact support.');
 					return false;
 				}
