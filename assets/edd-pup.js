@@ -24,7 +24,7 @@ jQuery(document).ready(function ($) {
 		}
 
 		// used for queue resolution popup from alert
-		if ( $('#edd-pup-queue-details').length ){
+		//if ( $('#edd-pup-queue-details').length ){
 		
 		var url = document.URL;
 					
@@ -66,7 +66,7 @@ jQuery(document).ready(function ($) {
 				$('#edd-pup-view-queue-alert').trigger('click');
 				window.history.replaceState({}, 'queueurl', url.replace(/&?edd_pup_cq=([^&]$|[^&]*)/i, "") );
 			}
-		}
+		//}
     
 	function emailPreview() {
 	
