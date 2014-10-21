@@ -535,30 +535,6 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
     
 }
 
-function edd_pup_cron_clear_queue() {
-
-	global $wpdb;
-	
-	$emails = $wpdb->get_results( "SELECT DISTINCT email_id FROM $wpdb->edd_pup_queue WHERE sent = 0 AND HOUR( TIMEDIFF( NOW(), sent_date)) >= 48" , ARRAY_A );
-	
-	if ( !empty( $emails ) ) {
-		
-		foreach ( $emails as $email ) {
-			
-			$recipients = edd_pup_check_queue( $email['email_id'] );
-			
-			$query = $wpdb->delete( "$wpdb->edd_pup_queue", array( 'email_id' => $email['email_id'] ), array( '%d' ) );
-			
-			if ( is_numeric( $query ) ) {
-				$post = wp_update_post( array( 'ID' => $email['email_id'], 'post_status' => 'abandoned' ) );
-				update_post_meta ( $post, '_edd_pup_recipients', $recipients );
-			}
-			
-		}
-	}
-}
-add_action( 'wp_scheduled_event', 'edd_pup_cron_clear_queue' );
-
 if (!function_exists('write_log')) {
 
     function write_log ( $log )  {

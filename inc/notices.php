@@ -95,13 +95,14 @@ add_action('admin_notices', 'edd_pup_queue_alert', 10);
  * @return void
  */
 function edd_pup_queue_details() {
+	global $edd_options;
 	$email_list = edd_pup_queue_emails();
 	$n = count( $email_list );
 		?>
 		<div id="edd-pup-queue-details-wrap" style="display:none;">
 		<div id="edd-pup-queue-details">
 		<h2><?php _e( 'Product Updates Email Queue', 'edd-pup' ); ?></h2>
-		<p><?php _e( 'The following emails have not finished sending. Please choose whether to finish sending them now or to clear the queue. Emails are automatically cleared from the queue after 48 hours.', 'edd-pup' ); ?></p>
+		<p><?php _e( 'The emails listed below have not finished sending. Please choose whether to finish sending them now or to clear the queue. ', 'edd-pup'); if ( empty( $edd_options['edd_pup_auto_del'] ) ) { printf( __('Emails are automatically cleared from the queue after 48 hours (<a href="%s">Disable this on the settings page</a>.)', 'edd-pup' ), admin_url( 'edit.php?post_type=download&page=edd-settings&tab=emails#edd_pup_settings' ) ); } ?></p>
 		<?php foreach ( $email_list as $email ) : 
 			$queue = edd_pup_check_queue( $email );
 			$i = 1;

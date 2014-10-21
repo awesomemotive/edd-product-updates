@@ -72,6 +72,74 @@ function edd_pup_create_tables() {
 }
 register_activation_hook( __FILE__, 'edd_pup_create_tables' );
 
+/**
+ * Create wp_cron job for auto-clear of queue
+ * 
+ * @access public
+ * @return void
+ * @since 0.9.3.1
+ */
+function edd_pup_create_cron_schedule(){
+
+	if( wp_next_scheduled( 'edd_pup_cron_clear_queue' ) == false ){
+	  
+		wp_schedule_event( time(), 'daily', 'edd_pup_cron_clear_queue' );  
+	  
+	}
+}
+register_activation_hook( __FILE__, 'edd_pup_create_cron_schedule' );
+
+
+/**
+ * Checks the email queue every day for emails older than 48 hours and clears them.
+ * 
+ * @access public
+ * @return void
+ * @since 0.9.3.1
+ */
+function edd_pup_cron_clear(){
+	global $edd_options;
+	
+	if ( $edd_options['edd_pup_auto_del'] == false ) {
+	
+		global $wpdb;
+		
+		$emails = $wpdb->get_results( "SELECT DISTINCT email_id FROM $wpdb->edd_pup_queue WHERE sent = 0 AND HOUR( TIMEDIFF( NOW(), sent_date)) >= 48" , ARRAY_A );
+		
+		if ( !empty( $emails ) ) {
+			
+			foreach ( $emails as $email ) {
+				
+				$recipients = edd_pup_check_queue( $email['email_id'] );
+				
+				$query = $wpdb->delete( "$wpdb->edd_pup_queue", array( 'email_id' => $email['email_id'] ), array( '%d' ) );
+				
+				if ( is_numeric( $query ) ) {
+					$post = wp_update_post( array( 'ID' => $email['email_id'], 'post_status' => 'abandoned' ) );
+					update_post_meta ( $post, '_edd_pup_recipients', $recipients );
+				}
+				
+			}
+		}
+	}
+}
+add_action( 'edd_pup_cron_clear_queue', 'edd_pup_cron_clear' );
+
+
+/**
+ * Clear wp_cron schedule on plugin deactivation
+ * 
+ * @access public
+ * @return void
+ * @since 0.9.3.1
+ */
+function edd_pup_delete_cron_schedule(){
+
+	wp_clear_scheduled_hook( 'edd_pup_cron_clear_queue' );
+	
+}
+register_deactivation_hook( __FILE__, 'edd_pup_delete_cron_schedule' );
+
 
 /**
  * Removes ALL data on plugin uninstall including custom db table,
@@ -147,7 +215,7 @@ function edd_pup_settings ( $edd_settings ) {
         $settings = array(
             array(
                 'id' => 'edd_pup_settings_head',
-                'name' => '<strong>' . __( 'Product Updates Email Settings', 'edd-pup' ) . '</strong>',
+                'name' => '<span id="edd_pup_settings"><strong>' . __( 'Product Updates Email Settings', 'edd-pup' ) . '</strong></span>',
                 'desc' => __( 'Configure the Product Updates Email settings', 'edd-pup' ),
                 'type' => 'header'
             ),
