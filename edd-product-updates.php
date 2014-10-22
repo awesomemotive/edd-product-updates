@@ -183,11 +183,50 @@ register_uninstall_hook(__FILE__,'edd_pup_uninstall');
  * @since 0.9
  */
 function edd_pup_scripts() {
-        wp_register_script( 'edd_prod_updates_js', plugins_url(). '/edd-product-updates/assets/edd-pup.js', false, '1.0.0' );
-        wp_enqueue_script( 'edd_prod_updates_js' );
 
-        wp_register_style( 'edd_prod_updates_css', plugins_url(). '/edd-product-updates/assets/edd-pup.css', false, '1.0.0' );
-        wp_enqueue_style( 'edd_prod_updates_css' );
+	// Localization of text used inside Javascript file
+	$l18njs = array(
+	
+		// Confirm messages		
+		'c1' => __( 'Are you sure you wish to continue clearing the queue?', 'edd-pup' ),
+		
+		// Alert messages		
+		'a1' => __( 'Could not process emails. Please try again.', 'edd-pup' ),
+		'a2' => __( 'Please enter a valid email address under "From Email."', 'edd-pup' ),		
+		'a3' => __( 'Please choose at least one product whose customers will receive this email update.', 'edd-pup' ),
+		'a4' => __( 'An issue occurred when attempting to send the email messages. Please try again later or contact support at https://easydigitaldownloads.com/support', 'edd-pup' ),
+		'a5' => __( 'An issue occurred when preparing your email messages to send. Please try again later or contact support at https://easydigitaldownloads.com/support', 'edd-pup' ),
+		'a6' => __( 'An issue occurred when attempting to start the email send. Please try again or contact support at https://easydigitaldownloads.com/support', 'edd-pup' ),
+		'a7' => __( 'Invalid response received from server. Please try again or contact support at https://easydigitaldownloads.com/support', 'edd-pup' ),
+		'a8' => __( 'All of your emails have sent successfully, however, an issue occurred while finishing your email send.', 'edd-pup' ),
+		'a9' => __( 'Unable to clear the queue. Please try again or contact support at https://easydigitaldownloads.com/support', 'edd-pup' ),
+		
+		// Status messages for sending popup	
+		's1' => __( 'Sending emails.', 'edd-pup' ),
+		's2' => __( 'Sending paused.', 'edd-pup' ),
+		's3' => __( 'Preparing emails to send. ', 'edd-pup' ),
+		's4' => __( ' emails added to the queue so far.', 'edd-pup' ),
+		's5' => __( 'Attempting to re-establish connection with the server.', 'edd-pup' ),
+		's6' => __( 'Connection re-established. Resuming email send.', 'edd-pup' ),
+		's7' => sprintf( __( 'Trouble communicating with the server. Retrying in %s seconds.', 'edd-pup' ), '<span class="count">15</span>' ),
+		's8' => __( 'Preparing emails paused. ', 'edd-pup' ),
+
+		// Values for popup action button	
+		'v1' => __( 'Start Sending', 'edd-pup' ),
+		'v2' => __( 'Pause', 'edd-pup' ),
+		'v3' => __( 'Resume', 'edd-pup' ),
+		'v4' => __( 'Finished', 'edd-pup' ),
+		
+	);
+	
+	// Plugin Javascript
+    wp_register_script( 'edd-pup-js', plugins_url(). '/edd-product-updates/assets/edd-pup.js', false, '1.0.0' );
+    wp_enqueue_script( 'edd-pup-js' );
+    wp_localize_script( 'edd-pup-js', 'eddPup', $l18njs );
+
+	// Plugin CSS
+    wp_register_style( 'edd-pup-css', plugins_url(). '/edd-product-updates/assets/edd-pup.css', false, '1.0.0' );
+    wp_enqueue_style( 'edd-pup-css' );
 }
 add_action( 'admin_enqueue_scripts', 'edd_pup_scripts' );
 
