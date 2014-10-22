@@ -162,9 +162,10 @@ function edd_pup_ajax_start(){
 	/********************************/
 	
     $restart = edd_pup_is_ajax_restart( $_POST['email_id'] );
+    $recipients = get_post_meta( $_POST['email_id'], '_edd_pup_recipients', TRUE );
     
-    if ( false != $restart && is_array( $restart ) && empty( $_POST['status'] ) ) {
-
+    if ( false != $restart && is_array( $restart ) && empty( $_POST['status'] ) && ( $restart['total'] == $recipients ) ) {
+		
 		set_transient( 'edd_pup_sending_email', $_POST['email_id'] );
 		$restart['status'] = 'restart';
 		   
@@ -172,22 +173,29 @@ function edd_pup_ajax_start(){
 	    exit;
 	    
     } else {
-		
+
 		global $wpdb;
 		$email_id = intval( $_POST['email_id'] );
 		$products = get_post_meta( $email_id, '_edd_pup_updated_products', true );
 		$limit = 1000;
-		$total = isset( $_POST['total'] ) ? absint( $_POST['total'] ) : get_post_meta( $email_id, '_edd_pup_recipients', TRUE );
+		$total = isset( $_POST['total'] ) ? absint( $_POST['total'] ) : $recipients;
 		$processed = isset( $_POST['processed'] ) ? absint( $_POST['processed'] ) : 0;
 		$status = $processed > 0 ? 'processing' : 'new';
+			
+		// Check whether the email was paused by the user when building queue and then resumed on the same popup
+		if ( is_array( $restart ) && $restart['total'] != $recipients ) {
+			$processed = $restart['total'];
+		}
+		
 		$customers = edd_pup_user_send_updates( $products, true, $limit, $processed );
 		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1", OBJECT_K );
 		$count = 0;
 		$i = 1;
-		
+
+		// Set email ID transient
+		set_transient( 'edd_pup_sending_email', $email_id, 60);
+				
 		if ( $_POST['iteration'] == 0 ) {
-			// Set email ID transient
-			set_transient( 'edd_pup_sending_email', $email_id );
 			
 			// Update email status as in queue
 			wp_update_post( array( 'ID' => $email_id, 'post_status' => 'pending' ) );
@@ -268,7 +276,10 @@ function edd_pup_ajax_trigger(){
 	} else {
 		$email_id = get_transient( 'edd_pup_sending_email' );
 	}
-	
+
+	// Refresh email ID transient
+	set_transient( 'edd_pup_sending_email', $email_id, 60);
+			
 	$batch = $_POST['iteration'];
 	$sent = $_POST['sent'];
 	$limit = 10;
@@ -381,9 +392,9 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 	// Allow add-ons to add file attachments
 	$attachments = apply_filters( 'edd_pup_attachments', array(), $payment_id, $payment_data );
 	if ( apply_filters( 'edd_pup_email_message', true ) ) {
-		$mailresult = wp_mail( $email, $subject, $message, $headers, $attachments );
+		//$mailresult = wp_mail( $email, $subject, $message, $headers, $attachments );
 		// For testing purposes only - comment the above line and uncomment this line below
-		//$mailresult = true;
+		$mailresult = true;
 	}
 	
 	// Update payment notes to log this email being sent	
@@ -409,6 +420,9 @@ function edd_pup_ajax_end(){
 	} else {
 		$email_id = get_transient( 'edd_pup_sending_email' );
 	}
+	
+	// Refresh email ID transient
+	set_transient( 'edd_pup_sending_email', $email_id, 60);
 	
 	// Update email post status to publish
 	wp_publish_post( $email_id );
