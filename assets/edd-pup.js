@@ -38,11 +38,11 @@ jQuery(document).ready(function ($) {
 				
 				if ( data['action'] == 'edd_pup_clear_queue' ) {
 					
-					if ( confirm( 'Are you sure you wish to continue clearing the queue?' ) ) {
+					if ( confirm( eddPup.c1 ) ) {
 						
 						$.post( ajaxurl, data ).error( function() {
 						
-								alert( 'Something went wrong' );
+								alert( eddPup.a9 );
 								
 							}).success( function ( response ) {
 
@@ -85,7 +85,7 @@ jQuery(document).ready(function ($) {
                 
                 $.post( ajaxurl, data ).error( function() {
                 
-                        alert('Could not process emails. Please try again.');
+                        alert( eddPup.a1 );
 						button.prop("disabled", false);
 											
                     }).success( function( response ) {
@@ -120,7 +120,7 @@ jQuery(document).ready(function ($) {
 		   		          
 	                $.post( ajaxurl, data ).error( function() {
 	                
-	                        alert('Could not process emails. Please try again.');
+	                        alert( eddPup.a1 );
 							button.attr("disabled", false);
 												
 	                    }).success( function( response ) {
@@ -132,7 +132,7 @@ jQuery(document).ready(function ($) {
 				} else {
 				
 					 button.attr("disabled", false);
-		             alert( 'Please enter a valid email address under "From Email."');
+		             alert( eddPup.a2 );
 		             return false;				
 				}
             });
@@ -162,7 +162,7 @@ jQuery(document).ready(function ($) {
 					spinner.toggleClass('loading');         
 	                $.post( ajaxurl, data ).error( function() {
 	                
-	                        alert('Could not process emails. Please try again.');
+	                        alert( eddPup.a1 );
 							spinner.toggleClass('loading');
 							button.prop("disabled", false);
 												
@@ -170,7 +170,7 @@ jQuery(document).ready(function ($) {
 	                    	
 							if ( r == 'nocheck' ) {
 							
-								alert( 'Please choose at least one product whose customers will receive this email update.');
+								alert( eddPup.a3 );
 								spinner.toggleClass('loading');
 								button.prop("disabled", false);
 														
@@ -191,7 +191,7 @@ jQuery(document).ready(function ($) {
 	                    
 				  } else {
 	                
-	                alert( 'Please enter a valid email address under "From Email."');
+	                alert( eddPup.a2 );
 	                return false;
 
                   }
@@ -216,7 +216,7 @@ jQuery(document).ready(function ($) {
 			
 		    $.post( ajaxurl, data ).error( function() {
 	    
-	            alert('Could not process emails. Please try again.');
+	            alert( eddPup.a1 );
 				spinner.toggleClass('loading');
 				button.prop("disabled", false);
 									
@@ -257,19 +257,34 @@ jQuery(document).ready(function ($) {
 		button.click( function() {
 			
 			if ( $(this).attr('data-action') == 'pause' ) {
+	
+				$(this).attr({
+					'data-action': 'resume',
+					value: eddPup.v3 });
+				
 				return false;
-			}
+				
+			} else if ( $(this).attr('data-action') == 'resume' ) {
+	
+				$(this).attr({
+					'data-action': 'pause',
+					value: eddPup.v2 });
+				clock.timer('start');
+							
+			} else if ( $(this).attr('data-action') == 'start' ) {
 			
-			$(this).prop('disabled', true);
-			spinner.show();
-			clock.timer('start');
+				$(this).prop('disabled', true);
+				spinner.show();
+				clock.timer('start');
+			
+			}
 			
 			$.post(ajaxurl, data).error( function() {
 			
-				alert('Trouble starting email send. Please try again or contact support.');
+				alert( eddPup.a6 );
 				button.prop('disabled', false).attr({
 					'data-action': 'start',
-					value: 'Start Sending'});
+					value: eddPup.v1 });
 				spinner.hide();
 							
 			}).success( function( ret ) {
@@ -281,7 +296,7 @@ jQuery(document).ready(function ($) {
 				$('.progress-queue').text( prettyNumber(r.total) );
 				button.prop('disabled', false).attr({
 					'data-action': 'pause',
-					value: 'Pause'});
+					value: eddPup.v2 });
 				spinner.hide();
 					
 				if ( r.status == 'restart' ) {						
@@ -289,8 +304,11 @@ jQuery(document).ready(function ($) {
 					bar.attr('data-complete', p).css('width', p+'%');
 					pperc.text(p+'%');	
 					eddPupAjaxTrigger(i, r.sent, r.total, emailid, 0);
+					
 				} else {
+				
 					eddPupAjaxBuild(r, emailid, 1, 0);		
+				
 				}
 				
 				window.opener.location.href = ogurl.replace(/&?edit_pup_email=([^&]$|[^&]*)/i, "view_pup_email");
@@ -300,10 +318,17 @@ jQuery(document).ready(function ($) {
 		
 		function eddPupAjaxBuild( r, emailid, it, err ) {
 
+			if ( button.attr('data-action') != 'pause' ) {
+				clock.timer('pause');
+				status.text( eddPup.s8+prettyNumber(r.processed)+eddPup.s4 );
+				
+				return false;
+			}
+			
 			if ( err == 0 ) {
-				status.text('Preparing emails to send. ' +prettyNumber(r.processed)+' emails added to the queue so far.');
+				status.text( eddPup.s3+prettyNumber(r.processed)+eddPup.s4);
 			} else {
-				status.text('Attempting to re-establish connection with server.');				
+				status.text( eddPup.s5 );				
 			}
 					
 			if ( +r.processed >= +r.total ) {
@@ -324,7 +349,7 @@ jQuery(document).ready(function ($) {
 				
 				err++;
 				
-				status.html('Trouble communicating with the server. Retrying in <span class="count">15</span> seconds.');
+				status.html( eddPup.s7 );
 						
 				var errsec = 14,
 					errtimer = setInterval(function() { 
@@ -336,7 +361,7 @@ jQuery(document).ready(function ($) {
 				
 				// Retry establishing connection up to 5 times before completely bailing out.
 				if ( err == 6 ) {
-					alert('Something happened when preparing your emails to send. Please try again later or contact support.');
+					alert( eddPup.a5 );
 					return false;
 				}	
 				
@@ -345,19 +370,17 @@ jQuery(document).ready(function ($) {
 				  {
 					 eddPupAjaxBuild( r, emailid, it, err );
 				  }, 15000);
-				
-				console.log('Here is the error var:');
-				console.log(err);
+	
 				
 			}).success( function( ret ) {
 				if ( err > 0 ) {
-					status.text('Connection re-established. Resuming email send.');
+					status.text( eddPup.s6 );
 				}
 				var err = 0,		
 					r = $.parseJSON(ret);			
 				it++;
 				if ( r.processed > 0 ) {
-					status.text('Preparing emails to send. ' +prettyNumber(r.processed)+' emails added to the queue so far.');
+					status.text( eddPup.s3+prettyNumber(r.processed)+eddPup.s4);
 				}
 				
 				eddPupAjaxBuild( r, emailid, it, err );
@@ -365,11 +388,19 @@ jQuery(document).ready(function ($) {
 		}
 			
 		function eddPupAjaxTrigger(i, s, totalEmails, emailid, err) {
+
+			if ( button.attr('data-action') != 'pause' ) {
+					
+				clock.timer('pause');
+				status.text( eddPup.s2 );
 				
+				return false;
+			}
+							
 			if ( err == 0 ) {
-				status.fadeIn('fast').text('Sending emails');
+				status.text( eddPup.s1 );
 			} else {
-				status.fadeIn('fast').text('Attempting to re-establish connection with server.');				
+				status.text( eddPup.s5 );				
 			}
 			
 			if (+s >= +totalEmails) {
@@ -381,7 +412,7 @@ jQuery(document).ready(function ($) {
 
 				err++;
 				
-				status.html('Trouble communicating with the server. Retrying in <span class="count">15</span> seconds.');
+				status.html( eddPup.s7 );
 						
 				var errsec = 14,
 					errtimer = setInterval(function() { 
@@ -393,7 +424,7 @@ jQuery(document).ready(function ($) {
 				
 				// Retrty establishing connection up to 5 times before completely bailing out.
 				if ( err == 6 ) {
-					alert('Something went wrong with triggering the emails. Please try again later or contact support.');
+					alert( eddPup.a4 );
 					return false;
 				}	
 				
@@ -405,12 +436,12 @@ jQuery(document).ready(function ($) {
 							
 			}).success( function(s) {
 				if ( err > 0 ) {
-					status.text('Connection re-established. Resuming email send.');
+					status.text( eddPup.s6 );
 				}
 				var err = 0;
 				
 				if ( !$.isNumeric(s) ) {
-					alert ('Error communicating with server. Please try again or contact support.');
+					alert ( eddPup.a7 );
 					return false;
 				}
 				
@@ -450,7 +481,7 @@ jQuery(document).ready(function ($) {
 			status.text('Finishing up.');
 			
 			$.post(ajaxurl, {'action':'edd_pup_ajax_end', 'email_id' : emailid}).error( function() {
-				alert('Something went wrong when finishing your email send.');
+				alert( eddPup.a8 );
 			}).success( function (response) {
 
 				status.fadeIn('fast').text('Sending complete.');
