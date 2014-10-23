@@ -151,16 +151,6 @@ function edd_pup_ajax_start(){
 	//if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'edd_pup_send_ajax' ) ) {
 	//	return;
 	//}
-	/********************************
-	/** For testing purposes only ***
-	/********************************/
-	/**/
-	/**/ $time_start = microtime(true);
-	/**/
-	/********************************
-	/** For testing purposes only ***
-	/********************************/
-	
 	
     $restart = edd_pup_is_ajax_restart( $_POST['email_id'] );
     $recipients = get_post_meta( $_POST['email_id'], '_edd_pup_recipients', TRUE );
@@ -240,18 +230,6 @@ function edd_pup_ajax_start(){
 	    		
 		echo json_encode(array('status'=>'new','sent'=>0,'total'=>absint($total),'processed'=>absint($processed+$count)));
 		
-	/********************************
-	/** For testing purposes only ***
-	/********************************/
-	/**/
-	/**/ $time_end = microtime(true);
-	/**/ $time = $time_end - $time_start;   
-	/**/ write_log('Executed "edd_pup_ajax_start" for '.$email_id.' in: '. $time .' seconds.');
-	/**/
-	/********************************
-	/** For testing purposes only ***
-	/********************************/
-	
 		exit;
 	
 	}
@@ -393,9 +371,11 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 	// Allow add-ons to add file attachments
 	$attachments = apply_filters( 'edd_pup_attachments', array(), $payment_id, $payment_data );
 	if ( apply_filters( 'edd_pup_email_message', true ) ) {
-		//$mailresult = wp_mail( $email, $subject, $message, $headers, $attachments );
+		
+		$mailresult = wp_mail( $email, $subject, $message, $headers, $attachments );
+		
 		// For testing purposes only - comment the above line and uncomment this line below
-		$mailresult = true;
+		//$mailresult = true;
 	}
 	
 	// Update payment notes to log this email being sent	
@@ -654,7 +634,7 @@ function edd_pup_test_email( $email_id, $to = null ) {
 	add_filter('edd_email_template', 'edd_pup_template' );
 	
 	$message = edd_get_email_body_header();
-	$message .= apply_filters( 'edd_pup_test_message', edd_apply_email_template( $email->post_content, $email_id, null ), 0, array() );
+	$message .= apply_filters( 'edd_pup_test_message', edd_apply_email_template( $email->post_content, null, null ), $email_id );
 	$message .= edd_get_email_body_footer();
 
 	$from_name = isset( $emailmeta['_edd_pup_from_name'][0] ) ? $emailmeta['_edd_pup_from_name'][0] : get_bloginfo('name');
@@ -663,7 +643,7 @@ function edd_pup_test_email( $email_id, $to = null ) {
 	$subject = apply_filters( 'edd_pup_test_subject', isset( $email->post_excerpt )
 		? trim( $email->post_excerpt )
 		: __( '(no subject)', 'edd-pup' ), 0 );
-	$subject = edd_do_email_tags( $subject, $email_id );
+	$subject = strip_tags ( edd_email_preview_template_tags( $subject ) );
 
 	$headers = "From: " . stripslashes_deep( html_entity_decode( $from_name, ENT_COMPAT, 'UTF-8' ) ) . " <$from_email>\r\n";
 	$headers .= "Reply-To: ". $from_email . "\r\n";
