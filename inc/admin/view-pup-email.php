@@ -19,6 +19,7 @@ $updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE 
 $recipients = get_post_meta( $email_id, '_edd_pup_recipients', TRUE );
 $queue = edd_pup_check_queue( $email_id );
 $processing = edd_pup_is_processing( $email_id ) ? true : false;
+$restarturl = wp_nonce_url( add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id, 'restart' => 1 ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ), 'edd_pup_restart_ajax' );
 
 switch ( strtolower( $email->post_status ) ){
 		case 'publish':
@@ -80,7 +81,7 @@ switch ( strtolower( $email->post_status ) ){
 						<h3 class="hndle"><span><?php _e( 'Action Needed – Email in Send Queue', 'edd-pup' ); ?></span></h3>
 						<div class="inside">
 							<p><?php _e( 'This email you are viewing still has messages to send and is currently not processing. Please choose to either:', 'edd-pup' ); ?></p>
-							<p>1. <?php printf( __( '<a href="%s">Resume sending this email</a> to the remaining customers in the queue.', 'edd-pup' ), '#' ); ?></p>
+							<p>1. <?php printf( __( '<a href="%s" class="%s" data-action="%s" data-email="%s" data-url="%s">Resume sending this email</a> to the remaining customers in the queue.', 'edd-pup' ), '#', 'edd-pup-queue-button', 'edd_pup_send_queue', $email_id, $restarturl ); ?></p>
 							<p>2. <?php printf( __( '<a href="%s" class="%s" data-action="%s" data-email="%s">Clear the email from the queue</a> and cancel sending this email to the customers who have not received it.', 'edd-pup' ), '#', 'edd-pup-queue-button', 'edd_pup_clear_queue', $email_id ); ?></p>
 							<?php if ( empty( $edd_options['edd_pup_auto_del'] ) ) : ?>
 							<p><strong><?php printf( __('If no action is taken within 48 hours, this email will be automatically removed from the queue.</strong> (<a href="%s">Disable automatic removal on the settings page</a>)', 'edd-pup' ), admin_url( 'edit.php?post_type=download&page=edd-settings&tab=emails#edd_pup_settings' ) );?></p>
