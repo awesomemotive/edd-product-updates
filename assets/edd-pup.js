@@ -452,6 +452,7 @@ jQuery(document).ready(function ($) {
 				
 				if ( !$.isNumeric(s) ) {
 					alert ( eddPup.a7 );
+					clock.timer('pause');
 					return false;
 				}
 				
