@@ -161,6 +161,7 @@ function edd_pup_ajax_start(){
 	/** For testing purposes only ***
 	/********************************/
 	
+	
     $restart = edd_pup_is_ajax_restart( $_POST['email_id'] );
     $recipients = get_post_meta( $_POST['email_id'], '_edd_pup_recipients', TRUE );
     
