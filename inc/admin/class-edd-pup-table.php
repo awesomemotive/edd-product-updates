@@ -249,9 +249,9 @@ class EDD_Pup_Table extends WP_List_Table {
 		$row_actions  = array();
 				
 		if ( $status == 'draft' ) {
-			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false ) ) . '">' . __( 'Edit', 'edd-pup' ) . '</a>';
+			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ) . '">' . __( 'Edit', 'edd-pup' ) . '</a>';
 		} else {
-			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false) ) . '">' . __( 'View', 'edd-pup' ) . '</a>';
+			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ) . '">' . __( 'View', 'edd-pup' ) . '</a>';
 		}
 
 		if ( $status == 'pending' && edd_pup_is_processing( $item['ID'] ) == false ) {
