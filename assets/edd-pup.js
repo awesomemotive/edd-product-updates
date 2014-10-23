@@ -356,7 +356,12 @@ jQuery(document).ready(function ($) {
 				   $('.progress-status .count').text(errsec--);
 				   if (errsec == 0) {
 				      clearInterval(errtimer);
-				   } 
+				   }
+				   if ( button.attr('data-action') != 'pause' ) {
+					   clearInterval(errtimer);
+					   clearTimeout(err1);
+					   eddPupAjaxTrigger();
+				   }
 				}, 1000);
 				
 				// Retry establishing connection up to 5 times before completely bailing out.
@@ -365,11 +370,11 @@ jQuery(document).ready(function ($) {
 					return false;
 				}	
 				
-				setTimeout(
-				  function() 
-				  {
-					 eddPupAjaxBuild( r, emailid, it, err );
-				  }, 15000);
+				var err1 = setTimeout(
+							  function() 
+							  {
+								 eddPupAjaxBuild( r, emailid, it, err );
+							  }, 15000);
 	
 				
 			}).success( function( ret ) {
@@ -409,17 +414,22 @@ jQuery(document).ready(function ($) {
 			}
 			
 			$.post(ajaxurl, {'action':'edd_pup_ajax_trigger', 'iteration': i, 'sent' : s, 'email_id' : emailid, 'errors' : err }).error( function() {
-
+					
 				err++;
 				
 				status.html( eddPup.s7 );
 						
 				var errsec = 14,
 					errtimer = setInterval(function() { 
-				   $('.progress-status .count').text(errsec--);
-				   if (errsec == 0) {
-				      clearInterval(errtimer);
-				   } 
+					   $('.progress-status .count').text(errsec--);
+					   if ( errsec == 0 ) {
+					      clearInterval(errtimer);
+					   }
+					   if ( button.attr('data-action') != 'pause' ) {
+						   clearInterval(errtimer);
+						   clearTimeout(err2);
+						   eddPupAjaxTrigger();
+					   }
 				}, 1000);
 				
 				// Retrty establishing connection up to 5 times before completely bailing out.
@@ -428,11 +438,11 @@ jQuery(document).ready(function ($) {
 					return false;
 				}	
 				
-				setTimeout(
-				  function() 
-				  {
-				    eddPupAjaxTrigger(i, s, totalEmails, emailid, err);
-				  }, 15000);		
+				var err2 = setTimeout(
+							  function() 
+							  {
+							    eddPupAjaxTrigger(i, s, totalEmails, emailid, err);
+							  }, 15000);
 							
 			}).success( function(s) {
 				if ( err > 0 ) {
@@ -520,7 +530,8 @@ jQuery(document).ready(function ($) {
 				}
 			});
 		}
-	}
+		
+	} // end of eddPupAjaxEmails()
 
 	function prettyNumber(x) {
 	    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
