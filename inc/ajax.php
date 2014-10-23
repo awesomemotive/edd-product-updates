@@ -48,7 +48,7 @@ function edd_pup_email_confirm_html(){
 	$email     = get_post( $email_id );
 	$emailmeta = get_post_custom( $email_id );
     
-    $subject = empty( $emailmeta['_edd_pup_subject'][0] ) ? '(no subject)' : $emailmeta['_edd_pup_subject'][0];
+    $subject = empty( $emailmeta['_edd_pup_subject'][0] ) ? '(no subject)' : strip_tags( edd_email_preview_template_tags( $emailmeta['_edd_pup_subject'][0] ) );
 	$products = get_post_meta( $email_id, '_edd_pup_updated_products', true );
 	$productlist = '';
 	
@@ -314,6 +314,8 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 	$payment_data = edd_get_payment_meta( $payment_id );
 	$email        = edd_get_payment_user_email( $payment_id );
 	
+	add_filter('edd_email_template', 'edd_pup_template' );
+		
 	/* If subject doesn't use tags (and thus is the same for each customer)
 	 * then store it in a transient for quick access on subsequent loops. */
 	$subject = get_transient( 'edd_pup_subject' );
@@ -336,7 +338,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 			}		
 		}
 	}
-	
+
 	$email_body_header = get_transient( 'edd_pup_email_body_header' );
 	
 	if ( false === $email_body_header ) {
