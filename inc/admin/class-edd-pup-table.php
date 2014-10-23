@@ -246,12 +246,13 @@ class EDD_Pup_Table extends WP_List_Table {
 		$status       = strtolower ( $item [ 'status' ] );
 		$view	      = $status == 'draft' ? 'edit_pup_email' : 'view_pup_email';
 		$emailname    = !empty( $email->post_title ) ? $email->post_title : __( '(no title)', 'edd-pup' );
+		$baseurl	  = admin_url( 'edit.php?post_type=download&page=edd-prod-updates' );
 		$row_actions  = array();
 				
 		if ( $status == 'draft' ) {
-			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ) . '">' . __( 'Edit', 'edd-pup' ) . '</a>';
+			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false ), $baseurl ) . '">' . __( 'Edit', 'edd-pup' ) . '</a>';
 		} else {
-			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ) . '">' . __( 'View', 'edd-pup' ) . '</a>';
+			$row_actions['edit'] = '<a href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false), $baseurl ) . '">' . __( 'View', 'edd-pup' ) . '</a>';
 		}
 
 		if ( $status == 'pending' && edd_pup_is_processing( $item['ID'] ) == false ) {
@@ -259,11 +260,11 @@ class EDD_Pup_Table extends WP_List_Table {
 			$row_actions['clear'] = '<a href="#" class="edd-pup-queue-button" data-action="edd_pup_clear_queue" data-email="'. $email->ID .'" >' . __( 'Clear from Queue', 'edd-pup' ) . '</a>';			
 		}
 	
-		$row_actions['delete'] = '<a href="' . wp_nonce_url( add_query_arg( array( 'edd_action' => 'pup_delete_email', 'id' => $email->ID ) ), 'edd-pup-delete-nonce' ) . '" onclick="var result=confirm(\''. __( 'Are you sure you want to permanently delete this email?', 'edd-pup' ).'\');return result;">' . __( 'Delete', 'edd-pup' ) . '</a>';
+		$row_actions['delete'] = '<a href="' . wp_nonce_url( add_query_arg( array( 'edd_action' => 'pup_delete_email', 'id' => $email->ID ), $baseurl ), 'edd-pup-delete-nonce' ) . '" onclick="var result=confirm(\''. __( 'Are you sure you want to permanently delete this email?', 'edd-pup' ).'\');return result;">' . __( 'Delete', 'edd-pup' ) . '</a>';
 
 		$row_actions = apply_filters( 'edd_pup_row_actions', $row_actions, $email );
 
-		return '<strong><a class="row-title" href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false ) ) . '">' . $emailname . '</a></strong>' . $this->row_actions( $row_actions );
+		return '<strong><a class="row-title" href="' . add_query_arg( array( 'view' => $view, 'id' => $email->ID, 'edd_pup_notice' => false ), $baseurl ) . '">' . $emailname . '</a></strong>' . $this->row_actions( $row_actions );
 	}
 
 	/**
@@ -325,6 +326,19 @@ class EDD_Pup_Table extends WP_List_Table {
 
 		foreach ( $ids as $id ) {
 			if ( 'delete' === $this->current_action() ) {
+			
+				// Clear instances of this email in the queue
+				if ( false !== edd_pup_check_queue( $id ) ) {
+					global $wpdb;
+					$wpdb->delete( "$wpdb->edd_pup_queue", array( 'email_id' => $id ), array( '%d' ) );
+				}
+				
+				// Remove transient if it had been set by this email
+				if ( get_transient( 'edd_pup_sending_email' ) == $id ) {
+					delete_transient( 'edd_pup_sending_email' );
+				}
+				
+				// Delete the email
 				$goodbye = wp_delete_post( $id , true );
 			}
 		}

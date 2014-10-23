@@ -334,7 +334,7 @@ function edd_pup_admin_page() {
 			?>
 
 			<div class="wrap edd-pup-list">	
-				<h2><?php _e( 'Product Update Emails', 'edd-pup' ); ?><a href="<?php echo add_query_arg( array( 'view' => 'add_pup_email', 'edd-message' => false ) ); ?>" class="add-new-h2"><?php _e( 'Send New Email', 'edd-pup' ); ?></a></h2>
+				<h2><?php _e( 'Product Update Emails', 'edd-pup' ); ?><a href="<?php echo add_query_arg( array( 'view' => 'add_pup_email', 'edd-message' => false ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ); ?>" class="add-new-h2"><?php _e( 'Send New Email', 'edd-pup' ); ?></a></h2>
 				<?php do_action( 'edd_pup_page_top' ); ?>
 				<form id="edd-pup-filter" method="get" action="<?php echo admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ); ?>">
 					<input type="hidden" name="post_type" value="download" />
