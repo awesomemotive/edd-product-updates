@@ -359,11 +359,11 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 		$message = edd_do_email_tags( $emailpost->post_content, $payment_id );
 		$edd_emails->__set( 'from_name', $from_name );
 		$edd_emails->__set( 'from_address', $from_email );
-		//$edd_emails->__set( 'text/html', $contenttype );
-		//add_filter( 'edd_email_headers', 'edd_pup_email_headers', 10, 2 );
 		
 		$mailresult = $edd_emails->send( $email, $subject, $message, $attachments );
-		
+		// For testing purposes only - comment the above line and uncomment this line below
+		//$mailresult = true;
+				
 	} else {
 	
 		$email_body_header = get_transient( 'edd_pup_email_body_header' );
