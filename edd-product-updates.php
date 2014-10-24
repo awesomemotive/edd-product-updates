@@ -159,15 +159,18 @@ function edd_pup_uninstall(){
     $wpdb->query("DELETE FROM $wpdb->posts WHERE post_type = 'edd_pup_email'");
     
     //Remove all custom metadata from postmeta table
-    $wpdb->query("DELETE FROM $wpdb->postmeta WHERE meta_key IN ( '_edd_pup_from_name' , '_edd_pup_from_email' , '_edd_pup_subject' , '_edd_pup_message' , '_edd_pup_headers' , '_edd_pup_updated_products' )");
-         
-    //Remove the database version
-    delete_option('wptuts_activity_log_version');
+    $wpdb->query("DELETE FROM $wpdb->postmeta WHERE meta_key IN ( '_edd_pup_from_email' , '_edd_pup_from_name' , '_edd_pup_message' , '_edd_pup_recipients' , '_edd_pup_subject' , '_edd_pup_updated_products' )");
+    
+    //Remove all payment notes in customer payment histories
+    $wpdb->query("DELETE FROM $wpdb->comments WHERE comment_type = 'edd_payment_note' AND comment_content LIKE '%Sent product update%'");
+             
+    //Remove the version option
+    delete_option( 'edd_pup_version' );
  
     //Remove any leftover transients
-	delete_transient( 'edd_pup_email_id' );
 	delete_transient( 'edd_pup_all_customers' );
-	delete_transient( 'edd_pup_subject' );	
+	delete_transient( 'edd_pup_all_downloads' );
+	delete_transient( 'edd_pup_subject' );
 	delete_transient( 'edd_pup_email_body_header' );
 	delete_transient( 'edd_pup_email_body_footer' );
 	delete_transient( 'edd_pup_preview_email' );
