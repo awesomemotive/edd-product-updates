@@ -98,6 +98,7 @@ function edd_pup_queue_details() {
 	global $edd_options;
 	$email_list = edd_pup_queue_emails();
 	$n = count( $email_list );
+	$dateformat = get_option( 'date_format' ). ' ' . get_option( 'time_format' );
 		?>
 		<div id="edd-pup-queue-details-wrap" style="display:none;">
 		<div id="edd-pup-queue-details">
@@ -116,7 +117,7 @@ function edd_pup_queue_details() {
 						<li><strong><?php _e( 'Total Recipients:', 'edd-pup' ); ?></strong> <?php echo number_format( $queue['total'] );?></li>
 						<li><strong><?php _e( 'Processed:', 'edd-pup' ); ?></strong> <?php echo number_format( $queue['sent'] );?></li>
 						<li><strong><?php _e( 'Queued:', 'edd-pup' ); ?></strong> <?php echo number_format( $queue['queue'] );?></li>
-						<li><strong><?php _e( 'Last Send Attempt:', 'edd-pup' ); ?></strong> <?php echo date( 'M jS, Y g:i A T', strtotime($queue['date']) );?></li>
+						<li><strong><?php _e( 'Last Send Attempt:', 'edd-pup' ); ?></strong> <?php echo mysql2date( $dateformat, strtotime($queue['date']) );?></li>
 						<li><a href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=view_pup_email&id='. $email ); ?>"><?php _e( 'View Email Details', 'edd-pup' ); ?></a></li>				
 					</ul>
 					<?php if ( $n >= 1 ): ?>

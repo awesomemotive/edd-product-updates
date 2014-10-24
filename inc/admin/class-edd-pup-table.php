@@ -381,7 +381,8 @@ class EDD_Pup_Table extends WP_List_Table {
 		$meta_key		= isset( $_GET['meta_key'] ) ? $_GET['meta_key']                 : null;
 		$search         = isset( $_GET['s'] )        ? sanitize_text_field( $_GET['s'] ) : null;
 		$order_class 	= strtolower( $order_inverse );
-		
+		$dateformat 	= get_option( 'date_format' ). ' ' . get_option( 'time_format' );
+			
 		$args = array(
 			'posts_per_page' => $per_page,
 			'paged'          => isset( $_GET['paged'] ) ? $_GET['paged'] : 1,
@@ -414,7 +415,7 @@ class EDD_Pup_Table extends WP_List_Table {
 					'ID' 			=> $email->ID,
 					'status'		=> ucwords( $email->post_status ),
 					'subject'		=>	!empty( $subject ) ? $subject : __( '(no subject)', 'edd-pup' ),
-					'date'			=>  get_the_time('M j Y g:i A T', $email->ID ),
+					'date'			=>  get_the_time( $dateformat, $email->ID ),
 					'recipients'	=>	is_array( $recipients ) ? number_format( absint( $recipients['total'] ) ) : number_format( absint( $recipients ) )
 				);
 

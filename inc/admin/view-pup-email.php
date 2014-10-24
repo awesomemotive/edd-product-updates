@@ -20,6 +20,7 @@ $recipients = get_post_meta( $email_id, '_edd_pup_recipients', TRUE );
 $queue = edd_pup_check_queue( $email_id );
 $processing = edd_pup_is_processing( $email_id ) ? true : false;
 $restarturl = wp_nonce_url( add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id, 'restart' => 1 ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ), 'edd_pup_restart_ajax' );
+$dateformat = get_option( 'date_format' ). ' ' . get_option( 'time_format' );
 
 switch ( strtolower( $email->post_status ) ){
 		case 'publish':
@@ -51,7 +52,8 @@ switch ( strtolower( $email->post_status ) ){
 					<div class="postbox">
 						<h3 class="hndle"><span><?php _e( 'Product Update Email Info', 'edd-pup' ); ?></span></h3>
 						<div class="inside">
-							<p><strong><?php _e( 'Status', 'edd-pup' ); ?>:</strong> <span class="status-<?php echo $email->post_status; ?>"><?php echo $status; ?></span></p>							
+							<p><strong><?php _e( 'Status', 'edd-pup' ); ?>:</strong> <span class="status-<?php echo $email->post_status; ?>"><?php echo $status; ?></span></p>
+							<p><strong><?php _e( 'Date Sent', 'edd-pup' );?>:</strong> <?php echo mysql2date( $dateformat, $email->post_date );?></p>
 							<?php if ( $queue['queue'] > 0 ): ?>
 							<p><strong><?php _e( 'Queued', 'edd-pup' ); ?>:</strong> <?php echo number_format( $queue['queue'] ); ?></p>
 							<p><strong><?php _e( 'Processed', 'edd-pup' ); ?>:</strong> <?php echo number_format( $queue['sent'] ); ?></p>
