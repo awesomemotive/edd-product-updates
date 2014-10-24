@@ -534,26 +534,3 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
     return $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_payment_meta' AND meta_value NOT LIKE '%\"edd_send_prod_updates\";b:$bool%' AND ($q $limit $offset", ARRAY_A );
     
 }
-
-if (!function_exists('write_log')) {
-
-    function write_log ( $log )  {
-
-        if ( true === WP_DEBUG ) {
-
-            if ( is_array( $log ) || is_object( $log ) ) {
-
-                error_log( print_r( $log, true ) );
-
-            } else {
-
-                error_log( $log );
-
-            }
-
-        }
-
-    }
-
-}
-
