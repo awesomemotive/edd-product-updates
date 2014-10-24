@@ -36,7 +36,8 @@ function edd_pup_email_confirm_html(){
 	}
 		
 	$email_id = edd_pup_ajax_save( $_POST );
-
+	
+	// Trigger browser to refresh to edit page for continued editing
 	if ( $url['view'] == 'add_pup_email' ) {
 		echo absint( $email_id );
 		die();
@@ -122,8 +123,15 @@ add_action( 'wp_ajax_edd_pup_confirm_ajax', 'edd_pup_email_confirm_html' );
  * @return void
  */
 function edd_pup_ajax_preview() {
-	
+
 	$email_id = edd_pup_ajax_save( $_POST );
+	
+	// Instruct browser to redirect for continued editing of email
+	parse_str( $_POST['url'], $url );
+	if ( $url['view'] == 'add_pup_email' ) {
+		echo absint( $email_id );
+		die();
+	}
 	
 	// Necessary for preview HTML
 	set_transient( 'edd_pup_preview_email', $email_id, 60 );
@@ -144,7 +152,7 @@ function edd_pup_ajax_preview() {
 		
 	} else {
 	
-		_e('There was an error generating a preview. Please contact support with error code 001.', 'edd-pup');
+		_e('There was an error generating a preview.', 'edd-pup');
 	}
 	
 	die();
@@ -606,19 +614,26 @@ function edd_pup_send_test_email() {
 		
 		if ( !empty( $to ) ) {
 			$email_id = edd_pup_ajax_save( $_POST );
-			
+				
 			// Set transient for custom tags in test email
 			set_transient( 'edd_pup_preview_email', $email_id, 60 );
 				
 			// Send a test email
 	    	$sent = edd_pup_test_email( $email_id, $to );
 	    	
+			// Instruct browser to redirect for continued editing of email
+			parse_str( $_POST['url'], $url );
+			if ( $url['view'] == 'add_pup_email' ) {
+				echo absint( $email_id );
+				die();
+			}
+	
 	    	if ( $error > 0 ) {
 				_e( 'One or more of the emails entered were invalid. Test emails sent to: ' . implode(', ', $sent), 'edd-pup' );	    	
 	    	} else {
 	    	
 				_e( 'Test email sent to: ' . implode(', ', $sent), 'edd-pup' );
-			}
+			}		
 			
 		} else if ( empty( $to ) && $error > 0 ) {
 			_e( 'Your email address was invalid. Please enter a valid email address to send the test.', 'edd-pup' );

@@ -44,7 +44,6 @@ This extension allows you to send specialized product update emails to your cust
 
 ## Known Issues
 * Multiple emails can potentially be sent at once which would screw with the edd_pup_sending_email transient and several functions
-* Sending a test email or clicking the preview button while still on the "Add New Email" screen will result in duplicate posts being created
 * Needs to be tested with more email templates
 * Some functions still require nonce checks
 * Filters and actions need to be added throughout

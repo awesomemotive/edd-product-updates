@@ -81,7 +81,7 @@ jQuery(document).ready(function ($) {
           		tinyMCE.triggerSave();
            		var url = document.URL,
            			form = $('#edd-pup-email-edit').serialize(),
-           			data = { 'action': 'edd_pup_ajax_preview', 'form' : form };         
+           			data = { 'action': 'edd_pup_ajax_preview', 'form' : form, 'url' : url };         
                 
                 $.post( ajaxurl, data ).error( function() {
                 
@@ -89,8 +89,13 @@ jQuery(document).ready(function ($) {
 						button.prop("disabled", false);
 											
                     }).success( function( response ) {
-                    
-						$.colorbox({html:response});		
+						
+						if ( $.isNumeric( response ) ) {
+							var u = url.replace( 'add_pup_email', 'edit_pup_email');
+							window.location.href= u + '&id=' + response + '&edd_pup_preview=1';							
+						} else {
+							$.colorbox({html:response});
+						}	
 					
 					});
             });
@@ -99,6 +104,31 @@ jQuery(document).ready(function ($) {
             
 	emailPreview();
 	
+	function emailPreviewRedirect() {
+		var	preview = decodeURIComponent((new RegExp('[?|&]' + 'edd_pup_preview' + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+			
+		if ( preview == 1 ) {
+			var url = document.URL,
+           		form = $('#edd-pup-email-edit').serialize(),
+           		data = { 'action': 'edd_pup_ajax_preview', 'form' : form, 'url' : url };         
+                
+                $.post( ajaxurl, data ).error( function() {
+                
+                    	alert( eddPup.a1 );
+						button.prop("disabled", false);
+											
+                    }).success( function( response ) {
+						
+						$.colorbox({html:response});	
+					
+					});
+
+			// Remove "edd_pup_preview" url param once colorbox is loaded
+			window.history.replaceState({}, 'newurl', url.replace(/&?edd_pup_preview=([^&]$|[^&]*)/i, "") );
+		}
+	}
+	emailPreviewRedirect();
+		
 	function emailTest() {
 	
 		var	button = $('#edd-pup-send-test');
@@ -112,7 +142,7 @@ jQuery(document).ready(function ($) {
           		tinyMCE.triggerSave();
            		var url = document.URL,
            			form = $('#edd-pup-email-edit').serialize(),
-           			data = {'action': 'edd_pup_send_test_email', 'form' : form };
+           			data = {'action': 'edd_pup_send_test_email', 'form' : form, 'url' : url };
            		
            		button.attr("disabled",true);
 				       
@@ -124,9 +154,14 @@ jQuery(document).ready(function ($) {
 							button.attr("disabled", false);
 												
 	                    }).success( function( response ) {
-	                    	
-	                    	alert( response );
-							button.attr("disabled", false);
+							
+							if ( $.isNumeric( response ) ) {
+								var u = url.replace( 'add_pup_email', 'edit_pup_email');
+								window.location.href= u + '&id=' + response + '&edd_pup_test=1';
+							} else {
+		                    	alert( response );
+								button.attr("disabled", false);
+							}
 						
 						});
 				} else {
@@ -140,6 +175,18 @@ jQuery(document).ready(function ($) {
           }
             
 	emailTest();
+
+	function emailTestRedirect() {
+		var	test = decodeURIComponent((new RegExp('[?|&]' + 'edd_pup_test' + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+			
+		if ( test == 1 ) {
+                       
+            alert( eddPup.a10 );
+			// Remove "edd_pup_preview" url param once colorbox is loaded
+			window.history.replaceState({}, 'newurl', url.replace(/&?edd_pup_test=([^&]$|[^&]*)/i, "") );
+		}
+	}
+	emailTestRedirect();
 	
 	function emailConfirmPreview() {
 	
@@ -231,6 +278,7 @@ jQuery(document).ready(function ($) {
          }
 	}
 	emailConfirmRedirect();
+	
 });// End of document ready
 	
 	function eddPupAjaxEmails() {
