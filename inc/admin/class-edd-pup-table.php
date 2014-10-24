@@ -414,7 +414,7 @@ class EDD_Pup_Table extends WP_List_Table {
 					'ID' 			=> $email->ID,
 					'status'		=> ucwords( $email->post_status ),
 					'subject'		=>	!empty( $subject ) ? $subject : __( '(no subject)', 'edd-pup' ),
-					'date'			=>  get_the_date('M m Y g:i A T', $email->ID ),
+					'date'			=>  get_the_time('M j Y g:i A T', $email->ID ),
 					'recipients'	=>	is_array( $recipients ) ? number_format( absint( $recipients['total'] ) ) : number_format( absint( $recipients ) )
 				);
 
