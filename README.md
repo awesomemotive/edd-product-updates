@@ -3,15 +3,6 @@ EDD Product Updates Extension
 
 Version 0.9.4 – *This is an early version that has been tested in a limited WordPress environment*
 
-**Tested With:**
-* **Wordpress:** 3.9.1 / 4.0
-* **EDD:** 2.0.4
-* **PHP:** 5.4 / 5.6.1
-
-**Requirements:**
-* **Wordpress:** 3.0+
-* **jQuery:** 1.4 (included in WordPress above 3.0)
-
 This extension allows you to send specialized product update emails to your customers when using [Easy Digital Downloads](http://easydigitaldownloads.com/). For instance, if you release an updated edition of an eBook, instead of confusing customers by resending their purchase receipts – with purchase language, downloads to all the products they bought, and no context for the email – you can use this extension to send them an email with a message tailored to the update while taking full advantage of Easy Digital Download's powerful download link expiration system.
 
 ## Features
@@ -50,9 +41,27 @@ This extension allows you to send specialized product update emails to your cust
 
 ## Limitations
 * Multiple email messages cannot be sent at the same time (meaning multiple users cannot be sending campaigns all at once). Possible solution: have a queue of emails waiting to be sent.
-* SMTP Limits are different depending on host. Possible solution: Recommend users to Mandrill (free for up to 12,000 emails per month). Most users who don't already have a robust email sending platform will never cross the free threshold. Or have Advanced Settings that will throttle emails on an hourly basis.
+* SMTP limits are different depending on host. Possible solution: Recommend users to Mandrill (free for up to 12,000 emails per month). Most users who don't already have a robust email sending platform will never cross the free threshold. Or have Advanced Settings that will throttle emails on an hourly basis.
 * Requires Javascript and AJAX heavily. Possible solutions: Build in alternative save methods on edit page. Add option to send emails via wp_cron in background.
 * Limited variable pricing support.
+
+**Tested With:**
+* **Wordpress:** 3.9.1
+* **EDD:** 2.0.4
+* **PHP:** 5.4.33
+
+* **Wordpress:** 4.0
+* **EDD:** 2.1.7
+* **PHP:** 5.2.17
+
+* **Wordpress:** 4.0
+* **EDD:** 2.1.7
+* **PHP:** 5.5.17
+
+**Requirements:**
+* **Wordpress:** 3.0+
+* **EDD:** 2.0
+* **PHP:** 4.3 (depending on WP version)
 
 ## Questions?
 Email evan [at] theblackandblue.com
