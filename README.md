@@ -1,4 +1,4 @@
-EDD Product Updates Extension
+->EDD Product Updates Extension<-
 ===================
 ![Alt text](/assets/img/edd_pup_banner_v1.png?raw=true "EDD Product Updates Extension")
 
@@ -9,21 +9,22 @@ This extension allows you to send specialized product update emails to your cust
 ## Features
 **Customizable Email Message**. Craft a message separate from purchase receipt emails so you can engage easily with your customers on a more targeted level while delivering updates to your digital products – whether that's a new edition of your eBook or a fix for a corrupted file.
 
-**Additional Email Tags**. The {unsubscribe_products} and {unsubscribe_products_links} tags drop into emails easily to show customers, respectively, a plain list of updated products and a list of updated products with refreshed download links. A third tag, {unsubscribe}, allows customers to opt-out of future updates.
+**Additional Email Tags**. The {unsubscribe_products} and {unsubscribe_products_links} tags drop into emails easily to show, respectively, a plain list of updated products and a list of updated products with download links. A third tag, {unsubscribe}, allows customers to opt-out of future updates.
 
 **Complete Unsubscribe System**. The added {unsubscribe} email tag outputs a link customers can click on to be removed from future product updates. If clicked on accident, it's easy to re-subscribe via single button click. Additionally, admins have the ability to unsubscribe/resubscribe customers on their payment history page.
 
 **Customer History Logs**. Major actions are logged to each customer's payment history page including when they are sent an update email and when they unsubscribe/resubscribe from updates.
 
+**Batch Sending of Emails**. The extension breaks up emails into batches and sends them in the background (with a front-end UI to show you the progress) so you don't have to worry about the process timing out PHP on your server.
+
 **Complete Email Management UI**. Edit multiple email drafts or view sent, cancelled, and queued emails all from the Wordpress Dashboard. Perfect for planning email updates in advance or remembering when previous updates were sent.
 
-**Email Preview Confirmation**. The "Send Emails" button triggers an AJAX call that saves any changes made to your email message and then shows you a preview of it along with essential info like products slated for updates and number of recipients. This ensures you don't accidentally send an email blast before it's ready!
+**Email Preview Confirmation**. See a preview of your email, with templates and tags processed, before saving changes or sending the email.
 
 **Send Test Emails**. If you'd rather preview your email message inside different email clients, you can easily send test emails to up to five different email addresses – with tags interpreted and displayed just as your customers will see them.
 
 **EDD Software Licensing Integration**. Choose whether to send product update emails to those customers who have active subscription licenses for products using EDD Software Licensing. Customers with expired or inactive licenses won't receive update emails when enabled.
 
-**Batch Sending of Emails**. The extension breaks up emails into batches and sends them in the background (with a front-end UI to show you the progress) so you don't have to worry about the process timing out PHP on your server.
 
 ## Installation
 1. Download plugin as .zip
@@ -47,17 +48,9 @@ This extension allows you to send specialized product update emails to your cust
 * Limited variable pricing support.
 
 **Tested With:**
-* **Wordpress:** 3.9.1
-* **EDD:** 2.0.4
-* **PHP:** 5.4.33
-
-* **Wordpress:** 4.0
-* **EDD:** 2.1.7
-* **PHP:** 5.2.17
-
-* **Wordpress:** 4.0
-* **EDD:** 2.1.7
-* **PHP:** 5.5.17
+* **Wordpress:** 3.9.1 / **EDD:** 2.0.4 / **PHP:** 5.4.33
+* **Wordpress:** 4.0 / **EDD:** 2.1.7 / **PHP:** 5.5.17
+* **Wordpress:** 4.0 / **EDD:** 2.1.7 / **PHP:** 5.2.17
 
 **Requirements:**
 * **Wordpress:** 3.0+
