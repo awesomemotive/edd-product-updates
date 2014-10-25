@@ -48,9 +48,9 @@ This extension allows you to send specialized product update emails to your cust
 * Limited variable pricing support.
 
 **Tested With:**
-* **Wordpress:** 3.9.1 / **EDD:** 2.0.4 / **PHP:** 5.4.33
 * **Wordpress:** 4.0 / **EDD:** 2.1.7 / **PHP:** 5.5.17
 * **Wordpress:** 4.0 / **EDD:** 2.1.7 / **PHP:** 5.2.17
+* **Wordpress:** 3.9.1 / **EDD:** 2.0.4 / **PHP:** 5.4.33
 
 **Requirements:**
 * **Wordpress:** 3.0+
