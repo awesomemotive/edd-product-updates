@@ -1,5 +1,6 @@
 EDD Product Updates Extension
 ===================
+![Alt text](/assets/img/edd_pup_banner_v1.png?raw=true "EDD Product Updates Extension")
 
 Version 0.9.4 – *This is an early version that has been tested in a limited WordPress environment*
 
