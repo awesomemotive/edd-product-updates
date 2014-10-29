@@ -207,7 +207,11 @@ jQuery(document).ready(function ($) {
 
            		var url = document.URL,
 		   		form = $('#edd-pup-email-edit').serialize(),
-           		data = {'action': 'edd_pup_confirm_ajax', 'form' : form, 'url' : url };
+           		data = {
+	           		'action' : 'edd_pup_confirm_ajax',
+	           		'form' : form,
+	           		'url' : url
+	           		};
 		   		
 		   		if ( emailValidate( $('#from_email').val() ) ) {
 		   		
@@ -227,6 +231,12 @@ jQuery(document).ready(function ($) {
 								spinner.toggleClass('loading');
 								button.prop("disabled", false);
 														
+							} else if ( r == 'noncefail' ) {
+								
+								alert( 'Nonce failure. ' + eddPup.a7 );
+								spinner.toggleClass('loading');
+								button.prop("disabled", false);
+							
 							} else if ( r % 1 == 0 ) {
 	
 								var u = url.replace( 'add_pup_email', 'edit_pup_email');

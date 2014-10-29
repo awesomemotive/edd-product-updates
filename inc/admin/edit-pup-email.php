@@ -67,6 +67,7 @@ if ( $status != 'draft' ) {
 									</div>
 									<div id="publishing-action">
 										<?php submit_button( __( 'Send Update Email', 'edd-pup' ), 'primary', 'send-prod-updates', false);?><span class="edd-pup-spin spinner"></span>
+										<?php wp_nonce_field( 'edd-pup-confirm-send', 'edd-pup-send-nonce', false ); ?>
 									</div>
 									<div class="clear"></div>
 								</div>

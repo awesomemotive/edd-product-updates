@@ -24,17 +24,24 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @since 0.9
  */
 function edd_pup_email_confirm_html(){
-	global $edd_options;
-	
 	$form = array();
 	parse_str( $_POST['form'], $form );
 	parse_str( $_POST['url'], $url );
 	
+	// Nonce security check
+	if ( empty( $form['edd-pup-send-nonce'] ) || ! wp_verify_nonce( $form['edd-pup-send-nonce'], 'edd-pup-confirm-send' ) ) {
+		echo 'noncefail';
+		die();
+	}
+	
+	// Make sure there are products to be updated
 	if ( empty( $form['product'] ) ) {
 		echo 'nocheck';
 		die();
 	}
-		
+	
+	global $edd_options;
+			
 	$email_id = edd_pup_ajax_save( $_POST );
 	
 	// Trigger browser to refresh to edit page for continued editing
