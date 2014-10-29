@@ -121,7 +121,7 @@ function edd_pup_queue_details() {
 						<li><a href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=view_pup_email&id='. $email ); ?>"><?php _e( 'View Email Details', 'edd-pup' ); ?></a></li>				
 					</ul>
 					<?php if ( $n >= 1 ): ?>
-					<div class="button primary-button edd-pup-queue-button" data-url="<?php echo wp_nonce_url( add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email, 'restart' => 1 ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ), 'edd_pup_restart_ajax' ); ?>" data-action="edd_pup_send_queue" data-email="<?php echo $email;?>"><?php _e( 'Send Remaining Emails', 'edd-pup' ); ?></div>
+					<div class="button primary-button edd-pup-queue-button" data-url="<?php echo add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email, 'restart' => 1 ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ); ?>" data-action="edd_pup_send_queue" data-email="<?php echo $email;?>"><?php _e( 'Send Remaining Emails', 'edd-pup' ); ?></div>
 					<div class="button primary-button edd-pup-queue-button" data-action="edd_pup_clear_queue" data-email="<?php echo $email;?>"><?php _e( 'Clear From Queue', 'edd-pup' ); ?></div>
 					<?php endif; ?>
 				</div><!-- end #edd-pup-queue-email-<?php echo $i;?> -->

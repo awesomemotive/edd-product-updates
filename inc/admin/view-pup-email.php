@@ -19,7 +19,7 @@ $updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE 
 $recipients = get_post_meta( $email_id, '_edd_pup_recipients', TRUE );
 $queue = edd_pup_check_queue( $email_id );
 $processing = edd_pup_is_processing( $email_id ) ? true : false;
-$restarturl = wp_nonce_url( add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id, 'restart' => 1 ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ), 'edd_pup_restart_ajax' );
+$restarturl = add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id, 'restart' => 1 ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) );
 $dateformat = get_option( 'date_format' ). ' ' . get_option( 'time_format' );
 
 switch ( strtolower( $email->post_status ) ){
