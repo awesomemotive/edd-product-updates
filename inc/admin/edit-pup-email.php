@@ -51,6 +51,7 @@ if ( $status != 'draft' ) {
 									</div>
 									<div id="preview-action">
 										<a href="javascript:void(0);" id="edd-pup-open-preview" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Preview Email', 'edd-pup' ); ?></a>
+									<?php wp_nonce_field( 'edd-pup-preview-email', 'edd-pup-prev-nonce', false ); ?>
 									</div>
 									<div class="clear"></div>
 								</div>

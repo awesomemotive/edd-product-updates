@@ -121,10 +121,17 @@ add_action( 'wp_ajax_edd_pup_confirm_ajax', 'edd_pup_email_confirm_html' );
  * @return void
  */
 function edd_pup_ajax_preview() {
-
+	
+	// Nonce security check
+	if ( empty( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'edd-pup-preview-email' ) ) {
+		_e( 'Nonce failure: error generating preview.', 'edd-pup' );
+		die();
+	}
+	
+	// Save the email before generating a preview
 	$email_id = edd_pup_ajax_save( $_POST );
 	
-	// Instruct browser to redirect for continued editing of email
+	// Instruct browser to redirect for continued editing of email if triggered on Add New Email page
 	parse_str( $_POST['url'], $url );
 	if ( $url['view'] == 'add_pup_email' ) {
 		echo absint( $email_id );
