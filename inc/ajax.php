@@ -173,12 +173,13 @@ add_action( 'wp_ajax_edd_pup_ajax_preview', 'edd_pup_ajax_preview' );
  */
 function edd_pup_ajax_start(){
 	
-	if ( !wp_verify_nonce( $_POST['nonce'], 'edd_pup_ajax_start' ) ) {
+	// Nonce security check
+	if ( ! wp_verify_nonce( $_POST['nonce'], 'edd_pup_ajax_start' ) ) {
 		echo 'noncefail';
 		exit;
 	}
 	
-    $restart = edd_pup_is_ajax_restart( $_POST['email_id'] );
+    $restart    = edd_pup_is_ajax_restart( $_POST['email_id'] );
     $recipients = get_post_meta( $_POST['email_id'], '_edd_pup_recipients', TRUE );
     
     if ( false != $restart && is_array( $restart ) && empty( $_POST['status'] ) && ( $restart['total'] == $recipients ) ) {
@@ -192,12 +193,13 @@ function edd_pup_ajax_start(){
     } else {
 
 		global $wpdb;
-		$email_id = intval( $_POST['email_id'] );
-		$products = get_post_meta( $email_id, '_edd_pup_updated_products', true );
+		$i = 1;
+		$count = 0;
 		$limit = 1000;
 		$total = isset( $_POST['total'] ) ? absint( $_POST['total'] ) : $recipients;
+		$email_id  = intval( $_POST['email_id'] );
+		$products  = get_post_meta( $email_id, '_edd_pup_updated_products', true );
 		$processed = isset( $_POST['processed'] ) ? absint( $_POST['processed'] ) : 0;
-		$status = $processed > 0 ? 'processing' : 'new';
 			
 		// Check whether the email was paused by the user when building queue and then resumed on the same popup
 		if ( is_array( $restart ) && $restart['total'] != $recipients ) {
@@ -206,13 +208,11 @@ function edd_pup_ajax_start(){
 		
 		$customers = edd_pup_user_send_updates( $products, true, $limit, $processed );
 		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1", OBJECT_K );
-		$count = 0;
-		$i = 1;
 
 		// Set email ID transient
 		set_transient( 'edd_pup_sending_email', $email_id, 60);
 		
-		// Do some one-time operations to start out
+		// Do some one-time operations at beginning of AJAX loop
 		if ( $_POST['iteration'] == 0 ) {
 			
 			// Update email status as in queue
@@ -220,8 +220,7 @@ function edd_pup_ajax_start(){
 			
 			// Update email with info on EDD Software Licensing Integration
 			global $edd_options;
-			$eddlicensestatus = isset( $edd_options['edd_pup_license'] ) ? 'active' : 'inactive';
-			update_post_meta ( $email_id, '_edd_pup_licensing_status', $eddlicensestatus );
+			update_post_meta( $email_id, '_edd_pup_licensing_status', isset( $edd_options['edd_pup_license'] ) ? 'active' : 'inactive' );
 			
 		}
 		
