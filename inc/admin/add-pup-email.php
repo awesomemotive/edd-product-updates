@@ -35,6 +35,7 @@ $recipients = 0;
 									</div>
 									<div id="preview-action">
 										<a href="javascript:void(0);" id="edd-pup-open-preview" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Preview Email', 'edd' ); ?></a>
+									<?php wp_nonce_field( 'edd-pup-preview-email', 'edd-pup-prev-nonce', false ); ?>
 									</div>
 									<div class="clear"></div>
 								</div>
@@ -43,11 +44,12 @@ $recipients = 0;
 									<input type="text" class="test-email" name="test-email" id="test-email" placeholder="name@email.com" size="10" />
 									<p class="description"><?php _e( 'Use a comma between multiple emails.' , 'edd-pup' ); ?></p>
 									<a href="javascript:void(0);" id="edd-pup-send-test" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Send Test Email', 'edd-pup' ); ?></a>
-									<input type="hidden" name="edd-pup-test-nonce" value="<?php echo wp_create_nonce( 'edd-pup-test-nonce' ); ?>" />
+									<?php wp_nonce_field( 'edd-pup-send-test-email', 'edd-pup-test-nonce', false ); ?>
 								</div>
 								<div id="major-publishing-actions">
 									<div id="publishing-action">
 										<?php submit_button('Send Update Email', 'primary', 'send-prod-updates', false);?><span class="edd-pup-spin spinner"></span>
+										<?php wp_nonce_field( 'edd-pup-confirm-send', 'edd-pup-send-nonce', false ); ?>
 									</div>
 									<div class="clear"></div>
 								</div>

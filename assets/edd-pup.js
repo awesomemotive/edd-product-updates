@@ -85,6 +85,7 @@ jQuery(document).ready(function ($) {
   				}).click( function () {
   				
           		tinyMCE.triggerSave();
+          		
            		var url = document.URL,
            			form = $('#edd-pup-email-edit').serialize(),
            			data = {
@@ -121,7 +122,12 @@ jQuery(document).ready(function ($) {
 		if ( preview == 1 ) {
 			var url = document.URL,
            		form = $('#edd-pup-email-edit').serialize(),
-           		data = { 'action': 'edd_pup_ajax_preview', 'form' : form, 'url' : url };         
+           		data = {
+	           		'action': 'edd_pup_ajax_preview',
+	           		'form' : form,
+	           		'url' : url,
+	           		'nonce' : $('#edd-pup-prev-nonce').val()
+	           		};         
                 
                 $.post( ajaxurl, data ).error( function() {
                 
@@ -420,6 +426,7 @@ jQuery(document).ready(function ($) {
 				'iteration': it,
 				'processed': r.processed,
 				'status': 'processing',
+				'nonce' : nonce,
 				'error' : err
 				};
 			
