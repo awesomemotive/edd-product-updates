@@ -318,7 +318,14 @@ class EDD_Pup_Table extends WP_List_Table {
 
 
 	public function process_bulk_action() {
-			
+	    if( empty( $_REQUEST['_wpnonce'] ) ) {
+	      return;
+	    }
+	
+	    if( ! wp_verify_nonce( $_REQUEST['_wpnonce'], 'bulk-emails' ) ) {
+	      return;
+	    }
+		
 		$ids = isset( $_GET[ 'email' ] ) ? $_GET[ 'email' ] : false;
 
 		if ( ! is_array( $ids ) )
