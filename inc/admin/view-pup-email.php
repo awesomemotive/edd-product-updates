@@ -88,7 +88,7 @@ switch ( strtolower( $email->post_status ) ){
 						<div class="inside">
 							<p><?php _e( 'This email you are viewing still has messages to send and is currently not processing. Please choose to either:', 'edd-pup' ); ?></p>
 							<p>1. <?php printf( __( '<a href="%s" class="%s" data-action="%s" data-email="%s" data-url="%s">Resume sending this email</a> to the remaining customers in the queue.', 'edd-pup' ), '#', 'edd-pup-queue-button', 'edd_pup_send_queue', $email_id, $restarturl ); ?></p>
-							<p>2. <?php printf( __( '<a href="%s" class="%s" data-action="%s" data-email="%s">Clear the email from the queue</a> and cancel sending this email to the customers who have not received it.', 'edd-pup' ), '#', 'edd-pup-queue-button', 'edd_pup_clear_queue', $email_id ); ?></p>
+							<p>2. <?php printf( __( '<a href="%s" class="%s" data-action="%s" data-email="%s" data-nonce="%s">Clear the email from the queue</a> and cancel sending this email to the customers who have not received it.', 'edd-pup' ), '#', 'edd-pup-queue-button', 'edd_pup_clear_queue', $email_id, wp_create_nonce( 'clear-queue-' . $email_id ) ); ?></p>
 							<?php if ( empty( $edd_options['edd_pup_auto_del'] ) ) : ?>
 							<p><strong><?php printf( __('If no action is taken within 48 hours, this email will be automatically removed from the queue.</strong> (<a href="%s">Disable automatic removal on the settings page</a>)', 'edd-pup' ), admin_url( 'edit.php?post_type=download&page=edd-settings&tab=emails#edd_pup_settings' ) );?></p>
 							<?php endif; ?>

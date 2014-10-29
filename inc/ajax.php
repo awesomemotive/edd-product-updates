@@ -465,14 +465,13 @@ add_action( 'wp_ajax_edd_pup_ajax_end', 'edd_pup_ajax_end' );
  * @return void
  */
 function edd_pup_clear_queue() {
-	global $wpdb;
-	
-	if ( !empty( $_POST['emailid'] ) && ( absint( $_POST['emailid'] ) != 0 ) ) {
-		$email_id = $_POST['emailid'];
-		
-	} else {
-		$email_id = get_transient( 'edd_pup_sending_email' );
+
+	if ( ! wp_verify_nonce( $_REQUEST['nonce'], 'clear-queue-'.$_REQUEST['email'] ) ) {
+		echo header("HTTP/1.0 404 Not Found");
+		exit;
 	}
+	
+	global $wpdb;
 	
 	// Clear queue
 	if ( $_POST['email'] == 'all' ) {

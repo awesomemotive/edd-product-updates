@@ -122,14 +122,14 @@ function edd_pup_queue_details() {
 					</ul>
 					<?php if ( $n >= 1 ): ?>
 					<div class="button primary-button edd-pup-queue-button" data-url="<?php echo add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email, 'restart' => 1 ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ); ?>" data-action="edd_pup_send_queue" data-email="<?php echo $email;?>"><?php _e( 'Send Remaining Emails', 'edd-pup' ); ?></div>
-					<div class="button primary-button edd-pup-queue-button" data-action="edd_pup_clear_queue" data-email="<?php echo $email;?>"><?php _e( 'Clear From Queue', 'edd-pup' ); ?></div>
+					<div class="button primary-button edd-pup-queue-button" data-action="edd_pup_clear_queue" data-email="<?php echo $email;?>" data-nonce="<?php echo wp_create_nonce( 'clear-queue-' . $email ); ?>"><?php _e( 'Clear From Queue', 'edd-pup' ); ?></div>
 					<?php endif; ?>
 				</div><!-- end #edd-pup-queue-email-<?php echo $i;?> -->
 		<?php endforeach; ?>
 			<div id="edd-pup-queue-buttons">
 				<?php if ( $n > 1 ): ?>
 				<!--<input type="submit" name="edd-pup-send-queue-all" id="edd-pup-send-queue-all" class="button button-primary edd-pup-queue-button" value="<?php _e( 'Send All Emails', 'edd-pup' ); ?>" data-email="all" data-action="edd_pup_send_queue">-->
-				<input type="submit" name="edd-pup-empty-queue-all" id="edd-pup-empty-queue-all" class="button button-primary edd-pup-queue-button" value="<?php _e( 'Clear All From Queue', 'edd-pup' ); ?>" data-email="all" data-action="edd_pup_clear_queue">
+				<input type="submit" name="edd-pup-empty-queue-all" id="edd-pup-empty-queue-all" class="button button-primary edd-pup-queue-button" value="<?php _e( 'Clear All From Queue', 'edd-pup' ); ?>" data-email="all" data-action="edd_pup_clear_queue" data-nonce="<?php echo wp_create_nonce( 'clear-queue-all' ); ?>">
 				<?php endif; ?>
 				<button class="closebutton button button-secondary"><?php _e( 'Close Window', 'edd-pup' ); ?></button>
 			</div><!-- end #edd-pup-queue-buttons -->

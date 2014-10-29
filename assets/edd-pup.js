@@ -33,11 +33,12 @@ jQuery(document).ready(function ($) {
 				var	data = {
 						'action' : $(this).attr('data-action'),
 						'email' : $(this).attr('data-email'),
-						'url' : $(this).attr('data-url')
+						'url' : $(this).attr('data-url'),
+						'nonce' : $(this).attr('data-nonce')
 						};
 				
 				if ( data['action'] == 'edd_pup_clear_queue' ) {
-					
+
 					if ( confirm( eddPup.c1 ) ) {
 						
 						$.post( ajaxurl, data ).error( function() {
