@@ -72,13 +72,16 @@ function edd_pup_save_email( $data, $email_id = null ) {
 			'post_excerpt' => $data['subject']
 		);
 		
+		// Get number of recipients for this email
+		$recipients = edd_pup_customer_count( $email_id, $products );
+		
 		$update_id = wp_update_post( $updateargs );
 		update_post_meta ( $email_id, '_edd_pup_from_name', $from_name );
 		update_post_meta ( $email_id, '_edd_pup_from_email', $from_email );
 		update_post_meta ( $email_id, '_edd_pup_subject', $data['subject'] );
 		update_post_meta ( $email_id, '_edd_pup_message', $data['message'] );
 		update_post_meta ( $email_id, '_edd_pup_updated_products', $products );
-		update_post_meta ( $email_id, '_edd_pup_recipients', $data['recipients'] );
+		update_post_meta ( $email_id, '_edd_pup_recipients', $recipients );
 
 		if ( ( $update_id != 0 ) && ( $update_id == $email_id ) ) {
 			return $email_id;
