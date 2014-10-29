@@ -256,8 +256,8 @@ class EDD_Pup_Table extends WP_List_Table {
 		}
 
 		if ( $status == 'pending' && edd_pup_is_processing( $item['ID'] ) == false ) {
-			$row_actions['send'] = '<a href="#" class="edd-pup-queue-button" data-action="edd_pup_send_queue" data-email="'. $email->ID .'" data-url="'.add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email->ID, 'restart' => 1 ), $baseurl ).'">' . __( 'Send Remaining', 'edd-pup' ) . '</a>';
-			$row_actions['clear'] = '<a href="#" class="edd-pup-queue-button" data-action="edd_pup_clear_queue" data-email="'. $email->ID .'" data-nonce="'.wp_create_nonce( 'clear-queue-' . $email->ID ).'" >' . __( 'Clear from Queue', 'edd-pup' ) . '</a>';			
+			$row_actions['send'] = '<a href="javascript:void(0);" class="edd-pup-queue-button" data-action="edd_pup_send_queue" data-email="'. $email->ID .'" data-url="'.add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email->ID, 'restart' => 1 ), $baseurl ).'">' . __( 'Send Remaining', 'edd-pup' ) . '</a>';
+			$row_actions['clear'] = '<a href="javascript:void(0);" class="edd-pup-queue-button" data-action="edd_pup_clear_queue" data-email="'. $email->ID .'" data-nonce="'.wp_create_nonce( 'clear-queue-' . $email->ID ).'" >' . __( 'Clear from Queue', 'edd-pup' ) . '</a>';			
 		}
 	
 		$row_actions['delete'] = '<a href="' . wp_nonce_url( add_query_arg( array( 'edd_action' => 'pup_delete_email', 'id' => $email->ID ), $baseurl ), 'edd-pup-delete-nonce' ) . '" onclick="var result=confirm(\''. __( 'Are you sure you want to permanently delete this email?', 'edd-pup' ).'\');return result;">' . __( 'Delete', 'edd-pup' ) . '</a>';

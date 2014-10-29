@@ -467,7 +467,7 @@ add_action( 'wp_ajax_edd_pup_ajax_end', 'edd_pup_ajax_end' );
 function edd_pup_clear_queue() {
 
 	if ( ! wp_verify_nonce( $_REQUEST['nonce'], 'clear-queue-'.$_REQUEST['email'] ) ) {
-		echo header("HTTP/1.0 404 Not Found");
+		echo 'noncefail';
 		exit;
 	}
 	

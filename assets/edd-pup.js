@@ -46,7 +46,12 @@ jQuery(document).ready(function ($) {
 								alert( eddPup.a9 );
 								
 							}).success( function ( response ) {
-
+								
+								if ( response == 'noncefail' ) {
+									alert( 'Nonce failure: ' + eddPup.a9);
+									return false
+								}
+								
 								window.location.href= url + '&edd_pup_cq=' + data['email'];
 								
 							});
