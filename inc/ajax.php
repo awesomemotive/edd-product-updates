@@ -588,8 +588,9 @@ function edd_pup_send_test_email() {
 	$form = array();
 	parse_str( $_POST['form'], $form );
 	
-	if ( ! wp_verify_nonce( $form['edd-pup-test-nonce'], 'edd-pup-test-nonce' ) ) {
-		return;
+	if ( empty( $form['edd-pup-test-nonce'] ) || ! wp_verify_nonce( $form['edd-pup-test-nonce'], 'edd-pup-send-test-email' ) ) {
+		_e( 'Nonce failure. Invalid response from server when trying to send test email. Please try again or contact support.', 'edd-pup');
+		die();
 	}
 	
 	

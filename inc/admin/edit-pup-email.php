@@ -59,7 +59,7 @@ if ( $status != 'draft' ) {
 									<input type="text" class="test-email" name="test-email" id="test-email" placeholder="name@email.com" size="10" />
 									<p class="description"><?php _e( 'Use a comma between multiple emails.' , 'edd-pup' ); ?></p>
 									<a href="javascript:void(0);" id="edd-pup-send-test" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Send Test Email', 'edd-pup' ); ?></a>
-									<input type="hidden" name="edd-pup-test-nonce" value="<?php echo wp_create_nonce( 'edd-pup-test-nonce' ); ?>" />
+									<?php wp_nonce_field( 'edd-pup-send-test-email', 'edd-pup-test-nonce', false ); ?>
 								</div>
 								<div id="major-publishing-actions">
 									<div id="delete-action">
