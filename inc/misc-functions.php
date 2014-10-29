@@ -118,7 +118,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
 			add_post_meta ( $create_id, '_edd_pup_subject', $data['subject'], true );
 			add_post_meta ( $create_id, '_edd_pup_message', $data['message'], true );
 			add_post_meta ( $create_id, '_edd_pup_updated_products', $products, true );
-			add_post_meta ( $email_id, '_edd_pup_recipients', $data['recipients'] );	
+			add_post_meta ( $create_id, '_edd_pup_recipients', $recipients );	
 		}
 		
     	if ( 0 != $create_id) {	
