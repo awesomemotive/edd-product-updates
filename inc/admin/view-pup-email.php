@@ -71,6 +71,10 @@ switch ( strtolower( $email->post_status ) ){
 									<li class="product"><a href="<?php echo get_edit_post_link( $id );?>" target="_blank" title="Edit <?php echo $title;?> Download"><?php echo $title; ?></a></li>
 								<?php endforeach;?>
 								</ul>
+							<?php if ( isset( $emailmeta['_edd_pup_licensing_status'][0] ) && $emailmeta['_edd_pup_licensing_status'][0] == 'active' ) : ?>
+							<p><strong><?php _e( 'EDD Software Licensing Filter On', 'edd-pup'); ?></strong></p>
+							<p><em><?php _e( 'Customers receive updates to products with software licensing enabled only if they have an active software license.', 'edd-pup' ); ?></em></p>
+							<?php endif; ?>
 						</div>
 					</div>
 				</div>	
