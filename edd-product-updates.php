@@ -100,7 +100,7 @@ register_activation_hook( __FILE__, 'edd_pup_create_cron_schedule' );
 function edd_pup_cron_clear(){
 	global $edd_options;
 	
-	if ( isset( $edd_options['edd_pup_auto_del'] ) ) {
+	if ( !isset( $edd_options['edd_pup_auto_del'] ) ) {
 	
 		global $wpdb;
 		
