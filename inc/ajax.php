@@ -40,11 +40,10 @@ function edd_pup_email_confirm_html(){
 		die();
 	}
 	
-	global $edd_options;
-			
+	// Save the email before generating preview
 	$email_id = edd_pup_ajax_save( $_POST );
 	
-	// Trigger browser to refresh to edit page for continued editing
+	// If "Send Update Email" was clicked from Add New Email page, trigger browser to refresh to edit page for continued editing
 	if ( $url['view'] == 'add_pup_email' ) {
 		echo absint( $email_id );
 		die();
@@ -53,25 +52,13 @@ function edd_pup_email_confirm_html(){
 	// Necessary for preview HTML
 	set_transient( 'edd_pup_preview_email', $email_id, 60 );
 	
-	$email     = get_post( $email_id );
-	$emailmeta = get_post_custom( $email_id );
-    
-    $subject = empty( $emailmeta['_edd_pup_subject'][0] ) ? '(no subject)' : strip_tags( edd_email_preview_template_tags( $emailmeta['_edd_pup_subject'][0] ) );
-	$products = get_post_meta( $email_id, '_edd_pup_updated_products', true );
-	$productlist = '';
-	
-	foreach ( $products as $product_id => $product ) {
-		$productlist .= '<li data-id="'. $product_id .'">'.$product.'</li>';
-	}
-
-	
-	$popupurl = add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) );
-	
+	$email         = get_post( $email_id );
+	$emailmeta     = get_post_custom( $email_id );
+	$products  	   = get_post_meta( $email_id, '_edd_pup_updated_products', true );
+	$popup_url 	   = add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) );
 	$customercount = edd_pup_customer_count( $email_id, $products );
-	
-	// Construct the email message
-	$default_email_body = 'Cannot retrieve message content';
-	$email_body = isset( $email->post_content ) ? stripslashes( $email->post_content ) : $default_email_body;
+	$email_body    = isset( $email->post_content ) ? stripslashes( $email->post_content ) : 'Cannot retrieve message content';
+    $subject       = empty( $emailmeta['_edd_pup_subject'][0] ) ? '(no subject)' : strip_tags( edd_email_preview_template_tags( $emailmeta['_edd_pup_subject'][0] ) );
 	
 	// Construct templated email HTML
 	add_filter('edd_email_template', 'edd_pup_template' );
@@ -83,39 +70,43 @@ function edd_pup_email_confirm_html(){
 		$message = edd_apply_email_template( $email_body, null, null );		
 	}
 	
+	// Save message to metadata for later retrieval
 	update_post_meta( $email_id, '_edd_pup_message' ,$message );
 	
 	ob_start();
 	?>
 		<!-- Begin send email confirmation message -->
-					<h2 id="edd-pup-confirm-title"><strong><?php _e( 'Almost Ready to Send!', 'edd-pup' ); ?></strong></h2>
-					<p style="text-align: center;"><?php _e( 'Please carefully check the information below before sending your emails.', 'edd-pup' ); ?></p>
-					<div id="edd-pup-confirm-message">
-						<div id="edd-pup-confirm-header">
-							<h3><?php _e( 'Email Message Preview', 'edd-pup' ); ?></h3>
-							<ul>
-								<li><strong><?php _e( 'From:', 'edd-pup' ); ?></strong> <?php echo $emailmeta['_edd_pup_from_name'][0];?> (<?php echo $emailmeta['_edd_pup_from_email'][0];?>)</li>
-								<li><strong><?php _e( 'Subject:', 'edd-pup' ); ?></strong> <?php echo $subject;?></li>
-							</ul>
-						</div>
+			<h2 id="edd-pup-confirm-title"><strong><?php _e( 'Almost Ready to Send!', 'edd-pup' ); ?></strong></h2>
+			<p style="text-align: center;"><?php _e( 'Please carefully check the information below before sending your emails.', 'edd-pup' ); ?></p>
+			<div id="edd-pup-confirm-message">
+				<div id="edd-pup-confirm-header">
+					<h3><?php _e( 'Email Message Preview', 'edd-pup' ); ?></h3>
+					<ul>
+						<li><strong><?php _e( 'From:', 'edd-pup' ); ?></strong> <?php echo $emailmeta['_edd_pup_from_name'][0];?> (<?php echo $emailmeta['_edd_pup_from_email'][0];?>)</li>
+						<li><strong><?php _e( 'Subject:', 'edd-pup' ); ?></strong> <?php echo $subject;?></li>
+					</ul>
+				</div>
 				<?php echo $message ?>
 				<div id="edd-pup-confirm-footer">
 					<h3><?php _e( 'Additional Information', 'edd-pup' ); ?></h3>
-						<ul>
-							<li><strong><?php _e( 'Updated Products:', 'edd-pup' ); ?></strong></li>
-								<ul id="edd-pup-confirm-products">
-									<?php echo $productlist;?>
-								</ul>
-							<li><strong><?php _e( 'Recipients:', 'edd-pup' ); ?></strong> <?php printf( _n( '1 customer will receive this email and have their downloads reset', '%s customers will receive this email and have their downloads reset', $customercount, 'edd-pup' ), number_format( $customercount ) ); ?></li>
-						</ul>
-						<a href="<?php echo $popupurl; ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>" onclick="window.open(this.href,'targetWindow', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=450');return false;"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
-						<button class="closebutton button-secondary"><?php _e( 'Close without sending', 'edd-pup' ); ?></button>
-					</div>
-			<!-- End send email confirmation message -->
-			<script type="text/javascript">
-				jQuery('.postbox .recipient-count').text("<?php echo number_format( $customercount );?>");
-				jQuery('.postbox .recipient-input').val(<?php echo $customercount;?>);
-			</script>
+					<ul>
+						<li><strong><?php _e( 'Updated Products:', 'edd-pup' ); ?></strong></li>
+							<ul id="edd-pup-confirm-products">
+							<?php foreach ( $products as $product_id => $product ):?>
+								<li data-id="<?php echo $product_id; ?>"><?php echo $product; ?></li>
+							<?php endforeach; ?>
+							</ul>
+						<li><strong><?php _e( 'Recipients:', 'edd-pup' ); ?></strong> <?php printf( _n( '1 customer will receive this email and have their downloads reset', '%s customers will receive this email and have their downloads reset', $customercount, 'edd-pup' ), number_format( $customercount ) ); ?></li>
+					</ul>
+					<a href="<?php echo $popup_url; ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>" onclick="window.open(this.href,'targetWindow', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=450');return false;"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
+					<button class="closebutton button-secondary"><?php _e( 'Close without sending', 'edd-pup' ); ?></button>
+				</div>
+			</div>
+		<!-- End send email confirmation message -->
+		<script type="text/javascript">
+			jQuery('.postbox .recipient-count').text("<?php echo number_format( $customercount );?>");
+			jQuery('.postbox .recipient-input').val(<?php echo $customercount;?>);
+		</script>
 	<?php
 	echo ob_get_clean();
 	
