@@ -293,13 +293,15 @@ jQuery(document).ready(function ($) {
 			psent   = $('.progress-sent'),
 			pperc   = $('.progress-percent'),
 			emailid = button.attr('data-email'),
+			nonce 	= $('#edd_pup_sajax_nonce').val(),
 			ogurl   = window.opener.document.location.href,
 			i = 0,
 			it = 0,
 			data = {
 				'action': 'edd_pup_ajax_start',
 				'email_id' : emailid,
-				'iteration' : it
+				'iteration' : it,
+				'nonce' : nonce
 			};
 		
 		button.click( function() {
@@ -336,10 +338,17 @@ jQuery(document).ready(function ($) {
 				spinner.hide();
 							
 			}).success( function( ret ) {
-			
+				
+				if ( ret == 'noncefail' ) {
+					alert( eddPup.a7 );
+					button.prop('disabled', false);
+					spinner.hide();
+					return false	
+				}
+				
 				var r = $.parseJSON(ret),
 					p = Math.round((r.sent / r.total) * 100);
-				
+
 				$('.progress-wrap').css('opacity', '1');
 				$('.progress-queue').text( prettyNumber(r.total) );
 				button.prop('disabled', false).attr({

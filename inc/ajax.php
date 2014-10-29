@@ -58,7 +58,7 @@ function edd_pup_email_confirm_html(){
 	}
 
 	
-	$nonceurl = add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) );
+	$popupurl = add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) );
 	
 	$customercount = edd_pup_customer_count( $email_id, $products );
 	
@@ -101,7 +101,7 @@ function edd_pup_email_confirm_html(){
 								</ul>
 							<li><strong><?php _e( 'Recipients:', 'edd-pup' ); ?></strong> <?php printf( _n( '1 customer will receive this email and have their downloads reset', '%s customers will receive this email and have their downloads reset', $customercount, 'edd-pup' ), number_format( $customercount ) ); ?></li>
 						</ul>
-						<a href="<?php echo wp_nonce_url( $nonceurl, 'edd_pup_send_ajax' ); ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>" onclick="window.open(this.href,'targetWindow', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=450');return false;"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
+						<a href="<?php echo $popupurl; ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>" onclick="window.open(this.href,'targetWindow', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=450');return false;"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
 						<button class="closebutton button-secondary"><?php _e( 'Close without sending', 'edd-pup' ); ?></button>
 					</div>
 			<!-- End send email confirmation message -->
@@ -168,9 +168,10 @@ add_action( 'wp_ajax_edd_pup_ajax_preview', 'edd_pup_ajax_preview' );
  */
 function edd_pup_ajax_start(){
 	
-	//if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'edd_pup_send_ajax' ) ) {
-	//	return;
-	//}
+	if ( !wp_verify_nonce( $_POST['nonce'], 'edd_pup_ajax_start' ) ) {
+		echo 'noncefail';
+		exit;
+	}
 	
     $restart = edd_pup_is_ajax_restart( $_POST['email_id'] );
     $recipients = get_post_meta( $_POST['email_id'], '_edd_pup_recipients', TRUE );
@@ -205,7 +206,8 @@ function edd_pup_ajax_start(){
 
 		// Set email ID transient
 		set_transient( 'edd_pup_sending_email', $email_id, 60);
-				
+		
+		// Do some one-time operations to start out
 		if ( $_POST['iteration'] == 0 ) {
 			
 			// Update email status as in queue
