@@ -2,4 +2,6 @@
 * Initial release
 
 ## 0.9.4.1 ()
-* Add nonce checks to several functions
+* Tweak: Add nonce checks to several functions
+* Tweak: Add information on whether EDD Software Licensing integration was active during an email send to the "View Email" page
+* Optimization: `edd_pup_ajax_start` function
