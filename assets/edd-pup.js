@@ -318,6 +318,7 @@ jQuery(document).ready(function ($) {
 			emailid = button.attr('data-email'),
 			nonce 	= $('#edd_pup_sajax_nonce').val(),
 			ogurl   = window.opener.document.location.href,
+			paused  = 0,
 			i = 0,
 			it = 0,
 			data = {
@@ -334,6 +335,7 @@ jQuery(document).ready(function ($) {
 				$(this).attr({
 					'data-action': 'resume',
 					value: eddPup.v3 });
+				paused++;
 				
 				return false;
 				
@@ -494,6 +496,11 @@ jQuery(document).ready(function ($) {
 				return false;
 			}
 			
+			// Add the number of emails already sent on a restart to completion status
+			if ( +i == 0 && s > 0 && paused == 0 ) {
+				$('.success-restart-p').text(s);
+			}
+			
 			$.post(ajaxurl, {'action':'edd_pup_ajax_trigger', 'iteration': i, 'sent' : s, 'email_id' : emailid, 'errors' : err }).error( function() {
 					
 				err++;
@@ -589,9 +596,17 @@ jQuery(document).ready(function ($) {
 					hrs = $('.success-time-h'),
 					min = $('.success-time-m'),
 					sec = $('.success-time-s');
+					restartFloor = parseInt($('.success-restart-p').text());
 				
 				clock.timer('pause');
-				$('.success-total').text(prettyNumber(s));
+				if ( restartFloor > 0 ) {
+					$('.success-total').text(prettyNumber(s-restartFloor));
+					$('.success-restart-p').text(prettyNumber(restartFloor));
+					$('.success-restart-t').text(prettyNumber(s));
+					$('.success-restart').show();
+				} else {
+					$('.success-total').text(prettyNumber(s));					
+				}
 				
 				if ( t.length > 2 ) {
 					hrs.show().text( parseInt(t[0]) + ' hr.');
