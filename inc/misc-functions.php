@@ -11,15 +11,21 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-
 /**
- * Prepares posted data array to be used in saving emails.
+ * Sanitizes posted data from before saving an email
  * 
  * @access public
- * @param mixed $data
- * @return array $posted (processed array of email data)
+ * @param mixed $posted
+ * @return int email id of saved email
  */
-function edd_pup_prepare_data( $data ) {
+function edd_pup_ajax_save( $data ) {
+
+	// Convert form data to array	
+	if ( isset( $data['form'] ) ) {
+		$form = $data['form'];
+		$data = array();
+		parse_str( $form, $data );
+	}
 	
 	//Sanitize our data
 	$data['message'] 	= wp_kses_post( $data['message'] );
@@ -36,8 +42,7 @@ function edd_pup_prepare_data( $data ) {
 		$data['product'] = '';
 	}
 	
-	return $data;
-	
+	return edd_pup_save_email( $data, $data['email-id'] );
 }
 
 /**

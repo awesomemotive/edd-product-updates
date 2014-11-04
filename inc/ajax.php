@@ -534,39 +534,6 @@ function edd_pup_clear_queue() {
 }
 add_action( 'wp_ajax_edd_pup_clear_queue', 'edd_pup_clear_queue' );
 
-
-/**
- * Sanitizes posted data from AJAX calls before saving an email
- * 
- * @access public
- * @param mixed $posted
- * @return string email id of saved email
- */
-function edd_pup_ajax_save( $posted ) {
-	
-	// Convert form data to array
-	$data = array();
-	parse_str( $posted['form'], $data );
-	
-	//Sanitize our data
-	$data['message'] 	= wp_kses_post( $data['message'] );
-	$data['email-id']	= isset( $data['email-id'] ) ? absint( $data['email-id'] ) : 0;
-	$data['recipients']	= absint( $data['recipients'] );
-	$data['from_name'] 	= sanitize_text_field( $data['from_name'] );
-	$data['from_email'] = sanitize_email( $data['from_email'] );
-	$data['title']		= sanitize_text_field( $data['title'], 'ID:'. $data['email-id'], 'save' );
-	$data['subject']	= sanitize_text_field( $data['subject'] );
-	
-	if ( isset( $data['product'] ) ) {
-		$data['product'] = filter_var_array( $data['product'], FILTER_SANITIZE_STRING );
-	} else {
-		$data['product'] = '';
-	}
-	
-	return edd_pup_save_email( $data, $data['email-id'] );
-}
-
-
 /**
  * Determines whether an AJAX send is from the queue (a restart)
  * or fresh (no previous attempts to send).

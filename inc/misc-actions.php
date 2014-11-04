@@ -21,14 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function edd_pup_create_email( $data ) {
 	if ( isset( $data['edd_pup_nonce'] ) && wp_verify_nonce( $data['edd_pup_nonce'], 'edd_pup_nonce' ) ) {
 		
-		$posted = edd_pup_prepare_data( $data );
-		$email_id = 0;
-		
-		if ( isset( $data['email-id'] ) ) {
-			$email_id = $data['email-id'];
-		}
-		
-		$post = edd_pup_save_email( $posted, $email_id );
+		$post = edd_pup_ajax_save( $data );
 		
 		if ( 0 != $post ) {
 			if ( $data['edd-action'] == 'add_pup_email' ) {
