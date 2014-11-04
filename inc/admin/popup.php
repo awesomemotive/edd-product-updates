@@ -48,7 +48,7 @@ switch ( get_post_status( $_GET['id'] ) ) {
 	</div><!-- end .progress-wrap -->
 	<div id="completion" style="display:none">
 		<h3><?php _e( 'Success!', 'edd-pup' );?></h3>
-		<p><span class="success-total">0</span> <?php _e('emails processed in', 'edd-pup' );?> <span class="success-time-h" style="display:none;">0</span> <span class="success-time-m" style="display:none;">0</span> <span class="success-time-s">0</span>.</p>
+		<p><span class="success-total">0</span> <?php _e('emails processed in', 'edd-pup' );?> <span class="success-time-h" style="display:none;">0</span> <span class="success-time-m" style="display:none;">0</span> <span class="success-time-s">0</span></p>
 		<p class="success-restart" style="display:none;"><span class="success-restart-p">0</span> <?php _e('emails previously sent.', 'edd-pup' );?></p>
 		<p class="success-restart" style="display:none;"><span class="success-restart-t">0</span> <?php _e('emails sent total.', 'edd-pup' );?></p>
 		<a class="button primary-button" href="<?php echo admin_url('edit.php?post_type=download&page=edd-prod-updates&view=view_pup_email&id='. $_GET['id'] ); ?>" target="_blank"><?php _e( 'View Sent Email', 'edd-pup' ); ?></a>
