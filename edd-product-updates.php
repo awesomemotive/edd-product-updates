@@ -4,12 +4,12 @@
  * Description: Batch send product update emails to EDD customers
  * Author: Evan Luzi
  * Author URI: http://evanluzi.com
- * Version: 0.9.4
+ * Version: 0.9.4.1
  * Text Domain: edd-pup
  *
  * @package EDD_PUP
  * @author Evan Luzi
- * @version 0.9.4
+ * @version 0.9.4.1
  */
 
 // Exit if accessed directly
@@ -36,7 +36,7 @@ function edd_pup_register_table() {
     global $wpdb;
     $wpdb->edd_pup_queue = "{$wpdb->prefix}edd_pup_queue";
     
-    update_option( 'edd_pup_version', '0.9.4' );
+    update_option( 'edd_pup_version', '0.9.4.1' );
 }
 add_action( 'init', 'edd_pup_register_table', 1 );
 add_action( 'switch_blog', 'edd_pup_register_table' );
@@ -224,12 +224,12 @@ function edd_pup_scripts() {
 	);
 	
 	// Plugin Javascript
-    wp_register_script( 'edd-pup-js', plugins_url(). '/edd-product-updates/assets/edd-pup.js', false, '0.9.4' );
+    wp_register_script( 'edd-pup-js', plugins_url(). '/edd-product-updates/assets/edd-pup.js', false, '0.9.4.1' );
     wp_enqueue_script( 'edd-pup-js' );
     wp_localize_script( 'edd-pup-js', 'eddPup', $l18njs );
 
 	// Plugin CSS
-    wp_register_style( 'edd-pup-css', plugins_url(). '/edd-product-updates/assets/edd-pup.min.css', false, '0.9.4' );
+    wp_register_style( 'edd-pup-css', plugins_url(). '/edd-product-updates/assets/edd-pup.min.css', false, '0.9.4.1' );
     wp_enqueue_style( 'edd-pup-css' );
 }
 add_action( 'admin_enqueue_scripts', 'edd_pup_scripts' );
@@ -368,4 +368,4 @@ function edd_pup_template(){
 if( ! class_exists( 'EDD_License' ) )
 	include( dirname( __FILE__ ) . '/inc/EDD_License_Handler.php' );
 // Instantiate the licensing / updater. Must be placed in the main plugin file
-$license = new EDD_License( __FILE__, 'EDD Product Updates', '0.9.4', 'Evan Luzi' );
+$license = new EDD_License( __FILE__, 'EDD Product Updates', '0.9.4.1', 'Evan Luzi' );
