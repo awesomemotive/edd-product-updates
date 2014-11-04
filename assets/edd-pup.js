@@ -56,7 +56,7 @@ jQuery(document).ready(function ($) {
 					
 				} else if ( data['action'] == 'edd_pup_send_queue' ) {
 				
-					window.open(data['url'],'targetWindow', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=450');
+					window.open(data['url'],'targetWindow', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=480');
 					return false;
 				}
 	

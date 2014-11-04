@@ -98,7 +98,7 @@ function edd_pup_email_confirm_html(){
 							</ul>
 						<li><strong><?php _e( 'Recipients:', 'edd-pup' ); ?></strong> <?php printf( _n( '1 customer will receive this email and have their downloads reset', '%s customers will receive this email and have their downloads reset', $customercount, 'edd-pup' ), number_format( $customercount ) ); ?></li>
 					</ul>
-					<a href="<?php echo $popup_url; ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>" onclick="window.open(this.href,'targetWindow', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=450');return false;"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
+					<a href="<?php echo $popup_url; ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>" onclick="window.open(this.href,'targetWindow', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=480');return false;"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
 					<button class="closebutton button-secondary"><?php _e( 'Close without sending', 'edd-pup' ); ?></button>
 				</div>
 			</div>
