@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @param mixed $posted
  * @return int email id of saved email
  */
-function edd_pup_ajax_save( $data ) {
+function edd_pup_sanitize_save( $data ) {
 
 	// Convert form data to array	
 	if ( isset( $data['form'] ) ) {

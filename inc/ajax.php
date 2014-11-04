@@ -41,7 +41,7 @@ function edd_pup_email_confirm_html(){
 	}
 	
 	// Save the email before generating preview
-	$email_id = edd_pup_ajax_save( $_POST );
+	$email_id = edd_pup_sanitize_save( $_POST );
 	
 	// If "Send Update Email" was clicked from Add New Email page, trigger browser to refresh to edit page for continued editing
 	if ( $url['view'] == 'add_pup_email' ) {
@@ -129,7 +129,7 @@ function edd_pup_ajax_preview() {
 	}
 	
 	// Save the email before generating a preview
-	$email_id = edd_pup_ajax_save( $_POST );
+	$email_id = edd_pup_sanitize_save( $_POST );
 	
 	// Instruct browser to redirect for continued editing of email if triggered on Add New Email page
 	parse_str( $_POST['url'], $url );
@@ -597,7 +597,7 @@ function edd_pup_send_test_email() {
 		}
 		
 		if ( !empty( $to ) ) {
-			$email_id = edd_pup_ajax_save( $_POST );
+			$email_id = edd_pup_sanitize_save( $_POST );
 				
 			// Set transient for custom tags in test email
 			set_transient( 'edd_pup_preview_email', $email_id, 60 );
