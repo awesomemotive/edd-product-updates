@@ -79,7 +79,7 @@ $recipients = 0;
 						<div class="inside">
 							<strong><?php _e( 'Email Name', 'edd-pup' ); ?>:</strong>
 							<input type="text" class="regular-text" name="title" id="title" value="" placeholder="<?php _e( 'Name your product update email', 'edd-pup'); ?>" size="30" />
-							<p class="description"><?php _e( 'For internal use only to help organize product updates – i.e. "2nd Edition eBook Update." Customers will not see this.' , 'edd-pup' ); ?></p>
+							<p class="description"><?php _e( 'For internal use only to help organize product updates – e.g. "2nd Edition eBook Update." Customers will not see this.' , 'edd-pup' ); ?></p>
 							
 							<!-- products -->
 							<strong><?php _e( 'Choose products being updated', 'edd-pup' ) ; ?>:</strong>

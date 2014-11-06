@@ -24,9 +24,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @return void
  */
 function edd_pup_email_tags( $payment_id ) {
-	edd_add_email_tag( 'updated_products', __( 'Display a list of updated products without links', 'edd-pup' ), 'edd_pup_products_tag' );
+	edd_add_email_tag( 'updated_products', __( 'Display a plain list of updated products', 'edd-pup' ), 'edd_pup_products_tag' );
 	edd_add_email_tag( 'updated_products_links', __( 'Display a list of updated products with links', 'edd-pup' ), 'edd_pup_products_links_tag' );
-	edd_add_email_tag( 'unsubscribe_link', __( 'Output an unsubscribe link so users no longer receive product update emails', 'edd-pup' ), 'edd_pup_unsub_tag' );
+	edd_add_email_tag( 'unsubscribe_link', __( 'Outputs an unsubscribe link users can click to opt-out of future product update emails', 'edd-pup' ), 'edd_pup_unsub_tag' );
 }
 add_action( 'edd_add_email_tags', 'edd_pup_email_tags' );
 
