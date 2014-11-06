@@ -224,7 +224,7 @@ function edd_pup_scripts() {
 	);
 	
 	// Plugin Javascript
-    wp_register_script( 'edd-pup-js', plugins_url(). '/edd-product-updates/assets/edd-pup.js', false, '0.9.4.1' );
+    wp_register_script( 'edd-pup-js', plugins_url(). '/edd-product-updates/assets/edd-pup.min.js', false, '0.9.4.1' );
     wp_enqueue_script( 'edd-pup-js' );
     wp_localize_script( 'edd-pup-js', 'eddPup', $l18njs );
 
