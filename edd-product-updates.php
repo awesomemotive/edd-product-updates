@@ -370,8 +370,5 @@ function edd_pup_template(){
 	return $edd_options['edd_pup_template'];
 }
 
-// Load the EDD license handler only if not already loaded.
-if( ! class_exists( 'EDD_License' ) )
-	include( dirname( __FILE__ ) . '/inc/EDD_License_Handler.php' );
 // Instantiate the licensing / updater. Must be placed in the main plugin file
 $license = new EDD_License( __FILE__, 'EDD Product Updates', '0.9.4.1', 'Evan Luzi' );
