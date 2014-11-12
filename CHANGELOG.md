@@ -1,3 +1,10 @@
+## 0.9.4.2 (November 12th, 2014)
+
+* Tweak: Only delete critical extension data if user has opted-in for deletion in EDD main settings
+* Tweak: Minor language changes to improve clarity of inline text help
+* Tweak: Remove EDD_License() handler that's included in EDD core
+* Fix: Use minified JS
+
 ## 0.9.4.1 (November 4th, 2014)
 The first entry in the changelog!
 
