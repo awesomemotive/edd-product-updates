@@ -230,12 +230,12 @@ function edd_pup_scripts() {
 	);
 	
 	// Plugin Javascript
-    wp_register_script( 'edd-pup-js', plugin_dir_url( __FILE__ ). 'assets/edd-pup.min.js', false, '0.9.4.2' );
+    wp_register_script( 'edd-pup-js', plugins_url(). '/edd-product-updates/assets/edd-pup.min.js', false, '0.9.4.2' );
     wp_enqueue_script( 'edd-pup-js' );
     wp_localize_script( 'edd-pup-js', 'eddPup', $l18njs );
 
 	// Plugin CSS
-    wp_register_style( 'edd-pup-css', plugin_dir_url( __FILE__ ). 'assets/edd-pup.min.css', false, '0.9.4.2' );
+    wp_register_style( 'edd-pup-css', plugins_url(). '/edd-product-updates/assets/edd-pup.min.css', false, '0.9.4.2' );
     wp_enqueue_style( 'edd-pup-css' );
 }
 add_action( 'admin_enqueue_scripts', 'edd_pup_scripts' );
