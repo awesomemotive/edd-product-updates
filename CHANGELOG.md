@@ -1,3 +1,7 @@
+## 0.9.4.3 (November 12th, 2014)
+
+* Fix: Register JS and CSS files so they load even if plugin folder is renamed from default
+
 ## 0.9.4.2 (November 12th, 2014)
 
 * Tweak: Only delete critical extension data if user has opted-in for deletion in EDD main settings
