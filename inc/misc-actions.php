@@ -65,11 +65,6 @@ function edd_pup_delete_email( $data ) {
 		global $wpdb;
 		$wpdb->delete( "$wpdb->edd_pup_queue", array( 'email_id' => $data['id'] ), array( '%d' ) );
 	}
-	
-	// Remove transient if it had been set by this email
-	if ( get_transient( 'edd_pup_sending_email' ) == $data['id'] ) {
-		delete_transient( 'edd_pup_sending_email' );
-	}
 			
 	$goodbye = wp_delete_post( $data['id'], true );
 	

@@ -40,7 +40,7 @@ add_action( 'edd_add_email_tags', 'edd_pup_email_tags' );
  */
 function edd_pup_preview_tags( $message ) {
 	
-	$email_id = get_transient( 'edd_pup_preview_email' );
+	$email_id = get_transient( 'edd_pup_preview_email_'. get_current_user_id() );
 
 	if ( false !== $email_id ) {
 		$updated_links    = preg_replace( '/<a(.*?)href="(.*?)"(.*?)>/', '<a href="#">', edd_pup_products_links_tag( '', $email_id ) );
@@ -111,7 +111,7 @@ function edd_pup_products_tag( $payment_id, $email = null ) {
 		
 	} else {
 	
-		$email = get_transient( 'edd_pup_sending_email' );
+		$email = get_transient( 'edd_pup_sending_email_'. get_current_user_id() );
 		$customer_updates = edd_pup_get_customer_updates( $payment_id, $email );
 		$customer_updates = is_array( $customer_updates ) ? $customer_updates : array( $customer_updates );
 	
@@ -168,7 +168,7 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 		
 	} else {
 	
-		$email = get_transient( 'edd_pup_sending_email' );
+		$email = get_transient( 'edd_pup_sending_email_'. get_current_user_id() );
 		$customer_updates = edd_pup_get_customer_updates( $payment_id, $email );
 		$customer_updates = is_array( $customer_updates ) ? $customer_updates : array( $customer_updates );
 	}

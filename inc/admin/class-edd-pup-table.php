@@ -340,11 +340,6 @@ class EDD_Pup_Table extends WP_List_Table {
 					$wpdb->delete( "$wpdb->edd_pup_queue", array( 'email_id' => $id ), array( '%d' ) );
 				}
 				
-				// Remove transient if it had been set by this email
-				if ( get_transient( 'edd_pup_sending_email' ) == $id ) {
-					delete_transient( 'edd_pup_sending_email' );
-				}
-				
 				// Delete the email
 				$goodbye = wp_delete_post( $id , true );
 			}

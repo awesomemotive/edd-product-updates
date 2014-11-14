@@ -438,12 +438,10 @@ function edd_pup_check_queue( $email_id = null ) {
  */
 function edd_pup_check_queue_total() {
 
-	if ( false === get_transient( 'edd_pup_sending' ) ){
-		global $wpdb;
+	global $wpdb;
 		
-		$query = "SELECT COUNT(eddpup_id) FROM $wpdb->edd_pup_queue WHERE sent = 0";
-		$total = $wpdb->get_results( $query , ARRAY_A);
-	}
+	$query = "SELECT COUNT(eddpup_id) FROM $wpdb->edd_pup_queue WHERE sent = 0";
+	$total = $wpdb->get_results( $query , ARRAY_A);
 
 	return $total[0]['COUNT(eddpup_id)'];
 }
@@ -457,18 +455,15 @@ function edd_pup_check_queue_total() {
  */
 function edd_pup_queue_emails() {
 
-	$email_list = false;
+	$email_list = array();
+	global $wpdb;
 	
-	if ( false === get_transient( 'edd_pup_sending' ) ) {
-		global $wpdb;
-		
-		$query = "SELECT DISTINCT email_id FROM $wpdb->edd_pup_queue WHERE sent = 0";
-		
-		$emails = $wpdb->get_results( $query , ARRAY_A );
-		
-		foreach ( $emails as $email ) {
-			$email_list[] = $email['email_id'];
-		}
+	$query = "SELECT DISTINCT email_id FROM $wpdb->edd_pup_queue WHERE sent = 0";
+	
+	$emails = $wpdb->get_results( $query , ARRAY_A );
+	
+	foreach ( $emails as $email ) {
+		$email_list[] = $email['email_id'];
 	}
 	
 	return $email_list;
@@ -492,7 +487,7 @@ function edd_pup_is_processing( $emailid = null ) {
 	if ( is_array( $email_list) && in_array( $emailid, $email_list ) ) {
 		$totals = edd_pup_check_queue( $emailid );
 		
-		if ( $totals['queue'] > 0 && $emailid == get_transient( 'edd_pup_sending_email' ) ) {
+		if ( $totals['queue'] > 0 && $emailid == get_transient( 'edd_pup_sending_email_'. get_current_user_id() ) ) {
 			return true;
 		}
 		

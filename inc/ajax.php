@@ -50,7 +50,7 @@ function edd_pup_email_confirm_html(){
 	}
 	
 	// Necessary for preview HTML
-	set_transient( 'edd_pup_preview_email', $email_id, 60 );
+	set_transient( 'edd_pup_preview_email_'. get_current_user_id(), $email_id, 60 );
 	
 	$email         = get_post( $email_id );
 	$emailmeta     = get_post_custom( $email_id );
@@ -139,7 +139,7 @@ function edd_pup_ajax_preview() {
 	}
 	
 	// Necessary for preview HTML
-	set_transient( 'edd_pup_preview_email', $email_id, 60 );
+	set_transient( 'edd_pup_preview_email_'.get_current_user_id(), $email_id, 60 );
 	
 	if ( 0 != $email_id ){
 	
@@ -184,7 +184,7 @@ function edd_pup_ajax_start(){
     
     if ( false != $restart && is_array( $restart ) && empty( $_POST['status'] ) && ( $restart['total'] == $recipients ) ) {
 		
-		set_transient( 'edd_pup_sending_email', $_POST['email_id'] );
+		set_transient( 'edd_pup_sending_email_'. get_current_user_id(), $_POST['email_id'] );
 		$restart['status'] = 'restart';
 		   
 	    echo json_encode($restart);
@@ -217,7 +217,7 @@ function edd_pup_ajax_start(){
 		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1", OBJECT_K );
 
 		// Set email ID transient
-		set_transient( 'edd_pup_sending_email', $email_id, 60);
+		set_transient( 'edd_pup_sending_email_'. get_current_user_id(), $email_id, 60);
 		
 		// Do some one-time operations at beginning of AJAX loop
 		if ( $_POST['iteration'] == 0 ) {
@@ -290,11 +290,11 @@ function edd_pup_ajax_trigger(){
 		$email_id = $_POST['emailid'];
 		
 	} else {
-		$email_id = get_transient( 'edd_pup_sending_email' );
+		$email_id = get_transient( 'edd_pup_sending_email_'. get_current_user_id() );
 	}
 
 	// Refresh email ID transient
-	set_transient( 'edd_pup_sending_email', $email_id, 60);
+	set_transient( 'edd_pup_sending_email_'. get_current_user_id(), $email_id, 60);
 			
 	$batch = $_POST['iteration'];
 	$sent = $_POST['sent'];
@@ -345,6 +345,7 @@ add_action( 'wp_ajax_edd_pup_ajax_trigger', 'edd_pup_ajax_trigger' );
  */
 function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 
+	$userid 	  = get_current_user_id();
 	$emailpost 	  = get_post( $email_id );
 	$emailmeta 	  = get_post_custom( $email_id );
 	$payment_data = edd_get_payment_meta( $payment_id );
@@ -357,7 +358,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 		
 	/* If subject doesn't use tags (and thus is the same for each customer)
 	 * then store it in a transient for quick access on subsequent loops. */
-	$subject = get_transient( 'edd_pup_subject' );
+	$subject = get_transient( 'edd_pup_subject_'. $userid );
 
 	if ( false === $subject ) {
 		
@@ -366,14 +367,14 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 			$subject = '(no subject)';
 			wp_update_post( array( 'ID' => $email_id, 'post_excerpt' => $subject ) );
 			update_post_meta ( $email_id, '_edd_pup_subject', $subject );
-			set_transient( 'edd_pup_subject', $subject, 60 * 60 );
+			set_transient( 'edd_pup_subject_'. $userid, $subject, 60 * 60 );
 			
 		} else {
 		
 			$subject = edd_do_email_tags( $emailmeta['_edd_pup_subject'][0], $payment_id );
 			
 			if ( $subject == $emailmeta['_edd_pup_subject'][0] ) {
-				set_transient( 'edd_pup_subject', $subject, 60 * 60 );					
+				set_transient( 'edd_pup_subject_'. $userid, $subject, 60 * 60 );					
 			}		
 		}
 	}
@@ -390,23 +391,23 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 		//$mailresult = true;
 				
 	} else {
-	
-		$email_body_header = get_transient( 'edd_pup_email_body_header' );
+		
+		$email_body_header = get_transient( 'edd_pup_email_body_header_'. $userid );
 		
 		if ( false === $email_body_header ) {
 			
 			$email_body_header = edd_get_email_body_header();
 			
-			set_transient( 'edd_pup_email_body_header', $email_body_header, 60 * 60 );
+			set_transient( 'edd_pup_email_body_header_'. $user, $email_body_header, 60 * 60 );
 		}
 		
-		$email_body_footer = get_transient( 'edd_pup_email_body_footer' );
+		$email_body_footer = get_transient( 'edd_pup_email_body_footer_'. $userid );
 		
 		if ( false === $email_body_footer ) {
 			
 			$email_body_footer = edd_get_email_body_footer();
 			
-			set_transient( 'edd_pup_email_body_footer', $email_body_footer, 60 * 60 );
+			set_transient( 'edd_pup_email_body_footer_'. $userid, $email_body_footer, 60 * 60 );
 		}
 		
 		$headers = "From: " . stripslashes_deep( html_entity_decode( $from_name, ENT_COMPAT, 'UTF-8' ) ) . " <$from_email>\r\n";
@@ -438,16 +439,17 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
  */
 function edd_pup_ajax_end(){
 	global $wpdb;
+	$user = get_current_user_id();
 
 	if ( !empty( $_POST['emailid'] ) && ( absint( $_POST['emailid'] ) != 0 ) ) {
 		$email_id = $_POST['emailid'];
 		
 	} else {
-		$email_id = get_transient( 'edd_pup_sending_email' );
+		$email_id = get_transient( 'edd_pup_sending_email_'. $user );
 	}
 	
 	// Refresh email ID transient
-	set_transient( 'edd_pup_sending_email', $email_id, 60);
+	set_transient( 'edd_pup_sending_email_'. $user, $email_id, 60);
 	
 	// Update email post status to publish
 	wp_publish_post( $email_id );
@@ -456,7 +458,7 @@ function edd_pup_ajax_end(){
 	$wpdb->delete( "$wpdb->edd_pup_queue", array( 'email_id' => $email_id ), array( '%d' ) );
 
 	// Flush remaining transients
-	delete_transient( 'edd_pup_sending_email' );
+	delete_transient( 'edd_pup_sending_email_'. $user );
 	delete_transient( 'edd_pup_all_customers' );
 	delete_transient( 'edd_pup_subject' );	
 	delete_transient( 'edd_pup_email_body_header' );
@@ -600,7 +602,7 @@ function edd_pup_send_test_email() {
 			$email_id = edd_pup_sanitize_save( $_POST );
 				
 			// Set transient for custom tags in test email
-			set_transient( 'edd_pup_preview_email', $email_id, 60 );
+			set_transient( 'edd_pup_preview_email_'. get_current_user_id(), $email_id, 60 );
 				
 			// Send a test email
 	    	$sent = edd_pup_test_email( $email_id, $to );

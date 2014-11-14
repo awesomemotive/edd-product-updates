@@ -67,7 +67,7 @@ add_action( 'admin_notices', 'edd_pup_notices', 10);
  */
 function edd_pup_queue_alert(){	
 	
-	if ( ( false === get_transient( 'edd_pup_sending_email' ) ) && (! empty( $_GET['post_type'] ) ) && ( $_GET['post_type'] == 'download') ){
+	if ( ( false === get_transient( 'edd_pup_sending_email_'. get_current_user_id() ) ) && (! empty( $_GET['post_type'] ) ) && ( $_GET['post_type'] == 'download') ){
 		$remaining = edd_pup_check_queue_total();
 			
 		if ( $remaining == 0 ) {
