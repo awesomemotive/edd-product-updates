@@ -37,12 +37,10 @@ This extension allows you to send specialized product update emails to your cust
 7. Customize your product update emails!
 
 ## Known Issues
-* Multiple emails can potentially be sent at once which would screw with the `edd_pup_sending_email` transient and several functions
 * Needs to be tested with more email templates
 * Filters and actions need to be added throughout
 
 ## Limitations
-* Multiple email messages cannot be sent at the same time (meaning multiple users cannot be sending campaigns all at once). Possible solution: have a queue of emails waiting to be sent.
 * SMTP limits are different depending on host. Possible solution: Recommend users to Mandrill (free for up to 12,000 emails per month). Most users who don't already have a robust email sending platform will never cross the free threshold. Or have Advanced Settings that will throttle emails on an hourly basis.
 * Requires Javascript and AJAX heavily. Possible solutions: Build in alternative save methods on edit page. Add option to send emails via wp_cron in background.
 * Limited variable pricing support.
