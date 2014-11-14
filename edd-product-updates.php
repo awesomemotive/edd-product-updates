@@ -152,10 +152,9 @@ register_deactivation_hook( __FILE__, 'edd_pup_delete_cron_schedule' );
 function edd_pup_uninstall(){
     
     global $edd_options;
+	global $wpdb;
     
     if ( isset( $edd_options['uninstall_on_delete'] ) ) {
-	    
-	    global $wpdb;
 	    
 	    //Remove custom database table
 	    $wpdb->query("DROP TABLE IF EXISTS $wpdb->edd_pup_queue");
@@ -176,11 +175,17 @@ function edd_pup_uninstall(){
     //Remove any leftover transients
 	delete_transient( 'edd_pup_all_customers' );
 	delete_transient( 'edd_pup_all_downloads' );
-	delete_transient( 'edd_pup_subject' );
-	delete_transient( 'edd_pup_email_body_header' );
-	delete_transient( 'edd_pup_email_body_footer' );
-	delete_transient( 'edd_pup_preview_email' );
-	delete_transient( 'edd_pup_sending_email' );
+	
+	//Remove any author specific transients
+	$emailauthors = $wpdb->get_results("SELECT DISTINCT post_author FROM $wpdb->posts WHERE post_status = 'publish' AND post_type = 'edd_pup_email'", ARRAY_N );
+	
+	foreach ( $emailauthors as $author ) {
+		delete_transient( 'edd_pup_sending_email_'. $author );
+		delete_transient( 'edd_pup_subject_'. $author );
+		delete_transient( 'edd_pup_email_body_header_'. $author );
+		delete_transient( 'edd_pup_email_body_footer_'. $author );
+		delete_transient( 'edd_pup_preview_email_'. $author );
+	}
 }
 register_uninstall_hook(__FILE__,'edd_pup_uninstall');
 
