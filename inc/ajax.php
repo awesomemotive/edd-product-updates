@@ -369,7 +369,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 	 * then store it in a transient for quick access on subsequent loops. */
 	$subject = get_transient( 'edd_pup_subject_'. $userid );
 
-	if ( false === $subject ) {
+	if ( false === $subject || $emailmeta['_edd_pup_subject'][0] != $subject ) {
 		
 		if ( empty( $emailmeta['_edd_pup_subject'][0] ) ) {		
 		
