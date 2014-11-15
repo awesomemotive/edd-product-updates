@@ -1,3 +1,9 @@
+## 0.9.5 (November 15th, 2014)
+
+* Fix: Email sending transients are now user-specific so multiple users can send and process emails simultaneously without mixing messages
+* Fix: Check whether the subject of an email matches the stored transient
+* Feature: Added which user sent/published an email to the "View Email" page
+
 ## 0.9.4.3 (November 12th, 2014)
 
 * Fix: Register JS and CSS files so they load even if plugin folder is renamed from default
