@@ -181,10 +181,19 @@ function edd_pup_ajax_start(){
 	
     $restart    = edd_pup_is_ajax_restart( $_POST['email_id'] );
     $recipients = get_post_meta( $_POST['email_id'], '_edd_pup_recipients', TRUE );
+    $userid = get_current_user_id();
+    $usertransient = get_transient( 'edd_pup_sending_email_'. $userid );
     
+    // Check if user is already sending another email when attempting to send this one
+    if ( false !== $usertransient && $usertransient != $_POST['email_id'] ) {
+	 	echo 'usersendfail';
+	 	exit;
+    }
+    
+    // Check whether the email is restarting from a previous send or via the pause button
     if ( false != $restart && is_array( $restart ) && empty( $_POST['status'] ) && ( $restart['total'] == $recipients ) ) {
-		
-		set_transient( 'edd_pup_sending_email_'. get_current_user_id(), $_POST['email_id'] );
+				
+		set_transient( 'edd_pup_sending_email_'. $userid, $_POST['email_id'] );
 		$restart['status'] = 'restart';
 		   
 	    echo json_encode($restart);
@@ -217,7 +226,7 @@ function edd_pup_ajax_start(){
 		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1", OBJECT_K );
 
 		// Set email ID transient
-		set_transient( 'edd_pup_sending_email_'. get_current_user_id(), $email_id, 60);
+		set_transient( 'edd_pup_sending_email_'. $userid, $email_id, 60);
 		
 		// Do some one-time operations at beginning of AJAX loop
 		if ( $_POST['iteration'] == 0 ) {

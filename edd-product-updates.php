@@ -215,6 +215,7 @@ function edd_pup_scripts() {
 		'a8' => __( 'All of your emails have sent successfully, however, an issue occurred while finishing your email send.', 'edd-pup' ),
 		'a9' => __( 'Unable to clear the queue. Please try again or contact support at https://easydigitaldownloads.com/support', 'edd-pup' ),
 		'a10' => __( 'Test email successfully sent.', 'edd-pup' ),
+		'a11' => __( 'The WordPress account you are logged into is already sending an email and cannot process multiple emails at once. Please pause the email your account is currently sending or wait for it to finish before attempting to send another.', 'edd-pup' ),
 		
 		// Status messages for sending popup	
 		's1' => __( 'Sending emails.', 'edd-pup' ),

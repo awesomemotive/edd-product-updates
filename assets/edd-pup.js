@@ -366,9 +366,22 @@ jQuery(document).ready(function ($) {
 				
 				if ( ret == 'noncefail' ) {
 					alert( eddPup.a7 );
-					button.prop('disabled', false);
+					button.prop('disabled', false)
 					spinner.hide();
-					return false	
+					return false;	
+				}
+				
+				if ( ret == 'usersendfail' ) {
+					alert( eddPup.a11);
+					button.prop('disabled', false);
+					if ( button.data('action') != 'start') {
+							button.attr({
+							'data-action': 'resume',
+							value: eddPup.v3 });
+							clock.timer('pause');
+					}
+					spinner.hide();
+					return false;
 				}
 				
 				var r = $.parseJSON(ret),

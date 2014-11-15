@@ -26,9 +26,15 @@ switch ( get_post_status( $_GET['id'] ) ) {
 		}
 }
 
+// Don't allow a user to send multiple emails at once
+if ( false !== get_transient( 'edd_pup_sending_email_'. get_current_user_id() ) ) {
+	_e( 'Cannot process multiple emails at once. Please pause the email you are currently sending or wait for it to finish before attempting to send another. <a href="#" onclick="window.close()">Close Window.</a>', 'edd-pup' );
+	return;
+}
+
 ?>
 <div id="popup-wrap">
-	<a href="#" class="progress-close" onclick="window.close()">Close Window</a>
+	<a href="#" class="progress-close" onclick="window.close()"><?php _e( 'Close Window', 'edd-pup'); ?></a>
 	<h2><?php printf( __('Sending "%s"', 'edd-pup'), get_the_title( $_GET['id'] ) );?></h2>
 		<p><strong><?php _e( 'WARNING: Do not refresh this page or close this window until sending is complete.', 'edd-pup' ); ?></strong></p>
 		<div class="progress-start-wrap">
