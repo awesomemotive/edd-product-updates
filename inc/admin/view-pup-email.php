@@ -54,6 +54,7 @@ switch ( strtolower( $email->post_status ) ){
 						<div class="inside">
 							<p><strong><?php _e( 'Status', 'edd-pup' ); ?>:</strong> <span class="status-<?php echo $email->post_status; ?>"><?php echo $status; ?></span></p>
 							<p><strong><?php _e( 'Date Sent', 'edd-pup' );?>:</strong> <?php echo mysql2date( $dateformat, $email->post_date );?></p>
+							<p><strong><?php _e( 'Sent By', 'edd-pup' );?>:</strong> <?php echo get_the_author_meta( 'display_name', $email->post_author );?></p>
 							<?php if ( $queue['queue'] > 0 ): ?>
 							<p><strong><?php _e( 'Queued', 'edd-pup' ); ?>:</strong> <?php echo number_format( $queue['queue'] ); ?></p>
 							<p><strong><?php _e( 'Processed', 'edd-pup' ); ?>:</strong> <?php echo number_format( $queue['sent'] ); ?></p>
