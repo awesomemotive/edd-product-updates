@@ -211,7 +211,7 @@ function edd_pup_scripts() {
 		'a4' => __( 'An issue occurred when attempting to send the email messages. Please try again later or contact support at https://easydigitaldownloads.com/support', 'edd-pup' ),
 		'a5' => __( 'An issue occurred when preparing your email messages to send. Please try again later or contact support at https://easydigitaldownloads.com/support', 'edd-pup' ),
 		'a6' => __( 'An issue occurred when attempting to start the email send. Please try again or contact support at https://easydigitaldownloads.com/support', 'edd-pup' ),
-		'a7' => __( 'Invalid response received from server. Please try again or contact support at https://easydigitaldownloads.com/support', 'edd-pup' ),
+		'a7' => __( 'Invalid response received from server. Please try again or contact support at https://easydigitaldownloads.com/support.', 'edd-pup' ),
 		'a8' => __( 'All of your emails have sent successfully, however, an issue occurred while finishing your email send.', 'edd-pup' ),
 		'a9' => __( 'Unable to clear the queue. Please try again or contact support at https://easydigitaldownloads.com/support', 'edd-pup' ),
 		'a10' => __( 'Test email successfully sent.', 'edd-pup' ),
