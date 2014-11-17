@@ -552,7 +552,7 @@ jQuery(document).ready(function ($) {
 				var err = 0;
 				
 				if ( !$.isNumeric(s) ) {
-					alert ( eddPup.a7 + ' Numeric failure. ' + s );
+					alert ( eddPup.a7 + ' Numeric failure.' );
 					clock.timer('pause');
 					return false;
 				}
