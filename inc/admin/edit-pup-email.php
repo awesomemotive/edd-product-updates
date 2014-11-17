@@ -102,16 +102,17 @@ if ( $status != 'draft' ) {
 							
 							<!-- products -->
 							<strong><?php _e( 'Choose products being updated', 'edd-pup' ) ; ?>:</strong>
-							<br>
-							<?php foreach ( $products as $product_id => $title ):
-								if ( is_array( $updated_products) && array_key_exists( $product_id, $updated_products ) ) {
-									$checked = 'checked="checked"';
-								} else { $checked = ''; }
-							?>
-							<input name="product[<?php echo $product_id; ?>]" id="product[<?php echo $product_id; ?>]" type="checkbox" value="<?php echo $title; ?>" <?php echo $checked; ?>>
-							<label for="product[<?php echo $product_id; ?>]"><?php echo $title; ?></label>
-							<br>
-							<?php endforeach; ?>
+							<div class="products-inner">
+								<?php foreach ( $products as $product_id => $title ):
+									if ( is_array( $updated_products) && array_key_exists( $product_id, $updated_products ) ) {
+										$checked = 'checked="checked"';
+									} else { $checked = ''; }
+								?>
+								<input name="product[<?php echo $product_id; ?>]" id="product[<?php echo $product_id; ?>]" type="checkbox" value="<?php echo $title; ?>" <?php echo $checked; ?>>
+								<label for="product[<?php echo $product_id; ?>]"><?php echo $title; ?></label>
+								<br>
+								<?php endforeach; ?>
+							</div>
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
 							
 							<!-- recipients -->
