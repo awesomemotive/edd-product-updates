@@ -97,6 +97,7 @@
 #edd-pup-single-email #message-preview {
 	padding: 10px 20px;
 	border: 1px solid #e6e6e6;
+	overflow: auto;
 }
 
 #edd-pup-single-email .view-buttons {
