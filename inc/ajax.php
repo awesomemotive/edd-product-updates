@@ -407,7 +407,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 			
 			$email_body_header = edd_get_email_body_header();
 			
-			set_transient( 'edd_pup_email_body_header_'. $user, $email_body_header, 60 * 60 );
+			set_transient( 'edd_pup_email_body_header_'. $userid, $email_body_header, 60 * 60 );
 		}
 		
 		$email_body_footer = get_transient( 'edd_pup_email_body_footer_'. $userid );
