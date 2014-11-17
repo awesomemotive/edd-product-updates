@@ -300,13 +300,48 @@ function edd_pup_settings ( $edd_settings ) {
 				'name' => __( 'Email Template', 'edd-pup' ),
 				'desc' => __( 'Choose a template to be used for the product update emails.', 'edd-pup' ),
 				'type' => 'select',
-				'options' => edd_get_email_templates()
+				'options' => edd_pup_get_email_templates()
 			)
 		);
 		
         return array_merge( $edd_settings, $settings, $settings2 );
 }
 add_filter( 'edd_settings_emails', 'edd_pup_settings' );
+
+
+/**
+ * Removes incomptabile email templates from the list of template options in the settings
+ * 
+ * @access public
+ * @since 0.9.5
+ * @return void
+ */
+function edd_pup_get_email_templates() {
+	
+	$templates = edd_get_email_templates();
+	$eddpdfi_email_templates = array(
+		'invoice_default',
+		'blue_stripe',
+		'lines',
+		'minimal',
+		'traditional',
+		'invoice_blue',
+		'invoice_green',
+		'invoice_orange',
+		'invoice_pink',
+		'invoice_purple',
+		'invoice_red',
+		'invoice_yellow'
+	);
+	
+	foreach ( $eddpdfi_email_templates as $pdftemplate ) {
+		if ( array_key_exists( $pdftemplate, $templates ) ) {
+			unset( $templates[$pdftemplate] );
+		}
+	}
+	
+	return $templates;
+}
 
 /**
  * Adds Product Updates admin submenu page under the Downloads menu
