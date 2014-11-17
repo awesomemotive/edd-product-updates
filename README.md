@@ -1,4 +1,4 @@
-![Alt text](/assets/img/edd_pup_banner_v1.png?raw=true "EDD Product Updates Extension")
+![Alt text](/assets/img/edd_pup_banner.png?raw=true "EDD Product Updates Extension")
 
 EDD Product Updates Extension
 ===================
