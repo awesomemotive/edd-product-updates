@@ -310,7 +310,7 @@ add_filter( 'edd_settings_emails', 'edd_pup_settings' );
 
 
 /**
- * Removes incomptabile email templates from the list of template options in the settings
+ * Removes incompatible email templates from the list of template options in the settings
  * 
  * @access public
  * @since 0.9.5
