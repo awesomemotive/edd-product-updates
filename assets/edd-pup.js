@@ -240,7 +240,7 @@ jQuery(document).ready(function ($) {
 														
 							} else if ( r == 'noncefail' ) {
 								
-								alert( 'Nonce failure. ' + eddPup.a7 );
+								alert( eddPup.a7 + ' Nonce failure A.' );
 								spinner.toggleClass('loading');
 								button.prop("disabled", false);
 							
@@ -365,7 +365,7 @@ jQuery(document).ready(function ($) {
 			}).success( function( ret ) {
 				
 				if ( ret == 'noncefail' ) {
-					alert( eddPup.a7 );
+					alert( eddPup.a7 + ' Nonce failure B.');
 					button.prop('disabled', false)
 					spinner.hide();
 					return false;	
@@ -552,7 +552,7 @@ jQuery(document).ready(function ($) {
 				var err = 0;
 				
 				if ( !$.isNumeric(s) ) {
-					alert ( eddPup.a7 );
+					alert ( eddPup.a7 + ' Numeric failure.' );
 					clock.timer('pause');
 					return false;
 				}
