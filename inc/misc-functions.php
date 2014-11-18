@@ -225,10 +225,16 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 					$q .= "meta_value LIKE '%\"id\";i:$id%' OR ";
 				}*/
 				
-				if ( $i === $n ) {
+				/*if ( $i === $n ) {
 					$q .= "meta_value LIKE '%\"id\";s:$s:\"$id\"%')";
 				} else {
 					$q .= "meta_value LIKE '%\"id\";s:$s:\"$id\"%' OR ";				
+				}*/
+				
+				if ( $i === $n ) {
+					$q .= "meta_value LIKE '%\"id\";s:$s:\"$id\"%' OR meta_value LIKE '%\"id\";i:$id%' )";
+				} else {
+					$q .= "meta_value LIKE '%\"id\";s:$s:\"$id\"%' OR meta_value LIKE '%\"id\";i:$id%' OR ";				
 				}
 	
 			}
@@ -539,10 +545,16 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
 		}*/
 		$s = strlen( $prod_id );
 		
-		if ( $i === $n ) {
+		/*if ( $i === $n ) {
 			$q .= "meta_value LIKE '%\"id\";s:$s:\"$prod_id\"%')";
 		} else {
 			$q .= "meta_value LIKE '%\"id\";s:$s:\"$prod_id\"%' OR ";				
+		}*/
+		
+		if ( $i === $n ) {
+			$q .= "meta_value LIKE '%\"id\";s:$s:\"$prod_id\"%' OR meta_value LIKE '%\"id\";i:$prod_id%' )";
+		} else {
+			$q .= "meta_value LIKE '%\"id\";s:$s:\"$prod_id\"%' OR meta_value LIKE '%\"id\";i:$prod_id%' OR ";				
 		}
 		
 		$i++;
