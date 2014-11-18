@@ -177,6 +177,10 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 	
 		$show_names    = apply_filters( 'edd_pup_email_show_names', true );
 		$payment_data  = edd_get_payment_meta( $payment_id );
+		// Set email to most recent email if it's been changed from initial email
+		if ( isset( $payment_data['user_info']['email'] ) && $payment_data['user_info']['email'] != $payment_data['email'] ) {
+			$payment_data['email'] = $payment_data['user_info']['email'];
+		}
 		$download_list = '<ul>';
 		
 		foreach ( $customer_updates as $item ) {
