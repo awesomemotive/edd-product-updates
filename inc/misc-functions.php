@@ -298,7 +298,7 @@ function edd_pup_get_all_downloads(){
 		if ( !empty( $downloads ) ) {
 		    foreach ( $downloads as $download ) {
 		    	
-		        $products[ $download->ID ] = get_the_title( $download->ID );
+		        $products[ $download->ID ] = $download->post_title;
 		
 		    }
 		}
