@@ -424,7 +424,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 		$headers .= "Content-Type: text/html; charset=utf-8\r\n";
 				
 		$message = $email_body_header;
-		$message .= apply_filters( 'edd_purchase_receipt', edd_email_template_tags( $emailpost->post_content, $payment_data, $payment_id ), $payment_id, $payment_data );
+		$message .= apply_filters( 'edd_pup_message', edd_email_template_tags( $emailpost->post_content, $payment_data, $payment_id ), $payment_id, $payment_data );
 		$message .= $email_body_footer;	
 			
 		$mailresult = wp_mail( $email, $subject, $message, $headers, $attachments );
