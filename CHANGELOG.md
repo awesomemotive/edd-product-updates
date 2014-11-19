@@ -1,8 +1,15 @@
-## 0.9.5 (November 15th, 2014)
+## 0.9.5 (November 17th, 2014)
 
 * Fix: Email sending transients are now user-specific so multiple users can send and process emails simultaneously without mixing messages
+* Fix: Database query was returning inconsistent results on number of recipients and customers eligible for updates depending on how customer was added to Payment History (i.e. regular purchase, manual purchase, CSV import)
+* Fix: Tags were referencing older emails for customers that have had their email address changed in payment history. This caused errors on download links.
 * Fix: Check whether the subject of an email matches the stored transient
+* Fix: Older versions of EDD throwing an error due to misidentified user_id in `edd_pup_email_body_header` transient
+* Tweak: Removed incompatible email templates from the list of options on the settings page
+* Tweak: Switch to `EDD()->html->product_dropdown()` for selecting products to be updated to help mitigate scalability issues
+* Tweak: Add scrollbars to overflowing message previews with some email templates within certain browser sizes
 * Feature: Added which user sent/published an email to the "View Email" page
+* New banner image
 
 ## 0.9.4.3 (November 12th, 2014)
 
