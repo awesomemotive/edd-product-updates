@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @return int email id of saved email
  */
 function edd_pup_sanitize_save( $data ) {
-
+	
 	// Convert form data to array	
 	if ( isset( $data['form'] ) ) {
 		$form = $data['form'];
@@ -27,7 +27,7 @@ function edd_pup_sanitize_save( $data ) {
 		parse_str( $form, $data );
 	}
 	
-	//Sanitize our data
+	// Sanitize our data
 	$data['message'] 	= wp_kses_post( $data['message'] );
 	$data['email-id']	= isset( $data['email-id'] ) ? absint( $data['email-id'] ) : 0;
 	$data['recipients']	= absint( $data['recipients'] );
@@ -36,10 +36,16 @@ function edd_pup_sanitize_save( $data ) {
 	$data['title']		= sanitize_text_field( $data['title'], 'ID:'. $data['email-id'], 'save' );
 	$data['subject']	= sanitize_text_field( $data['subject'] );
 	
-	if ( isset( $data['product'] ) ) {
-		$data['product'] = filter_var_array( $data['product'], FILTER_SANITIZE_STRING );
-	} else {
-		$data['product'] = '';
+	// Sanitize products array and convert to ID => name format
+	if ( isset( $data['products'] ) ) {
+		
+		foreach ( $data['products'] as $product ) {
+			$prodid = absint( $product );
+			$products[ absint( $prodid ) ] = get_the_title( absint( $prodid ) );
+		}
+		
+		$data['products'] = $products;
+	
 	}
 	
 	return edd_pup_save_email( $data, $data['email-id'] );
@@ -61,7 +67,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
 	$subject = apply_filters( 'edd_purchase_subject', ! empty( $data['subject'] )
 		? wp_strip_all_tags( $data['subject'], true )
 		: __( 'New Product Update', 'edd-pup' ) );
-	$products = isset( $data['product'] ) ? $data['product'] : '';
+	$products = isset( $data['products'] ) ? $data['products'] : '';
 		
 	if ( 0 != $email_id ) {
 		
