@@ -111,6 +111,13 @@
     list-style-position: inside;
 }
 
+#edd-pup-single-email #products_select_chosen {
+	width: 95% !important;
+	max-width: 700px;
+	margin: 10px 0;
+	display: block;
+}
+
 
 #edd-pup-single-email #updated-products li a {
 	text-decoration: none;
