@@ -108,6 +108,7 @@ function edd_pup_products_tag( $payment_id, $email = null ) {
 			$customer_updates[] = array( 'id' => $id, 'name' => $name);
 		
 		}
+
 		
 	} else {
 	
@@ -120,9 +121,10 @@ function edd_pup_products_tag( $payment_id, $email = null ) {
 	$productlist = '<ul>';
 	
 	foreach ( $customer_updates as $product ) {
+		
 
 		if ( edd_is_bundled_product( $product['id'] ) ) {
-		
+				
 			$bundled_products = edd_get_bundled_products( $product['id'] );
 			
 			$productlist .= '<li>'. $product['name'] .'</li>';
