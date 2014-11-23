@@ -35,7 +35,7 @@ function edd_pup_email_confirm_html(){
 	}
 	
 	// Make sure there are products to be updated
-	if ( empty( $form['products'] ) ) {
+	if ( empty( $form['product'] ) ) {
 		echo 'nocheck';
 		die();
 	}
