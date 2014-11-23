@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function edd_pup_email_tags( $payment_id ) {
 	edd_add_email_tag( 'updated_products', __( 'Display a plain list of updated products', 'edd-pup' ), 'edd_pup_products_tag' );
 	edd_add_email_tag( 'updated_products_links', __( 'Display a list of updated products with links', 'edd-pup' ), 'edd_pup_products_links_tag' );
-	edd_add_email_tag( 'unsubscribe_link', __( 'Outputs an unsubscribe link users can click to opt-out of future product update emails', 'edd-pup' ), 'edd_pup_unsub_tag_plain' );
+	edd_add_email_tag( 'unsubscribe_link', __( 'Outputs an unsubscribe link users can click to opt-out of future product update emails', 'edd-pup' ), 'edd_pup_unsub_tag' );
 }
 add_action( 'edd_add_email_tags', 'edd_pup_email_tags' );
 
@@ -105,7 +105,7 @@ function edd_pup_products_tag( $payment_id, $email = null ) {
 
 		foreach ( $updated_products as $id => $name ) {
 		
-			$customer_updates[] = array( 'id' => $id, 'name' => $name);
+			$customer_updates[$id] = array( 'id' => $id, 'name' => $name);
 		
 		}
 
@@ -119,7 +119,7 @@ function edd_pup_products_tag( $payment_id, $email = null ) {
 	}
 	
 	$productlist = '<ul>';
-	
+
 	foreach ( $customer_updates as $product ) {
 		
 
@@ -131,7 +131,11 @@ function edd_pup_products_tag( $payment_id, $email = null ) {
 			$productlist .= '<ul>';		
 			
 			foreach ( $bundled_products as $bundle_item ) {
-				$productlist .= '<li><em>'. get_the_title( $bundle_item ) .'</em></li>';
+			
+				if ( isset( $customer_updates[ $bundle_item ] ) ) {
+	
+					$productlist .= '<li><em>'. get_the_title( $bundle_item ) .'</em></li>';
+				}
 			}
 			
 			$productlist .= '</ul>';
@@ -164,7 +168,7 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 
 		foreach ( $updated_products as $id => $name ) {
 		
-			$customer_updates[] = array( 'id' => $id, 'name' => $name);
+			$customer_updates[$id] = array( 'id' => $id, 'name' => $name);
 		
 		}
 		
@@ -227,7 +231,7 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 					
 					foreach ( $bundled_products as $bundle_item ) {
 					
-						if ( array_key_exists( $bundle_item, $customer_updates ) ) {
+						if ( isset( $customer_updates[ $bundle_item ] ) ) {
 
 							$download_list .= '<li class="edd_bundled_product"><strong>' . get_the_title( $bundle_item ) . '</strong></li>';
 
