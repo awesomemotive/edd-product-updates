@@ -1,4 +1,4 @@
-## 0.9.5 (November 17th, 2014)
+## 0.9.5 (November 23rd, 2014)
 
 * Fix: Email sending transients are now user-specific so multiple users can send and process emails simultaneously without mixing messages
 * Fix: Database query was returning inconsistent results on number of recipients and customers eligible for updates depending on how customer was added to Payment History (i.e. regular purchase, manual purchase, CSV import)
