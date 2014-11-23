@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function edd_pup_email_tags( $payment_id ) {
 	edd_add_email_tag( 'updated_products', __( 'Display a plain list of updated products', 'edd-pup' ), 'edd_pup_products_tag' );
 	edd_add_email_tag( 'updated_products_links', __( 'Display a list of updated products with links', 'edd-pup' ), 'edd_pup_products_links_tag' );
-	edd_add_email_tag( 'unsubscribe_link', __( 'Outputs an unsubscribe link users can click to opt-out of future product update emails', 'edd-pup' ), 'edd_pup_unsub_tag' );
+	edd_add_email_tag( 'unsubscribe_link', __( 'Outputs an unsubscribe link users can click to opt-out of future product update emails', 'edd-pup' ), 'edd_pup_unsub_tag_plain' );
 }
 add_action( 'edd_add_email_tags', 'edd_pup_email_tags' );
 
@@ -284,6 +284,28 @@ function edd_pup_unsub_tag( $payment_id ) {
 	$unsublink = add_query_arg( $unsub_link_params, ''.home_url() );
 
 	return sprintf( '<a href="%1$s">%2$s</a>', $unsublink, apply_filters( 'edd_pup_unsubscribe_text', __( 'Unsubscribe', 'edd-pup' ) ) );
+}
+
+/**
+ * Email template tag: unsubscribe (for plaintext emails only)
+ * An unsubscribe link for customers to opt-out of future product updates
+ * 
+ * @access public
+ * @param mixed $payment_id
+ * @return void
+ */
+function edd_pup_unsub_tag_plain( $payment_id ) {
+	
+	$purchase_data = get_post_meta( $payment_id, '_edd_payment_meta', true );
+	$unsub_link_params = array(
+		'order_id'     => $payment_id,
+		'email'        => rawurlencode( $purchase_data['user_info']['email'] ),
+		'purchase_key' => isset( $purchase_data['key'] ) ? $purchase_data['key'] : edd_get_payment_key( $payment_id ),
+		'edd_action'   => 'prod_update_unsub'
+	);
+	
+	return 'plaintext';
+	//return add_query_arg( $unsub_link_params, ''.home_url() );
 }
 
 /**
