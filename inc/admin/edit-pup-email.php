@@ -105,13 +105,15 @@ if ( $status != 'draft' ) {
 							<?php echo EDD()->html->product_dropdown( array( 'multiple' => true, 'chosen' => true, 'name' => 'products[]', 'id' => 'products-select', 'selected' => array_keys( $updated_products ) ) ); ?>
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
 							
-							<!-- bundle option -->
-							<strong>Description Goes Here</strong>
-							<select name="bundle" class="bundle-input" value="">
-								<option value="all">Include All</option>
-								<option value="updated">Only Updated</option>
-							</select>
-							<p class="description">Something goes here</p>
+							<!-- bundle option
+							<a>Advanced Settings</a>
+							<br>
+							<strong>Bundled products output:</strong>
+								<select name="bundle" class="bundle-input" value="">
+									<option value="updated" selected="selected">Show updated products only</option>
+									<option value="all">Show all products</option>
+								</select>
+							<p class="description">Choose whether to show all products in a bundle or only the products within the bundle that have been updated (and selected above) when using the {updated_products_links} tag.</p>-->
 							
 							<!-- recipients -->
 								<p><strong><?php _e( 'Recipients', 'edd-pup' ); ?>:</strong> <?php printf( _n( '<span class="recipient-count">1</span> customer will receive this email', '<span class="recipient-count">%s</span> customers will receive this email', $recipients, 'edd-pup' ), number_format( $recipients ) ); ?></p>
