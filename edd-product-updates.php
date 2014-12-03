@@ -99,7 +99,7 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
          */
         private function hooks() {
             // Register settings
-            add_filter( 'edd_settings_extensions', array( $this, 'settings' ), 1 );
+            add_filter( 'edd_settings_emails', array( $this, 'settings' ), 1 );
 
             // Handle licensing
             if( class_exists( 'EDD_License' ) ) {
