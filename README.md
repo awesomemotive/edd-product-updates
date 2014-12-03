@@ -10,7 +10,7 @@ This extension allows you to send specialized product update emails to your cust
 ## Features
 **Customizable Email Message**. Craft a message separate from purchase receipt emails so you can engage easily with your customers on a more targeted level while delivering updates to your digital products – whether that's a new edition of your eBook or a fix for a corrupted file.
 
-**Additional Email Tags**. The {updated_products} and {updated_products_links} tags drop into emails easily to show, respectively, a plain list of updated products and a list of updated products with download links. A third tag, {unsubscribe}, allows customers to opt-out of future updates.
+**Additional Email Tags**. The {updated_products} and {updated_products_links} tags drop into emails easily to show, respectively, a plain list of updated products and a list of updated products with download links. A third tag, {unsubscribe_link}, allows customers to opt-out of future updates.
 
 **Complete Unsubscribe System**. The added {unsubscribe} email tag outputs a link customers can click on to be removed from future product updates. If clicked on accident, it's easy to re-subscribe via single button click. Additionally, admins have the ability to unsubscribe/resubscribe customers on their payment history page.
 
