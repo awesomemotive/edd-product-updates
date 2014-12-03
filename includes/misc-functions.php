@@ -501,12 +501,13 @@ function edd_pup_is_processing( $emailid = null ) {
 		return;
 	}
 	
-	$email_list = edd_pup_queue_emails();
+	$email_list = edd_pup_emails_processing();
 	
-	if ( is_array( $email_list) && in_array( $emailid, $email_list ) ) {
+	if ( is_array( $email_list['processing'] ) && in_array( $emailid, $email_list['processing'] ) ) {
+		
 		$totals = edd_pup_check_queue( $emailid );
 		
-		if ( $totals['queue'] > 0 && $emailid == get_transient( 'edd_pup_sending_email_'. get_current_user_id() ) ) {
+		if ( $totals['queue'] > 0 ) {
 			return true;
 		}
 		
@@ -516,6 +517,35 @@ function edd_pup_is_processing( $emailid = null ) {
 		
 	}
 	
+}
+
+/**
+ * Checks which emails are currently being processed by any and all users
+ * 
+ * @access public
+ * @since 1.0.0
+ * @return array array of queued post_id's and processing post_id's
+ */
+function edd_pup_emails_processing() {
+	$args = array(
+		'post_type'   => 'edd_pup_email',
+		'post_status' => 'pending',
+		'numberposts' => -1
+	);
+	
+	$emails = get_posts( $args );
+	$queued = array();
+	$processing = array();
+	
+	foreach ( $emails as $email ) {
+		if ( false === get_transient( 'edd_pup_sending_email_'. $email->post_author ) ) {
+			$queued[] = $email->ID;
+		} else {
+			$processing[] = $email->ID;
+		}
+	}
+	
+	return array( 'queued' => $queued, 'processing' => $processing );
 }
 
 /**
@@ -568,4 +598,54 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
     
     return $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_payment_meta' AND meta_value NOT LIKE '%\"edd_send_prod_updates\";b:$bool%' AND ($q $limit $offset", ARRAY_A );
     
+}
+
+/**
+ * Removes incompatible email templates from the list of template options in the settings
+ * 
+ * @access public
+ * @since 0.9.5
+ * @return void
+ */
+function edd_pup_get_email_templates() {
+	
+	$templates = edd_get_email_templates();
+	$eddpdfi_email_templates = array(
+		'invoice_default',
+		'blue_stripe',
+		'lines',
+		'minimal',
+		'traditional',
+		'invoice_blue',
+		'invoice_green',
+		'invoice_orange',
+		'invoice_pink',
+		'invoice_purple',
+		'invoice_red',
+		'invoice_yellow'
+	);
+	
+	foreach ( $eddpdfi_email_templates as $pdftemplate ) {
+		if ( array_key_exists( $pdftemplate, $templates ) ) {
+			unset( $templates[$pdftemplate] );
+		}
+	}
+	
+	return $templates;
+}
+
+/**
+ * Helper function to retrieve template selected for product update emails
+ * 
+ * @access public
+ * @return void
+ */
+function edd_pup_template(){
+	global $edd_options;
+	
+	if ( ! isset( $edd_options['edd_pup_template'] ) ) {
+		$edd_options['edd_pup_template'] = 'default';
+	}
+	
+	return $edd_options['edd_pup_template'];
 }

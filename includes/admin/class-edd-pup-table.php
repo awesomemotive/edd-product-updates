@@ -1,6 +1,6 @@
 <?php
 /**
- * Product Update Emails Table Class
+ * Product Updates Table Class
  * 
  * @since 0.9.3
  */
@@ -17,7 +17,7 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 /**
  * EDD_Pup_Table Class
  *
- * Renders the Product Update Emails table on the Product Updates submenu page
+ * Renders the Product Updates table on the Product Updates submenu page
  *
  * @since 0.9.3
  */

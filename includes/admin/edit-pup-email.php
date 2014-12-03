@@ -1,6 +1,6 @@
 <?php
 /**
- * Add Product Update Email Page
+ * Edit Product Update Email Page
  *
  * @since 0.9.3
  */
@@ -8,15 +8,31 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+$email_id  = absint( $_GET['id'] );
+$email     = get_post( $email_id );
+$emailmeta = get_post_custom( $email_id );
+$updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
+$recipients = edd_pup_customer_count( $email_id, $updated_products );
 $products = edd_pup_get_all_downloads();
 $tags = edd_get_email_tags();
-$recipients = 0;
+$status = get_post_status( $email_id );
+$fromname = !empty( $emailmeta['_edd_pup_from_name'][0] ) ? $emailmeta['_edd_pup_from_name'][0] : '';
+$fromemail = !empty( $emailmeta['_edd_pup_from_email'][0] ) ? $emailmeta['_edd_pup_from_email'][0] : '';
 
+// Redirect to view page if edit page is accessed directly
+if ( $status != 'draft' ) {
+	?>
+	<script type="text/javascript">
+		window.location.href = document.URL.replace('edit_pup_email', 'view_pup_email');
+	</script>
+	<?php
+}
 ?>
+
 <form id="edd-pup-email-edit" action="" method="POST">
 <div id="edd-pup-single-email" class="wrap">
 <?php do_action( 'edd_add_receipt_form_top' ); ?>
-<h2><?php _e( 'Add Product Update Email', 'edd-pup' ); ?></h2>
+<h2><?php _e( 'Edit Product Update Email', 'edd-pup' ); ?></h2>
 <br>
 <a href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ); ?>" class="button-secondary"><?php _e( 'Go Back', 'edd-pup' ); ?></a>
 	<div id="poststuff">
@@ -31,10 +47,10 @@ $recipients = 0;
 							<div class="submitbox" id="submitpost">
 								<div id="minor-publishing-actions">
 									<div id="save-action">
-										<?php submit_button('Save Changes', 'secondary', 'edd-pup-save-email-changes', false);?>
+										<?php submit_button( __( 'Save Changes', 'edd-pup' ), 'secondary', 'edd-pup-save-email-changes', false);?>
 									</div>
 									<div id="preview-action">
-										<a href="javascript:void(0);" id="edd-pup-open-preview" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Preview Email', 'edd' ); ?></a>
+										<a href="javascript:void(0);" id="edd-pup-open-preview" class="button-secondary" title="<?php _e( 'Product Update Email Preview', 'edd' ); ?> "><?php _e( 'Preview Email', 'edd-pup' ); ?></a>
 									<?php wp_nonce_field( 'edd-pup-preview-email', 'edd-pup-prev-nonce', false ); ?>
 									</div>
 									<div class="clear"></div>
@@ -47,8 +63,11 @@ $recipients = 0;
 									<?php wp_nonce_field( 'edd-pup-send-test-email', 'edd-pup-test-nonce', false ); ?>
 								</div>
 								<div id="major-publishing-actions">
+									<div id="delete-action">
+										<a class="submitdelete deletion" href="<?php echo wp_nonce_url( add_query_arg( 'edd_action' , 'pup_delete_email' ), 'edd-pup-delete-nonce' ); ?>" onclick="var result=confirm(<?php _e( "'Are you sure you want to permanently delete this email?'", 'edd-pup' ); ?>);return result;"><span class="delete"><?php _e( 'Delete Email' , 'edd-pup'); ?></span></a>
+									</div>
 									<div id="publishing-action">
-										<?php submit_button('Send Update Email', 'primary', 'send-prod-updates', false);?><span class="edd-pup-spin spinner"></span>
+										<?php submit_button( __( 'Send Update Email', 'edd-pup' ), 'primary', 'send-prod-updates', false);?><span class="edd-pup-spin spinner"></span>
 										<?php wp_nonce_field( 'edd-pup-confirm-send', 'edd-pup-send-nonce', false ); ?>
 									</div>
 									<div class="clear"></div>
@@ -78,17 +97,27 @@ $recipients = 0;
 						<h3 class="hndle"><span><?php _e( 'Email Setup', 'edd-pup' ); ?></span></h3>
 						<div class="inside">
 							<strong><?php _e( 'Email Name', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="regular-text" name="title" id="title" value="" placeholder="<?php _e( 'Name your product update email', 'edd-pup'); ?>" size="30" />
+							<input type="text" class="regular-text" name="title" id="title" placeholder="<?php _e( 'Name your product update email', 'edd-pup'); ?>" value="<?php echo $email->post_title;?>" size="30" />
 							<p class="description"><?php _e( 'For internal use only to help organize product updates – e.g. "2nd Edition eBook Update." Customers will not see this.' , 'edd-pup' ); ?></p>
 							
 							<!-- products -->
 							<strong><?php _e( 'Choose products being updated', 'edd-pup' ) ; ?>:</strong>
-							<?php echo EDD()->html->product_dropdown( array( 'multiple' => true, 'chosen' => true, 'name' => 'products[]', 'id' => 'products-select' ) ); ?>
+							<?php echo EDD()->html->product_dropdown( array( 'multiple' => true, 'chosen' => true, 'name' => 'products[]', 'id' => 'products-select', 'selected' => is_array( $updated_products ) ? array_keys( $updated_products ) : $updated_products ) ); ?>
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
 							
-							<!-- recipients
-								<p><strong><?php printf( _n( '1 customer will receive this email', '%s customers will receive this email', $recipients, 'edd-pup' ), $recipients ); ?></p> -->
-								<input type="hidden" name="recipients" value="<?php echo $recipients; ?>" />
+							<!-- bundle option
+							<a>Advanced Settings</a>
+							<br>
+							<strong>Bundled products output:</strong>
+								<select name="bundle" class="bundle-input" value="">
+									<option value="updated" selected="selected">Show updated products only</option>
+									<option value="all">Show all products</option>
+								</select>
+							<p class="description">Choose whether to show all products in a bundle or only the products within the bundle that have been updated (and selected above) when using the {updated_products_links} tag.</p>-->
+							
+							<!-- recipients -->
+								<p><strong><?php _e( 'Recipients', 'edd-pup' ); ?>:</strong> <?php printf( _n( '<span class="recipient-count">1</span> customer will receive this email', '<span class="recipient-count">%s</span> customers will receive this email', $recipients, 'edd-pup' ), number_format( $recipients ) ); ?></p>
+								<input type="hidden" name="recipients" class="recipient-input" value="<?php echo absint($recipients); ?>" />
 						</div>
 					</div>
 					
@@ -97,19 +126,19 @@ $recipients = 0;
 						<div class="inside">
 							<!-- from name  -->
 							<strong><?php _e( 'From Name', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="regular-text" name="from_name" id="from_name" value="" placeholder="<?php echo get_bloginfo('name'); ?>"/>
+							<input type="text" class="regular-text" name="from_name" id="from_name" placeholder="<?php echo get_bloginfo('name'); ?>" value="<?php echo $fromname; ?>" />
 							<p class="description"><?php _e( 'The name customers will see the product update coming from.' , 'edd-pup' ); ?></p>
 							<!-- from email -->
 							<strong><?php _e( 'From Email', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="regular-text" name="from_email" id="from_email" value="" placeholder="<?php echo get_bloginfo('admin_email'); ?>"/>
+							<input type="text" class="regular-text" name="from_email" id="from_email" placeholder="<?php echo get_bloginfo('admin_email'); ?>" value="<?php echo $fromemail; ?>" />
 							<p class="description"><?php _e( 'The email address customers will receive the product update from.' , 'edd-pup' ); ?></p>
 							<!-- subject    -->
 							<strong><?php _e( 'Subject', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="widefat" name="subject" id="subject" value="" placeholder="<?php _e( 'Your email subject line', 'edd-pup'); ?>" size="30" />
+							<input type="text" class="widefat" name="subject" id="subject" placeholder="<?php _e( 'Your email subject line', 'edd-pup'); ?>" value="<?php echo $email->post_excerpt;?>" size="30" />
 							<p class="description"><?php _e( 'Enter the email subject line for this product update. Template tags can be used (see sidebar).' , 'edd-pup' ); ?></p>
 							
 							<!-- message    -->
-							<?php wp_editor( __( 'Enter the message to your customers here. All Easy Digital Downloads template tags are available (see sidebar) including {updated_products}, {updated_products_links}, and {unsubscribe_link}.', 'edd-pup' ), 'message' ); ?>
+							<?php wp_editor( $email->post_content, 'message' ); ?>
 						</div>
 					</div>				
 					
@@ -120,9 +149,10 @@ $recipients = 0;
 	</div>
 	<?php do_action( 'edd_add_receipt_form_bottom' ); ?>
 	<div class="submit">
-		<input type="hidden" name="edd-action" value="add_pup_email" />
+		<input type="hidden" name="edd-action" value="edit_pup_email" />
+		<input type="hidden" name="email-id" value="<?php echo absint( $_GET['id'] ); ?>" />
 		<input type="hidden" name="edd_pup_nonce" value="<?php echo wp_create_nonce( 'edd_pup_nonce' ); ?>" />
-		<input type="submit" value="<?php _e( 'Save Email', 'edd-pup' ); ?>" class="button-primary" />
+		<input type="submit" value="<?php _e( 'Save Email Changes', 'edd-pup' ); ?>" class="button-primary" />
 	</div>
 	<div class="edit-buttons">
 		<a href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ); ?>" class="button-secondary"><?php _e( 'Go Back', 'edd-pup' ); ?></a>

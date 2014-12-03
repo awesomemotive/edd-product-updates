@@ -1,6 +1,6 @@
 <?php
 /**
- * EDD Product Updates Email AJAX
+ * EDD Product Updates AJAX
  *
  * Functions and actions for processing various AJAX requests in
  * the Product Updates plugin – specifically for batch sending of emails,
@@ -395,9 +395,9 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 		$edd_emails->__set( 'from_name', $from_name );
 		$edd_emails->__set( 'from_address', $from_email );
 		
-		$mailresult = $edd_emails->send( $email, $subject, $message, $attachments );
+		//$mailresult = $edd_emails->send( $email, $subject, $message, $attachments );
 		// For testing purposes only - comment the above line and uncomment this line below
-		//$mailresult = true;
+		$mailresult = true;
 				
 	} else {
 		
