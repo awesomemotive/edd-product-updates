@@ -11,16 +11,6 @@
  * @author          Evan Luzi
  * @copyright       Copyright (c) 2014/2015
  *
- * IMPORTANT! Ensure that you make the following adjustments
- * before releasing your extension:
- *
- * - Replace all instances of plugin-name with the name of your plugin.
- *   By WordPress coding standards, the folder name, plugin file name,
- *   and text domain should all match. For the purposes of standardization,
- *   the folder name, plugin file name, and text domain are all the
- *   lowercase form of the actual plugin name, replacing spaces with
- *   hyphens.
- *
  */
 
 
