@@ -538,7 +538,10 @@ function edd_pup_emails_processing() {
 	$processing = array();
 	
 	foreach ( $emails as $email ) {
-		if ( false === get_transient( 'edd_pup_sending_email_'. $email->post_author ) ) {
+		
+		$sending = get_transient( 'edd_pup_sending_email_'. $email->post_author );
+		
+		if ( false === $sending || $email->ID != $sending ) {
 			$queued[] = $email->ID;
 		} else {
 			$processing[] = $email->ID;
