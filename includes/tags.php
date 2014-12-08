@@ -328,7 +328,7 @@ function edd_pup_verify_unsub_link() {
 
 		$order_id = absint( $_GET['order_id'] );
 		$action   = sanitize_text_field( $_GET['edd_action'] );
-		$email    = sanitize_email( $_GET['email'] );
+		$email    = sanitize_email( rawurldecode( $_GET['email'] ) );
 		$key      = sanitize_key( $_GET['purchase_key'] );
 
 		$meta_query = array(
@@ -351,7 +351,7 @@ function edd_pup_verify_unsub_link() {
 		if ( $payments ) {
 			edd_pup_unsub_page( $order_id, $key, $email, $action );
 		} else {
-			wp_die( __( 'The email address you requested to be unsubscribed was not found.', 'edd-pup' ) , __( 'Email Not Found', 'edd-pup' ) );
+			wp_die( __( 'The email address or the purchase you requested to be unsubscribed from was not found.', 'edd-pup' ) , __( 'Email Not Found', 'edd-pup' ) );
 		}
 	}
 }
@@ -435,7 +435,7 @@ function edd_pup_unsub_message($payment_id, $purchase_key, $email, $action){
 		
 		<h1><?php _e( 'Unsubscribed', 'edd-pup' );?></h1>
 		<p><strong><?php _e(' You have been successfully removed from the list.', 'edd-pup' ); ?></strong></p>
-		<p><?php printf( __( 'Your email <strong>%s</strong> has been successfully removed from the list.', 'edd-pup' ), $email ); ?></p>
+		<p><?php printf( __( 'Your email <strong>%s</strong> has been successfully removed from the list for purchase #%s.', 'edd-pup' ), $email, $payment_id ); ?></p>
 		<p><em><?php _e( 'Did you unsubscribe on accident?', 'edd-pup' ); ?> <a href="<?php echo $resublink;?>"><?php _e( 'Click here to resubscribe.', 'edd-pup' ); ?></a></em></p>
 		<?php
 			
@@ -446,7 +446,7 @@ function edd_pup_unsub_message($payment_id, $purchase_key, $email, $action){
 		
 		<h1><?php _e( 'Resubscribed', 'edd-pup' );?></h1>
 		<p><strong><?php _e(' You have successfully re-subscribed to the list.', 'edd-pup' ); ?></strong></p>
-		<p><?php printf( __( 'You have successfully re-subscribed <strong>%s</strong> to the list.', 'edd-pup' ), $email ); ?></p>
+		<p><?php printf( __( 'You have successfully re-subscribed <strong>%s</strong> to the list for purchase #%s.', 'edd-pup' ), $email, $payment_id ); ?></p>
 		<p><em><a href="<?php echo $unsublink;?>"><?php _e( 'Click here to unsubscribe.', 'edd-pup' ); ?></a></em></p>
 		<?php
 		}
