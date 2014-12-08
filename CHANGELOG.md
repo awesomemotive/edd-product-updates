@@ -1,7 +1,9 @@
-## 1.0 (December 3rd, 2014)
+## 1.0 (December 8th, 2014)
 * Fix: PHP error when previewing an email without explicitly choosing an email template in settings
 * Fix: PHP error when no products have been chosen yet on the edit email page
 * Fix: Users in multi-user environments could see popup notices about emails needing to be sent even if another user was currently sending them
+* Tweak: Make unsubscribe and resubscribe pages more descriptive
+* Tweak: Properly decode email from URL on unsubscribe and resubscribe pages
 * Tweak: Change default email message when creating a new product update email
 * Tweak: Change instances of "Product Update Emails" plugin name to "Product Updates"
 * Tweak: Move JS and CSS files into respective folders within "assets" to conform to EDD Extension Boilerplate
