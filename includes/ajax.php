@@ -70,6 +70,11 @@ function edd_pup_email_confirm_html(){
 		$message = edd_apply_email_template( $email_body, null, null );		
 	}
 	
+	// Add max-width for plaintext emails so they don't run off the page
+	if ( 'none' == edd_pup_template() ) {
+		$message = '<div style="width: 640px;">'. $message .'</div>';
+	}
+	
 	// Save message to metadata for later retrieval
 	update_post_meta( $email_id, '_edd_pup_message' ,$message );
 	
