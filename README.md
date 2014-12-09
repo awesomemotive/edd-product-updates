@@ -38,6 +38,7 @@ This extension allows you to send specialized product update emails to your cust
 
 ## Known Issues
 * Filters and actions need to be added throughout
+* If `WP_DEBUG_DISPLAY` is set to true and an error occurs during the sending process, it may return a false positive that emails weren't sent.
 
 ## Limitations
 * SMTP limits are different depending on host. Possible solution: Recommend users to Mandrill (free for up to 12,000 emails per month). Most users who don't already have a robust email sending platform will never cross the free threshold. Or have Advanced Settings that will throttle emails on an hourly basis.
