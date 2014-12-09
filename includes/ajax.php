@@ -150,10 +150,17 @@ function edd_pup_ajax_preview() {
 	
 		if ( version_compare( get_option( 'edd_version' ), '2.1' ) >= 0 ) {
 			$edd_emails = new EDD_Emails;
-			echo $edd_emails->build_email( edd_email_preview_template_tags( $email->post_content ) );
+			$preview = $edd_emails->build_email( edd_email_preview_template_tags( $email->post_content ) );
 		} else {
-			echo edd_apply_email_template( $email->post_content, null, null );		
+			$preview = edd_apply_email_template( $email->post_content, null, null );		
 		}
+		
+		// Add max-width for plaintext emails so they don't run off the page
+		if ( 'none' == edd_pup_template() ) {
+			$preview = '<div style="max-width: 640px;">'. $preview .'</div>';
+		}
+		
+		echo $preview;
 		
 	} else {
 	
