@@ -1,9 +1,30 @@
-## 1.0 (December 8th, 2014)
+## 1.0 (December 9th, 2014)
+
+RC5
+* Fix: Add max-width for plaintext emails on preview and confirmation popup so they don't run off the page
+* Fix: Remove variable pricing dash that is serving no current purpose
+* Enhancement: Add sample unsubscribe/resubscribe page when following the unsubscribe link from preview and test emails
+* Enhancement: Add plaintext versions of {updated\_products}, {updated\_products\_links}, and {unsubscribe\_link} tags
+* Enhancement: Improve how previews handle EDD Product Updates tags when plaintext email is chosen
+
+
+RC4
+* Tweak: Make unsubscribe and resubscribe pages more descriptive
+* Tweak: Properly decode email from URL on unsubscribe and resubscribe pages
+
+RC3
+* Fix: sending function that was commented out for testing.
+* Fix: All emails in queue showing as processing when only one email is processing
+
+
+RC2
+* Tweak: Moved settings from extensions tab to emails tab
+
+
+RC1
 * Fix: PHP error when previewing an email without explicitly choosing an email template in settings
 * Fix: PHP error when no products have been chosen yet on the edit email page
 * Fix: Users in multi-user environments could see popup notices about emails needing to be sent even if another user was currently sending them
-* Tweak: Make unsubscribe and resubscribe pages more descriptive
-* Tweak: Properly decode email from URL on unsubscribe and resubscribe pages
 * Tweak: Change default email message when creating a new product update email
 * Tweak: Change instances of "Product Update Emails" plugin name to "Product Updates"
 * Tweak: Move JS and CSS files into respective folders within "assets" to conform to EDD Extension Boilerplate
