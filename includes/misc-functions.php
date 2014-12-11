@@ -650,5 +650,9 @@ function edd_pup_template(){
 		$edd_options['edd_pup_template'] = 'default';
 	}
 	
-	return $edd_options['edd_pup_template'];
+	if ( $edd_options['edd_pup_template'] == 'inherit' ) {
+		return edd_get_option( 'email_template' );
+	} else {
+		return $edd_options['edd_pup_template'];
+	}
 }

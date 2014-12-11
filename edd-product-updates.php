@@ -297,7 +297,7 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 					'name' => __( 'Email Template', 'edd-pup' ),
 					'desc' => __( 'Choose a template to be used for the product update emails.', 'edd-pup' ),
 					'type' => 'select',
-					'options' => edd_pup_get_email_templates()
+					'options' => array_merge( array( 'inherit' => __( 'Same Template as Purchase Receipts', 'edd-pup') ), edd_pup_get_email_templates() )
 				)
 			);
 			
