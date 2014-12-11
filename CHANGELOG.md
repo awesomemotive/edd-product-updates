@@ -1,6 +1,6 @@
-## 1.0 (December 9th, 2014)
+## 1.0 (December 10th, 2014)
 
-RC5
+RC5 - Final Release
 * Fix: Add max-width for plaintext emails on preview and confirmation popup so they don't run off the page
 * Fix: Remove variable pricing dash that is serving no current purpose
 * Enhancement: Add sample unsubscribe/resubscribe page when following the unsubscribe link from preview and test emails
