@@ -305,7 +305,7 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 					'name' => __( 'Default Product Update Message', 'edd' ),
 					'desc' => __('Enter the default message for Product Update emails. HTML is accepted. Available template tags:', 'edd') . '<br/>' . edd_get_emails_tags_list(),
 					'type' => 'rich_editor',
-					'std'  => '<p>'.__( 'Hello {name},', 'edd-pup').'</p><p>'.__( 'There are updates available for the following products:', 'edd-pup' ).'</p><p>{updated_products}</p><p>'.__( 'You can download these updates from the following links:', 'edd-pup' ).'</p><p>'.__( 'Thank you for being a customer of {sitename}!', 'edd-pup' ).'</p><p><small>'.__( 'To no longer receive product update emails, please click here: {unsubscribe_link}', 'edd-pup' ).'</small></p>'
+					'std'  => '<p>'.__( 'Hello {name},', 'edd-pup').'</p><p>'.__( 'There are updates available for the following products:', 'edd-pup' ).'</p><p>{updated_products}</p><p>'.__( 'You can download these updates from the following links:', 'edd-pup' ).'</p><p>{updated_products_links}</p><p>'.__( 'Thank you for being a customer of {sitename}!', 'edd-pup' ).'</p><p><small>'.__( 'To no longer receive product update emails, please click here: {unsubscribe_link}', 'edd-pup' ).'</small></p>'
 				)
 			);
 			
