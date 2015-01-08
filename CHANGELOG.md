@@ -1,6 +1,7 @@
 ## 1.1 (Unknown as of yet)
 * Feature: Set Default Product Update Message in Downloads > Settings > Emails menu
 * Enhancement: "Same Template as Purchase Receipt" option in Product Update settings
+* Tweak: Change "Send New Email" to "Add New Update Email" on main list view page
 
 ## 1.0 (December 10th, 2014)
 
