@@ -200,6 +200,11 @@
 	list-style-type: disc; 	
 }
 
+#edd-pup-confirm-bundle-products {
+	list-style-type: circle;
+	margin-left: 25px;
+}
+
 /* Colorbox Modifications
 --------------------------------------------- */
 
