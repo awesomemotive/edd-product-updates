@@ -298,6 +298,14 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 					'desc' => __( 'Choose a template to be used for the product update emails.', 'edd-pup' ),
 					'type' => 'select',
 					'options' => array_merge( array( 'inherit' => __( 'Same Template as Purchase Receipts', 'edd-pup') ), edd_pup_get_email_templates() )
+				),
+				
+				array(
+					'id' => 'edd_pup_default_message',
+					'name' => __( 'Default Product Update Message', 'edd' ),
+					'desc' => __('Enter the default message for Product Update emails. HTML is accepted. Available template tags:', 'edd') . '<br/>' . edd_get_emails_tags_list(),
+					'type' => 'rich_editor',
+					'std'  => '<p>'.__( 'Hello {name},', 'edd-pup').'</p><p>'.__( 'There are updates available for the following products:', 'edd-pup' ).'</p><p>{updated_products}</p><p>'.__( 'You can download these updates from the following links:', 'edd-pup' ).'</p><p>'.__( 'Thank you for being a customer of {sitename}!', 'edd-pup' ).'</p><p><small>'.__( 'To no longer receive product update emails, please click here: {unsubscribe_link}', 'edd-pup' ).'</small></p>'
 				)
 			);
 			

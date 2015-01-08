@@ -20,6 +20,7 @@ $defaultmessage .= '<p>'.__( 'You can download these updates from the following 
 $defaultmessage .= '{updated_products_links}';
 $defaultmessage .= '<p>'.__( 'Thank you for being a customer of {sitename}!', 'edd-pup' ).'</p>';
 $defaultmessage .= '<p><small>'.__( 'To no longer receive product update emails, please click here: {unsubscribe_link}', 'edd-pup' ).'</small></p>';
+$defaultmessage  = edd_get_option( 'edd_pup_default_message', $defaultmessage );
 
 ?>
 <form id="edd-pup-email-edit" action="" method="POST">

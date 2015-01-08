@@ -1,3 +1,7 @@
+## 1.1 (Unknown as of yet)
+* Feature: Set Default Product Update Message in Downloads > Settings > Emails menu
+* Enhancement: "Same Template as Purchase Receipt" option in Product Update settings
+
 ## 1.0 (December 10th, 2014)
 
 RC5 - Final Release
