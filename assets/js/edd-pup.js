@@ -13,6 +13,20 @@ jQuery(document).ready(function ($) {
 			
 		});
 		
+		// Toggle bundle filters on and off on edit screen
+		$('#bundle_filters').click( function() {
+			
+			if ( $(this).data('state') == 'hidden' ) {
+				$(this).text( eddPup.bf2 ).data('state','visible');
+			} else {
+				$(this).text( eddPup.bf1 ).data('state','hidden');
+			}
+			
+			$('.bundle-filters-wrap').toggle();
+			return false;
+		});
+		
+		
 		if ( $('#edd-pup-queue-details').length ){
 			$('#edd-pup-view-queue-alert').colorbox({
 					inline: true,
