@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 $email_id  = absint( $_GET['id'] );
 $email     = get_post( $email_id );
 $emailmeta = get_post_custom( $email_id );
+$filters = unserialize( $emailmeta['_edd_pup_filters'][0] );
 $updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
 $recipients = edd_pup_customer_count( $email_id, $updated_products );
 $products = edd_pup_get_all_downloads();
@@ -105,15 +106,39 @@ if ( $status != 'draft' ) {
 							<?php echo EDD()->html->product_dropdown( array( 'multiple' => true, 'chosen' => true, 'name' => 'products[]', 'id' => 'products-select', 'selected' => is_array( $updated_products ) ? array_keys( $updated_products ) : $updated_products ) ); ?>
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
 							
-							<!-- bundle option
+							<!-- advanced settings -->
 							<a>Advanced Settings</a>
 							<br>
-							<strong>Bundled products output:</strong>
-								<select name="bundle" class="bundle-input" value="">
-									<option value="updated" selected="selected">Show updated products only</option>
-									<option value="all">Show all products</option>
-								</select>
-							<p class="description">Choose whether to show all products in a bundle or only the products within the bundle that have been updated (and selected above) when using the {updated_products_links} tag.</p>-->
+							<br>								
+								<!-- bundle option 1-->
+								<strong>Bundled product link output:</strong>
+									<select name="bundle_1" class="bundle-input" value="">
+										<option value="updated" selected="selected"><?php _e( 'Show links for updated products only', 'edd-pup' );?></option>
+										<option value="all"><?php _e( 'Show links for all products', 'edd-pup' );?></option>
+									</select>
+								<p class="description"><?php _e ( 'Choose whether to show links for all products in a bundle or only the products within the bundle that have been updated (and selected above) when using the {updated_products_links} tag.', 'edd-pup' );?></p>
+								
+								<!-- bundle option 2-->
+								<strong>Send only to bundle customers:</strong>
+								<input type="checkbox" name="bundle_2" id="bundle_2" value="<?php echo $filters['bundle_2'];?>" <?php checked( $filters['bundle_2'], 1 ); ?>/>
+								<p class="description">Only send this email to customers who have purchased a bundle selected above.</p>
+								<!-- exclude since last update option
+								<strong><?php _e( 'Exclude recent customers', 'edd-pup' ); ?>:</strong>
+								<input type="checkbox" name="recent" id="recent" value="1"<?php checked( $filters['bundle_2'], 1 ); ?>/>
+								<p class="description"><?php _e( 'Do not send to customers who have purchased a product since it was last updated.' , 'edd-pup' ); ?></p>
+													
+								 EDD Software Licensing Select
+								<strong>EDD Software Licensing:</strong>
+								<?php foreach ( $products as $product_id => $title ):
+									if ( is_array( $updated_products) && array_key_exists( $product_id, $updated_products ) ) {
+										$checked = 'checked="checked"';
+									} else { $checked = ''; }
+								?>
+								<input name="edd_soft_license[<?php echo $product_id; ?>]" id="edd_soft_license[<?php echo $product_id; ?>]" type="checkbox" value="<?php echo $title; ?>" <?php echo $checked; ?>>
+								<label for="edd_soft_license[<?php echo $product_id; ?>]"><?php echo $title; ?></label>
+								<br>
+								<?php endforeach; ?>
+								<p class="description">Choose whether to show all products in a bundle or only the products within the bundle that have been updated (and selected above) when using the {updated_products_links} tag.</p>-->
 							
 							<!-- recipients -->
 								<p><strong><?php _e( 'Recipients', 'edd-pup' ); ?>:</strong> <?php printf( _n( '<span class="recipient-count">1</span> customer will receive this email', '<span class="recipient-count">%s</span> customers will receive this email', $recipients, 'edd-pup' ), number_format( $recipients ) ); ?></p>

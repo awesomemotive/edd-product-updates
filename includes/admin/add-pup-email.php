@@ -95,7 +95,23 @@ $defaultmessage  = edd_get_option( 'edd_pup_default_message', $defaultmessage );
 							<strong><?php _e( 'Choose products being updated', 'edd-pup' ) ; ?>:</strong>
 							<?php echo EDD()->html->product_dropdown( array( 'multiple' => true, 'chosen' => true, 'name' => 'products[]', 'id' => 'products-select' ) ); ?>
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
-							
+							<!-- advanced settings -->
+							<a>Advanced Settings</a>
+							<br>
+							<br>								
+								<!-- bundle option 1-->
+								<strong>Bundled product link output:</strong>
+									<select name="bundle_1" class="bundle-input" value="">
+										<option value="updated" selected="selected"><?php _e( 'Show links for updated products only', 'edd-pup' );?></option>
+										<option value="all"><?php _e( 'Show links for all products', 'edd-pup' );?></option>
+									</select>
+								<p class="description"><?php _e ( 'Choose whether to show links for all products in a bundle or only the products within the bundle that have been updated (and selected above) when using the {updated_products_links} tag.', 'edd-pup' );?></p>
+								
+								<!-- bundle option 2-->
+								<strong>Send only to bundle customers:</strong>
+								<input type="checkbox" name="bundle_2" id="bundle_2" value="0"/>
+								<p class="description">Only send this email to customers who have purchased a bundle selected above.</p>
+								
 							<!-- recipients
 								<p><strong><?php printf( _n( '1 customer will receive this email', '%s customers will receive this email', $recipients, 'edd-pup' ), $recipients ); ?></p> -->
 								<input type="hidden" name="recipients" value="<?php echo $recipients; ?>" />
