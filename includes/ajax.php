@@ -52,6 +52,7 @@ function edd_pup_email_confirm_html(){
 	// Necessary for preview HTML
 	set_transient( 'edd_pup_preview_email_'. get_current_user_id(), $email_id, 60 );
 	
+	$bundlenum	   = 0;
 	$email         = get_post( $email_id );
 	$emailmeta     = get_post_custom( $email_id );
 	$filters	   = unserialize( $emailmeta['_edd_pup_filters'][0] );
@@ -61,7 +62,7 @@ function edd_pup_email_confirm_html(){
 	$email_body    = isset( $email->post_content ) ? stripslashes( $email->post_content ) : 'Cannot retrieve message content';
     $subject       = empty( $emailmeta['_edd_pup_subject'][0] ) ? '(no subject)' : strip_tags( edd_email_preview_template_tags( $emailmeta['_edd_pup_subject'][0] ) );
     $productlist   = '';
-	
+    	
 	// Construct templated email HTML
 	add_filter('edd_email_template', 'edd_pup_template' );
 	
@@ -97,11 +98,6 @@ function edd_pup_email_confirm_html(){
 				<div id="edd-pup-confirm-footer">
 					<h3><?php _e( 'Additional Information', 'edd-pup' ); ?></h3>
 					<ul>
-						<li><strong><?php _e( 'Filters:', 'edd-pup' ); ?></strong></li>
-							<ul>
-								<li>Filter 1</li>
-								<li>Filter 2</li>
-							</ul>
 						<li><strong><?php _e( 'Updated Products:', 'edd-pup' ); ?></strong></li>
 							<ul id="edd-pup-confirm-products">
 							<?php foreach ( $products as $product_id => $product ) {
@@ -124,12 +120,32 @@ function edd_pup_email_confirm_html(){
 											}
 										}
 										$productlist .= '</ul>';
+										$bundlenum++;
 									}
 								}
 									
 								echo $productlist;
 							?>
 							</ul>
+						<?php if ( $bundlenum > 0 ):?>
+						<li><strong><?php _e( 'Bundle Filters:', 'edd-pup' ); ?></strong></li>
+							<ul id="edd-pup-confirm-products">
+								<?php foreach ( $filters as $filtername => $filtervalue ): ?>
+								<?php switch ( $filtername ) {
+										case 'bundle_1' :
+											$output = $filtervalue == 'all' ? '<li>'.__('Show links for all products within bundles', 'edd-pup').'</li>' : '<li>'.__('Show links for only updated products within bundles', 'edd-pup').'</li>';
+											break;
+										
+										case 'bundle_2' :
+											$output = $filtervalue == 1 ? '<li>'.__('Send this email to bundle customers only', 'edd-pup').'</li>' : '';
+											break;
+									}
+									
+									echo $output;
+								?>
+								<?php endforeach; ?>
+							</ul>
+						<?php endif; ?>
 						<li><strong><?php _e( 'Recipients:', 'edd-pup' ); ?></strong> <?php printf( _n( '1 customer will receive this email and have their downloads reset', '%s customers will receive this email and have their downloads reset', $customercount, 'edd-pup' ), number_format( $customercount ) ); ?></li>
 					</ul>
 					<a href="<?php echo $popup_url; ?>" id="prod-updates-email-ajax" class="button-primary button" title="<?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?>" onclick="window.open(this.href,'targetWindow', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=600,height=480');return false;"><?php _e( 'Confirm and Send Emails', 'edd-pup' ); ?></a>
