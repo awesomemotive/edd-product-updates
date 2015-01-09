@@ -177,13 +177,15 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 	if ( $filters['bundle_2'] ) {
 		
 		$bundleproducts = array();
+		$bundlenum = 0;
 		
 		foreach ( $products as $id => $name ) {
 			if ( edd_is_bundled_product( $id ) ) {
 				$bundleproducts[ $id ] = $name;
+				$bundlenum++;
 			}
 		}
-		$products = $bundleproducts;
+		$products = $bundlenum > 0 ? $bundleproducts : $products;
 	}
         
     // Active EDD Software Licensing integration
