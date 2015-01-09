@@ -209,6 +209,10 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 				'v3' => __( 'Resume', 'edd-pup' ),
 				'v4' => __( 'Finished', 'edd-pup' ),
 				
+				// Values for bundle filters JS
+				'bf1' => __( 'Show Bundle Filters', 'edd-pup' ),
+				'bf2' => __( 'Hide Bundle Filters', 'edd-pup' )
+				
 			);
 			
 			// Plugin Javascript

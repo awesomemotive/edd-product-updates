@@ -147,6 +147,19 @@
 	display: inline-block; 
 }
 
+#bundle_filters {
+	text-decoration: none;
+}
+
+#bundle_filters:hover {
+	text-decoration: underline;
+}
+
+#edd-pup-single-email .bundle-filters-wrap {
+	display: none;
+	margin-top: 10px;
+}
+
 /* Fix for view email page */
 .postbox #edd-pup-popup-preview {
 	padding: 0;
@@ -203,6 +216,7 @@
 #edd-pup-confirm-bundle-products {
 	list-style-type: circle;
 	margin-left: 25px;
+	padding-bottom: 5px;
 }
 
 /* Colorbox Modifications
