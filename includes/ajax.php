@@ -54,11 +54,13 @@ function edd_pup_email_confirm_html(){
 	
 	$email         = get_post( $email_id );
 	$emailmeta     = get_post_custom( $email_id );
+	$filters	   = unserialize( $emailmeta['_edd_pup_filters'][0] );
 	$products  	   = get_post_meta( $email_id, '_edd_pup_updated_products', true );
 	$popup_url 	   = add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) );
 	$customercount = edd_pup_customer_count( $email_id, $products );
 	$email_body    = isset( $email->post_content ) ? stripslashes( $email->post_content ) : 'Cannot retrieve message content';
     $subject       = empty( $emailmeta['_edd_pup_subject'][0] ) ? '(no subject)' : strip_tags( edd_email_preview_template_tags( $emailmeta['_edd_pup_subject'][0] ) );
+    $productlist   = '';
 	
 	// Construct templated email HTML
 	add_filter('edd_email_template', 'edd_pup_template' );
@@ -95,11 +97,38 @@ function edd_pup_email_confirm_html(){
 				<div id="edd-pup-confirm-footer">
 					<h3><?php _e( 'Additional Information', 'edd-pup' ); ?></h3>
 					<ul>
+						<li><strong><?php _e( 'Filters:', 'edd-pup' ); ?></strong></li>
+							<ul>
+								<li>Filter 1</li>
+								<li>Filter 2</li>
+							</ul>
 						<li><strong><?php _e( 'Updated Products:', 'edd-pup' ); ?></strong></li>
 							<ul id="edd-pup-confirm-products">
-							<?php foreach ( $products as $product_id => $product ):?>
-								<li data-id="<?php echo $product_id; ?>"><?php echo $product; ?></li>
-							<?php endforeach; ?>
+							<?php foreach ( $products as $product_id => $product ) {
+									$bundle = edd_is_bundled_product( $product_id );
+									
+									// Filter bundle customers only
+									if ( $filters['bundle_2'] && !$bundle ) {
+										continue;
+									}
+									
+									$productlist .= '<li data-id="'. $product_id .'">'. $product .'</li>';
+
+									if ( $bundle ) {
+										$bundledproducts = edd_get_bundled_products( $product_id );
+										$productlist .= '<ul id="edd-pup-confirm-bundle-products">';
+										
+										foreach ( $bundledproducts as $bundleitem ) {
+											if ( isset( $products[ $bundleitem ] ) ) {
+												$productlist .= '<li data-id="'.$bundleitem.'">'. $products[$bundleitem ].'</li>';
+											}
+										}
+										$productlist .= '</ul>';
+									}
+								}
+									
+								echo $productlist;
+							?>
 							</ul>
 						<li><strong><?php _e( 'Recipients:', 'edd-pup' ); ?></strong> <?php printf( _n( '1 customer will receive this email and have their downloads reset', '%s customers will receive this email and have their downloads reset', $customercount, 'edd-pup' ), number_format( $customercount ) ); ?></li>
 					</ul>
@@ -233,7 +262,21 @@ function edd_pup_ajax_start(){
 		$limit = 1000;
 		$total = isset( $_POST['total'] ) ? absint( $_POST['total'] ) : $recipients;
 		$email_id  = intval( $_POST['email_id'] );
+		$filters   = get_post_meta( $email_id, '_edd_pup_filters', true );
 		$products  = get_post_meta( $email_id, '_edd_pup_updated_products', true );
+		
+		// Filter for bundle only email sends
+		if ( $filters['bundle_2'] ) {
+			$bundles = array();
+			foreach ( $products as $prod_id => $prod_name ) {
+				if ( edd_is_bundled_product( $prod_id ) ) {
+					$bundles[$prod_id] = $prod_name;
+				}
+			}
+			
+			$products = $bundles;
+		}
+		
 		$customers = edd_pup_user_send_updates( $products, true, $limit, $processed );
 		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1", OBJECT_K );
 
@@ -256,10 +299,10 @@ function edd_pup_ajax_start(){
 		foreach ( $customers as $customer ){
 				
 			// Check what products customers are eligible for updates and add to queue only if updates are available to customer
-			$customer_updates = serialize( edd_pup_eligible_updates( $customer['post_id'], $products, true, $licenseditems ) );
-					
-			if ( ! empty( $customer_updates ) ) {
+			$customer_updates = serialize( edd_pup_eligible_updates( $customer['post_id'], $products, true, $licenseditems, $email_id ) );
 
+			if ( ! empty( $customer_updates ) ) {
+				
 				$queue[] = '('.$customer['post_id'].', '.$email_id.', \''.$customer_updates.'\', 0)';
 				$count++;
 								
