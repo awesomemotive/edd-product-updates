@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @return int email id of saved email
  */
 function edd_pup_sanitize_save( $data ) {
-	
+
 	// Convert form data to array	
 	if ( isset( $data['form'] ) ) {
 		$form = $data['form'];
@@ -35,6 +35,8 @@ function edd_pup_sanitize_save( $data ) {
 	$data['from_email'] = sanitize_email( $data['from_email'] );
 	$data['title']		= sanitize_text_field( $data['title'], 'ID:'. $data['email-id'], 'save' );
 	$data['subject']	= sanitize_text_field( $data['subject'] );
+	$data['bundle_1']	= sanitize_text_field( $data['bundle_1'] );
+	$data['bundle_2']	= isset( $data['bundle_2'] ) ? 1 : 0;
 	
 	// Sanitize products array and convert to ID => name format
 	if ( isset( $data['products'] ) ) {
@@ -68,6 +70,9 @@ function edd_pup_save_email( $data, $email_id = null ) {
 		? wp_strip_all_tags( $data['subject'], true )
 		: __( 'New Product Update', 'edd-pup' ) );
 	$products = isset( $data['products'] ) ? $data['products'] : '';
+	$filters = array(
+		'bundle_1' => $data['bundle_1'],
+		'bundle_2' => $data['bundle_2'] );
 		
 	if ( 0 != $email_id ) {
 		
@@ -84,7 +89,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
 		);
 		
 		// Get number of recipients for this email
-		$recipients = edd_pup_customer_count( $email_id, $products );
+		$recipients = edd_pup_customer_count( $email_id, $products, true, $filters );
 		
 		$update_id = wp_update_post( $updateargs );
 		update_post_meta ( $email_id, '_edd_pup_from_name', $from_name );
@@ -93,7 +98,8 @@ function edd_pup_save_email( $data, $email_id = null ) {
 		update_post_meta ( $email_id, '_edd_pup_message', $data['message'] );
 		update_post_meta ( $email_id, '_edd_pup_updated_products', $products );
 		update_post_meta ( $email_id, '_edd_pup_recipients', $recipients );
-
+		update_post_meta ( $email_id, '_edd_pup_filters', $filters );
+			
 		if ( ( $update_id != 0 ) && ( $update_id == $email_id ) ) {
 			return $email_id;
 		}
@@ -123,7 +129,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
 		$create_id = wp_insert_post( $post );
 		
 		// Get number of recipients for this email
-		$recipients = edd_pup_customer_count( $create_id, $products );
+		$recipients = edd_pup_customer_count( $create_id, $products, true, $filters );
 		
 		// Insert custom meta for newly created post
 		if ( 0 != $create_id )	{
@@ -133,6 +139,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
 			add_post_meta ( $create_id, '_edd_pup_message', $data['message'], true );
 			add_post_meta ( $create_id, '_edd_pup_updated_products', $products, true );
 			add_post_meta ( $create_id, '_edd_pup_recipients', $recipients );	
+			add_post_meta ( $create_id, '_edd_pup_filters', $filters, true );
 		}
 		
     	if ( 0 != $create_id) {	
@@ -148,7 +155,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
  * @access public
  * @return $customercount (number of customers eligible for product updates)
  */
-function edd_pup_customer_count( $email_id = null, $products = null, $subscribed = true ){
+function edd_pup_customer_count( $email_id = null, $products = null, $subscribed = true, $filters = null ){
 		
 	if ( empty( $email_id ) && !is_numeric( $email_id ) ) {
 		return false;
@@ -164,8 +171,22 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
     $count = 0;
     $b = $subscribed ? 0 : 1;
 	$products = !empty( $products ) ? $products : get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
+	$filters = isset( $filters ) ? $filters : get_post_meta( $email_id, '_edd_pup_filters', true );
+	
+	// Filter bundle customers only
+	if ( $filters['bundle_2'] ) {
+		
+		$bundleproducts = array();
+		
+		foreach ( $products as $id => $name ) {
+			if ( edd_is_bundled_product( $id ) ) {
+				$bundleproducts[ $id ] = $name;
+			}
+		}
+		$products = $bundleproducts;
+	}
         
-    // EDD Software Licensing integration
+    // Active EDD Software Licensing integration
 	if ( isset( $edd_options['edd_pup_license'] ) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
 	
 		// Get customers who have a completed payment and are subscribed for updates
@@ -213,6 +234,7 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 			}
 		}
 		
+	// Inactive EDD Software Licensing integration
 	} else {
 	
 	    $n = count( $products );
@@ -329,7 +351,7 @@ function edd_pup_get_all_downloads(){
  */
 function edd_pup_eligible_updates( $payment_id, $updated_products, $object = true, $licenseditems = null ){
 	
-	if ( empty( $payment_id) || empty( $updated_products ) ) {
+	if ( empty( $payment_id) || empty( $updated_products ) || $email_id = 0 ) {
 		return false;
 	}
 	
@@ -391,7 +413,7 @@ function edd_pup_get_customer_updates( $payment_id, $email_id ) {
 	$payment_id = absint( $payment_id );
 	$email_id = absint( $email_id );
 	
-	return unserialize( $wpdb->get_var( $wpdb->prepare( "SELECT products FROM $wpdb->edd_pup_queue WHERE email_id = %d AND customer_id = %d", $email_id, $payment_id ) ) );
+	return unserialize( trim( $wpdb->get_var( $wpdb->prepare( "SELECT products FROM $wpdb->edd_pup_queue WHERE email_id = %d AND customer_id = %d", $email_id, $payment_id ) ) ) );
 }
 
 /**
@@ -572,23 +594,12 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
     $bool = $subscribed ? 0 : 1;
         
     $i = 1;
-    $n = count($products);
+    $n = count( $products );
     $q = '';
     
 	foreach ( $products as $prod_id => $prod_name ) {
 		
-		/*if ($i === $n) {
-			$q .= "meta_value LIKE '%\"id\";i:$prod_id%')";		
-		} else {
-			$q .= "meta_value LIKE '%\"id\";i:$prod_id%' OR ";
-		}*/
 		$s = strlen( $prod_id );
-		
-		/*if ( $i === $n ) {
-			$q .= "meta_value LIKE '%\"id\";s:$s:\"$prod_id\"%')";
-		} else {
-			$q .= "meta_value LIKE '%\"id\";s:$s:\"$prod_id\"%' OR ";				
-		}*/
 		
 		if ( $i === $n ) {
 			$q .= "meta_value LIKE '%\"id\";s:$s:\"$prod_id\"%' OR meta_value LIKE '%\"id\";i:$prod_id%' )";
