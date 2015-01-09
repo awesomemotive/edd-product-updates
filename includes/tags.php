@@ -138,6 +138,7 @@ function edd_pup_products_tag( $payment_id, $email = null ) {
 	
 	}
 	
+	$filters = get_post_meta( $email, '_edd_pup_filters', true );
 	$productlist = '<ul>';
 
 	foreach ( $customer_updates as $product ) {
@@ -160,7 +161,12 @@ function edd_pup_products_tag( $payment_id, $email = null ) {
 			
 			$productlist .= '</ul>';
 			
+		} else if ( $filters['bundle_2'] ) {
+			
+			continue;	
+			
 		} else {
+			
 			$productlist .= '<li>'. $product['name'] .'</li>';
 		}
 	}
@@ -202,6 +208,7 @@ function edd_pup_products_tag_plain( $payment_id, $email = null ) {
 	}
 	
 	// Start generating the list itself
+	$filters = get_post_meta( $email, '_edd_pup_filters', true );
 	$productlist = '';
 	$i = 1;
 	
@@ -230,6 +237,10 @@ function edd_pup_products_tag_plain( $payment_id, $email = null ) {
 			
 			$productlist .= ')';
 			
+		} else if ( $filters['bundle_2'] ) {
+			
+			continue;	
+			
 		} else {
 			
 			if ( $i == 1 ) {
@@ -254,13 +265,13 @@ function edd_pup_products_tag_plain( $payment_id, $email = null ) {
  * @return void
  */
 function edd_pup_products_links_tag( $payment_id, $email = null ) {	
-	
+		
 	// Used to generate accurate tag outputs for preview and test emails
 	if ( isset( $email ) && absint( $email ) != 0 ) {
-		
+
 		$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );
 		$updated_products = is_array( $updated_products ) ? $updated_products : array ( $updated_products );
-
+	
 		foreach ( $updated_products as $id => $name ) {
 		
 			$customer_updates[$id] = array( 'id' => $id, 'name' => $name);
@@ -270,9 +281,13 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 	} else {
 	
 		$email = get_transient( 'edd_pup_sending_email_'. get_current_user_id() );
+		$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );
+		$updated_products = is_array( $updated_products ) ? $updated_products : array ( $updated_products );
 		$customer_updates = edd_pup_get_customer_updates( $payment_id, $email );
 		$customer_updates = is_array( $customer_updates ) ? $customer_updates : array( $customer_updates );
 	}
+	
+	$filters = get_post_meta( $email, '_edd_pup_filters', true );
 
 	if ( $customer_updates ) {
 	
@@ -285,6 +300,13 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 		$download_list = '<ul>';
 		
 		foreach ( $customer_updates as $item ) {
+				
+				$bundle = edd_is_bundled_product( $item['id'] );
+				
+				// Show only bundled products for bundle only customers
+				if ( $filters['bundle_2'] && !$bundle ) {
+					continue;
+				}
 				
 				if ( edd_use_skus() ) {
 					$sku = edd_get_download_sku( $item['id'] );
@@ -322,22 +344,22 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 					}
 				}
 				
-				if ( edd_is_bundled_product( $item['id'] ) ) {
+				if ( $bundle ) {
 
 					$bundled_products = edd_get_bundled_products( $item['id'] );
-					
+											
 					foreach ( $bundled_products as $bundle_item ) {
 					
-						if ( isset( $customer_updates[ $bundle_item ] ) ) {
+						if ( $filters['bundle_1'] == 'all' || isset( $updated_products[ $bundle_item ] ) ) {
 
 							$download_list .= '<li class="edd_bundled_product"><strong>' . get_the_title( $bundle_item ) . '</strong></li>';
 
-							$files = edd_get_download_files( $bundle_item );
+							$bundlefiles = edd_get_download_files( $bundle_item );
 
-							foreach ( $files as $filekey => $file ) {
+							foreach ( $bundlefiles as $bundlefilekey => $bundlefile ) {
 								$download_list .= '<li>';
-								$file_url = edd_get_download_file_url( $payment_data['key'], $payment_data['email'], $filekey, $bundle_item, $price_id );
-								$download_list .= '<a href="' . esc_url( $file_url ) . '">' . $file['name'] . '</a>';
+								$bundlefile_url = edd_get_download_file_url( $payment_data['key'], $payment_data['email'], $bundlefilekey, $bundle_item, $price_id );
+								$download_list .= '<a href="' . esc_url( $bundlefile_url ) . '">' . $bundlefile['name'] . '</a>';
 								$download_list .= '</li>';
 							}
 						}
@@ -390,10 +412,14 @@ function edd_pup_products_links_tag_plain( $payment_id, $email = null ) {
 	} else {
 	
 		$email = get_transient( 'edd_pup_sending_email_'. get_current_user_id() );
+		$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );
+		$updated_products = is_array( $updated_products ) ? $updated_products : array ( $updated_products );
 		$customer_updates = edd_pup_get_customer_updates( $payment_id, $email );
 		$customer_updates = is_array( $customer_updates ) ? $customer_updates : array( $customer_updates );
 	}
-
+	
+	$filters = get_post_meta( $email, '_edd_pup_filters', true );
+	
 	if ( $customer_updates ) {
 	
 		$show_names    = apply_filters( 'edd_pup_email_show_names', true );
@@ -450,17 +476,17 @@ function edd_pup_products_links_tag_plain( $payment_id, $email = null ) {
 				
 				foreach ( $bundled_products as $bundle_item ) {
 					 
-					if ( isset( $customer_updates[ $bundle_item ] ) ) {
+					if ( $filters['bundle_1'] == 'all' || isset( $updated_products[ $bundle_item ] ) ) {
 
 						$download_list .= $b == 1 ? get_the_title( $bundle_item ) : '; '. get_the_title( $bundle_item );
 
 						$fb = 1;
-						$files = edd_get_download_files( $bundle_item );
+						$bundlefiles = edd_get_download_files( $bundle_item );
 						$download_list .= ' (';
 						
-						foreach ( $files as $filekey => $file ) {
-							$file_url = edd_get_download_file_url( $payment_data['key'], $payment_data['email'], $filekey, $bundle_item, $price_id );
-							$download_list .= $fb == 1 ? $file['name'].': '. esc_url( $file_url ) : ', '. $file['name'].': '. esc_url( $file_url );
+						foreach ( $bundlefiles as $bundlefilekey => $bundlefile ) {
+							$bundlefile_url = edd_get_download_file_url( $payment_data['key'], $payment_data['email'], $bundlefilekey, $bundle_item, $price_id );
+							$download_list .= $fb == 1 ? $bundlefile['name'].': '. esc_url( $bundlefile_url ) : ', '. $bundlefile['name'].': '. esc_url( $bundlefile_url );
 							
 							$fb++;
 						}
