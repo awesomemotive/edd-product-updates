@@ -1,7 +1,9 @@
-## 1.1 (Unknown as of yet)
+## 1.1 (January 9th, 2015)
+* Feature: Advanced filters for bundle product behavior in the emails
 * Feature: Set Default Product Update Message in Downloads > Settings > Emails menu
 * Enhancement: "Same Template as Purchase Receipt" option in Product Update settings
 * Tweak: Change "Send New Email" to "Add New Update Email" on main list view page
+* Fix: Links not outputting from {updated\_products\_links} when customers have purchased only the bundle
 
 ## 1.0 (December 10th, 2014)
 
