@@ -19,7 +19,6 @@ $tags = edd_get_email_tags();
 $status = get_post_status( $email_id );
 $fromname = !empty( $emailmeta['_edd_pup_from_name'][0] ) ? $emailmeta['_edd_pup_from_name'][0] : '';
 $fromemail = !empty( $emailmeta['_edd_pup_from_email'][0] ) ? $emailmeta['_edd_pup_from_email'][0] : '';
-$filterson = $filters['bundle_1'] == 'all' || $filters['bundle_2'] == 1 ? true : false;
 
 // Redirect to view page if edit page is accessed directly
 if ( $status != 'draft' ) {
@@ -108,13 +107,13 @@ if ( $status != 'draft' ) {
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
 							
 							<!-- advanced settings -->
-							<a href="#" id="bundle_filters" data-state="hidden" <?php if ( $filterson ) { echo 'style="display:none;"';}?>><?php _e( 'Show Bundle Filters', 'edd-pup' );?></a>
-							<div class="bundle-filters-wrap" <?php if ( $filterson ) { echo 'style="display:block;"'; }?>>								
+							<a href="#" id="bundle_filters" data-state="hidden" style="display:none;"></a>
+							<div class="bundle-filters-wrap">								
 								<!-- bundle option 1-->
 								<strong><?php _e( 'Bundled product link output:', 'edd-pup' );?></strong>
 									<select name="bundle_1" class="bundle-input" value="">
-										<option value="updated" selected="selected"><?php _e( 'Show links for updated products only', 'edd-pup' );?></option>
-										<option value="all"><?php _e( 'Show links for all products', 'edd-pup' );?></option>
+										<option value="updated" <?php if ( $filters['bundle_1'] == 'updated' ) { echo 'selected="selected"'; }?>><?php _e( 'Show links for updated products only', 'edd-pup' );?></option>
+										<option value="all" <?php if ( $filters['bundle_1'] == 'all' ) { echo 'selected="selected"'; }?>><?php _e( 'Show links for all products', 'edd-pup' );?></option>
 									</select>
 								<p class="description"><?php _e ( 'Choose whether to show links for all products in a bundle or only the products within the bundle that have been updated (and selected above) when using the {updated_products_links} tag.', 'edd-pup' );?></p>
 								

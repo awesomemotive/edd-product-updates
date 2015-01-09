@@ -96,7 +96,7 @@ $defaultmessage  = edd_get_option( 'edd_pup_default_message', $defaultmessage );
 							<?php echo EDD()->html->product_dropdown( array( 'multiple' => true, 'chosen' => true, 'name' => 'products[]', 'id' => 'products-select' ) ); ?>
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
 							<!-- advanced settings -->
-							<a href="#" id="bundle_filters" data-state="hidden"><?php _e( 'Show Bundle Filters', 'edd-pup' );?></a>
+							<a href="#" id="bundle_filters" data-state="hidden" style="display:none;"><?php _e( 'Show Bundle Filters', 'edd-pup' );?></a>
 							<div class="bundle-filters-wrap">						
 								<!-- bundle option 1-->
 								<strong><?php _e( 'Bundled product link output:', 'edd-pup' );?></strong>
