@@ -19,6 +19,7 @@ $tags = edd_get_email_tags();
 $status = get_post_status( $email_id );
 $fromname = !empty( $emailmeta['_edd_pup_from_name'][0] ) ? $emailmeta['_edd_pup_from_name'][0] : '';
 $fromemail = !empty( $emailmeta['_edd_pup_from_email'][0] ) ? $emailmeta['_edd_pup_from_email'][0] : '';
+$filterson = $filters['bundle_1'] == 'all' || $filters['bundle_2'] == 1 ? true : false;
 
 // Redirect to view page if edit page is accessed directly
 if ( $status != 'draft' ) {
@@ -107,11 +108,10 @@ if ( $status != 'draft' ) {
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
 							
 							<!-- advanced settings -->
-							<a>Advanced Settings</a>
-							<br>
-							<br>								
+							<a href="#" id="bundle_filters" data-state="hidden" <?php if ( $filterson ) { echo 'style="display:none;"';}?>><?php _e( 'Show Bundle Filters', 'edd-pup' );?></a>
+							<div class="bundle-filters-wrap" <?php if ( $filterson ) { echo 'style="display:block;"'; }?>>								
 								<!-- bundle option 1-->
-								<strong>Bundled product link output:</strong>
+								<strong><?php _e( 'Bundled product link output:', 'edd-pup' );?></strong>
 									<select name="bundle_1" class="bundle-input" value="">
 										<option value="updated" selected="selected"><?php _e( 'Show links for updated products only', 'edd-pup' );?></option>
 										<option value="all"><?php _e( 'Show links for all products', 'edd-pup' );?></option>
@@ -122,6 +122,7 @@ if ( $status != 'draft' ) {
 								<strong>Send only to bundle customers:</strong>
 								<input type="checkbox" name="bundle_2" id="bundle_2" value="<?php echo $filters['bundle_2'];?>" <?php checked( $filters['bundle_2'], 1 ); ?>/>
 								<p class="description">Only send this email to customers who have purchased a bundle selected above.</p>
+							</div>
 								<!-- exclude since last update option
 								<strong><?php _e( 'Exclude recent customers', 'edd-pup' ); ?>:</strong>
 								<input type="checkbox" name="recent" id="recent" value="1"<?php checked( $filters['bundle_2'], 1 ); ?>/>
