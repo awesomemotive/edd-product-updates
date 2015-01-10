@@ -12,15 +12,24 @@ if ( ! isset( $_GET['id'] ) || ! is_numeric( $_GET['id'] ) ) {
 	wp_die( __( 'Something went wrong.', 'edd-pup' ), __( 'Error', 'edd-pup' ) );
 }
 global $edd_options;
-$email_id  = absint( $_GET['id'] );
-$email     = get_post( $email_id );
-$emailmeta = get_post_custom( $email_id );
-$updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
-$recipients = get_post_meta( $email_id, '_edd_pup_recipients', TRUE );
-$queue = edd_pup_check_queue( $email_id );
-$processing = edd_pup_is_processing( $email_id ) ? true : false;
-$restarturl = add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id, 'restart' => 1 ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) );
-$dateformat = get_option( 'date_format' ). ' ' . get_option( 'time_format' );
+$bundle				= 0;
+$email_id  			= absint( $_GET['id'] );
+$email     			= get_post( $email_id );
+$emailmeta			= get_post_custom( $email_id );
+$updated_products 	= get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
+$recipients 		= get_post_meta( $email_id, '_edd_pup_recipients', TRUE );
+$filters			= isset ( $emailmeta['_edd_pup_filters'][0] ) ? maybe_unserialize( $emailmeta['_edd_pup_filters'][0] ) : null;
+$queue				= edd_pup_check_queue( $email_id );
+$processing 		= edd_pup_is_processing( $email_id ) ? true : false;
+$dateformat 		= get_option( 'date_format' ). ' ' . get_option( 'time_format' );
+$restarturl 		= add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id, 'restart' => 1 ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) );
+
+// Find if any products were bundles
+foreach ( $updated_products as $prod_id => $prod_name ) {
+	if ( edd_is_bundled_product( $prod_id ) ) {
+		$bundle++;
+	}
+}
 
 switch ( strtolower( $email->post_status ) ){
 		case 'publish':
@@ -67,11 +76,24 @@ switch ( strtolower( $email->post_status ) ){
 							<p><strong><?php _e( 'Total Recipients', 'edd-pup' ); ?>:</strong> <?php echo number_format( $recipients ); ?></p>
 							<?php endif; ?>
 							<p><strong><?php _e( 'Updated Products', 'edd-pup' ); ?>:</strong></p>
-								<ul id="updated-products">
+								<ul id="updated-products" class="edd_pup_email_info_list">
 								<?php foreach ( $updated_products as $id => $title ): ?>
 									<li class="product"><a href="<?php echo get_edit_post_link( $id );?>" target="_blank" title="Edit <?php echo $title;?> Download"><?php echo $title; ?></a></li>
 								<?php endforeach;?>
 								</ul>
+							<?php if ( isset( $filters ) && ( $bundle > 0 ) ):?>
+									<p><strong><?php _e( 'Bundle Filters', 'edd-pup'); ?>:</strong></p>
+									<ul class="edd_pup_email_info_list">
+								<?php if ( $filters['bundle_1'] == 'all' ):?>
+									<li class="edd_pup_email_info_item"><?php _e( 'All bundled products links included', 'edd-pup'); ?></li>
+								<?php else: ?>
+									<li class="edd_pup_email_info_item"><?php _e( 'Only updated bundled products links included', 'edd-pup'); ?></li>								
+								<?php endif; ?>
+								<?php if ( $filters['bundle_2'] == 1 ):?>
+									<li class="edd_pup_email_info_item"><?php _e( 'Sent only to bundle customers', 'edd-pup'); ?></li>
+								<?php endif;?>
+									</ul>
+							<?php endif; ?>
 							<?php if ( isset( $emailmeta['_edd_pup_licensing_status'][0] ) && $emailmeta['_edd_pup_licensing_status'][0] == 'active' ) : ?>
 							<p><strong><?php _e( 'EDD Software Licensing Filter On', 'edd-pup'); ?></strong></p>
 							<p><em><?php _e( 'Customers receive updates to products with software licensing enabled only if they have an active software license.', 'edd-pup' ); ?></em></p>
