@@ -12,6 +12,10 @@ $products = edd_pup_get_all_downloads();
 $tags = edd_get_email_tags();
 $recipients = 0;
 
+// Default Subject
+
+$defaultsubject  = edd_get_option( 'edd_pup_default_subject', __( 'New product update available', 'edd-pup' ) );
+
 // Default email message
 $defaultmessage  = '<p>'.__( 'Hello {name},', 'edd-pup').'</p>';
 $defaultmessage .= '<p>'.__( 'There are updates available for the following products:', 'edd-pup' ).'</p>';
@@ -130,7 +134,7 @@ $defaultmessage  = edd_get_option( 'edd_pup_default_message', $defaultmessage );
 							<p class="description"><?php _e( 'The email address customers will receive the product update from.' , 'edd-pup' ); ?></p>
 							<!-- subject    -->
 							<strong><?php _e( 'Subject', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="widefat" name="subject" id="subject" value="" placeholder="<?php _e( 'Your email subject line', 'edd-pup'); ?>" size="30" />
+							<input type="text" class="widefat" name="subject" id="subject" value="<?php echo $defaultsubject; ?>" placeholder="<?php _e( 'Your email subject line', 'edd-pup'); ?>" size="30" />
 							<p class="description"><?php _e( 'Enter the email subject line for this product update. Template tags can be used (see sidebar).' , 'edd-pup' ); ?></p>
 							
 							<!-- message    -->
