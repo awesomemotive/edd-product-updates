@@ -619,7 +619,6 @@ add_action( 'init', 'edd_pup_verify_unsub_link');
 function edd_pup_unsub_page($payment_id, $purchase_key, $email, $action) {
 
 	$payment_meta = edd_get_payment_meta( $payment_id );
-	$lognotes = edd_get_option( 'edd_pup_log_notes' );
 
 	// Only update payment info if user is currently subscribed for updates
 	if ( edd_pup_unsub_status($payment_id) && $action == 'prod_update_unsub' ) {
@@ -631,10 +630,8 @@ function edd_pup_unsub_page($payment_id, $purchase_key, $email, $action) {
 		update_post_meta( $payment_id, '_edd_payment_meta', $payment_meta );
 
 		// Update customer log with note about unsubscribing
-		if ( !isset( $lognotes['unsubscribe'] ) ) {
-			edd_insert_payment_note($payment_id, __( 'User unsubscribed from product update emails', 'edd-pup' ) );
-		}
-		
+		edd_insert_payment_note($payment_id, __( 'User unsubscribed from product update emails', 'edd-pup' ) );
+
 	} else if (!edd_pup_unsub_status($payment_id) && $action == 'prod_update_resub' ) {
 	
 		// Unsubscribe customer from futurue updates
@@ -644,9 +641,7 @@ function edd_pup_unsub_page($payment_id, $purchase_key, $email, $action) {
 		update_post_meta( $payment_id, '_edd_payment_meta', $payment_meta );
 
 		// Update customer log with note about resubscribing
-		if ( !isset( $lognotes['resubscribe'] ) ) {
-			edd_insert_payment_note($payment_id, __( 'User re-subscribed to product update emails', 'edd-pup' ) );
-		}
+		edd_insert_payment_note($payment_id, __( 'User re-subscribed to product update emails', 'edd-pup' ) );
 	}
 
 	edd_pup_unsub_message($payment_id, $purchase_key, $email, $action);

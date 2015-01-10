@@ -297,13 +297,6 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 	        
 	        $eddpup_settings2 = array(
 				array(
-					'id' => 'edd_pup_log_notes',
-					'name' => __( 'Disable customer log notes', 'edd-pup' ),
-					'desc' => __( 'If checked, log notes will not be generated on a customer\'s payment history page for the corresponding actions.', 'edd-pup' ),
-					'type' => 'multicheck',
-					'options' => array( 'sent' => __( 'Sent email log notes' , 'edd-pup' ), 'unsubscribe' => __( 'Unsubscribe log notes' , 'edd-pup' ), 'resubscribe' => __( 'Resubscribe log notes' , 'edd-pup' ) )
-				),
-				array(
 					'id' => 'edd_pup_template',
 					'name' => __( 'Email Template', 'edd-pup' ),
 					'desc' => __( 'Choose a template to be used for the product update emails.', 'edd-pup' ),
