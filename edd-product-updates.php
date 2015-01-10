@@ -303,11 +303,17 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 					'type' => 'select',
 					'options' => array_merge( array( 'inherit' => __( 'Same Template as Purchase Receipts', 'edd-pup') ), edd_pup_get_email_templates() )
 				),
-				
+				array(
+					'id' => 'edd_pup_default_subject',
+					'name' => __( 'Default Product Update Subject', 'edd' ),
+					'desc' => __('Enter the default subject line for Product Update emails.', 'edd'),
+					'type' => 'text',
+					'std'  => __( 'New product update available', 'edd-pup' )
+				),				
 				array(
 					'id' => 'edd_pup_default_message',
 					'name' => __( 'Default Product Update Message', 'edd' ),
-					'desc' => __('Enter the default message for Product Update emails. HTML is accepted. Available template tags:', 'edd') . '<br/>' . edd_get_emails_tags_list(),
+					'desc' => __('Enter the default message for Product Update emails. HTML is accepted. Available template tags:', 'edd') . '<br>' . edd_get_emails_tags_list(),
 					'type' => 'rich_editor',
 					'std'  => '<p>'.__( 'Hello {name},', 'edd-pup').'</p><p>'.__( 'There are updates available for the following products:', 'edd-pup' ).'</p><p>{updated_products}</p><p>'.__( 'You can download these updates from the following links:', 'edd-pup' ).'</p><p>{updated_products_links}</p><p>'.__( 'Thank you for being a customer of {sitename}!', 'edd-pup' ).'</p><p><small>'.__( 'To no longer receive product update emails, please click here: {unsubscribe_link}', 'edd-pup' ).'</small></p>'
 				)
@@ -401,7 +407,7 @@ function edd_pup_register_table() {
     global $wpdb;
     $wpdb->edd_pup_queue = "{$wpdb->prefix}edd_pup_queue";
     
-    update_option( 'edd_pup_version', '1.0.0' );			
+    update_option( 'edd_pup_version', '1.1.0' );			
 }
 		
 add_action( 'init', 'edd_pup_register_table', 1 );
