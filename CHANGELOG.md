@@ -4,6 +4,7 @@
 * Enhancement: "Same Template as Purchase Receipt" option in Product Update settings
 * Tweak: Change "Send New Email" to "Add New Update Email" on main list view page
 * Fix: Links not outputting from {updated\_products\_links} when customers have purchased only the bundle
+* Fix: Customers with statuses other than "Complete" still receiving emails (though unable to download products)
 
 ## 1.0 (December 10th, 2014)
 

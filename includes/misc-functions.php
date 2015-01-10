@@ -604,15 +604,24 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
 		$s = strlen( $prod_id );
 		
 		if ( $i === $n ) {
-			$q .= "meta_value LIKE '%\"id\";s:$s:\"$prod_id\"%' OR meta_value LIKE '%\"id\";i:$prod_id%' )";
+			$q .= "m.meta_value LIKE '%\"id\";s:$s:\"$prod_id\"%' OR m.meta_value LIKE '%\"id\";i:$prod_id%' )";
 		} else {
-			$q .= "meta_value LIKE '%\"id\";s:$s:\"$prod_id\"%' OR meta_value LIKE '%\"id\";i:$prod_id%' OR ";				
+			$q .= "m.meta_value LIKE '%\"id\";s:$s:\"$prod_id\"%' OR m.meta_value LIKE '%\"id\";i:$prod_id%' OR ";				
 		}
 		
 		$i++;
 	}
     
-    return $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_payment_meta' AND meta_value NOT LIKE '%\"edd_send_prod_updates\";b:$bool%' AND ($q $limit $offset", ARRAY_A );
+    return $wpdb->get_results(
+    	"SELECT m.post_id 
+    	FROM $wpdb->postmeta m, $wpdb->posts p
+    	WHERE m.meta_key = '_edd_payment_meta'
+    		AND m.meta_value NOT LIKE '%\"edd_send_prod_updates\";b:$bool%'
+    		AND ($q 
+    		AND p.ID = m.post_id
+    		AND p.post_status = 'publish' 
+    		$limit $offset
+    	", ARRAY_A );
     
 }
 
