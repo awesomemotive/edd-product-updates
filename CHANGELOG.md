@@ -1,9 +1,10 @@
 ## 1.1 (January 9th, 2015)
 * Feature: Advanced filters for bundle product behavior in the emails
-* Feature: Set Default Product Update Message in Downloads > Settings > Emails menu
+* Feature: Set default message and subject in Downloads > Settings > Emails menu
+* Feature: Disable log notes from being recorded when customers are sent emails, unsubscribe, or resubscribe
 * Enhancement: "Same Template as Purchase Receipt" option in Product Update settings
 * Tweak: Change "Send New Email" to "Add New Update Email" on main list view page
-* Fix: Links not outputting from {updated\_products\_links} when customers have purchased only the bundle
+* Fix: Links not outputting from {updated\_products\_links} when customers have purchased only a bundled product
 * Fix: Customers with statuses other than "Complete" still receiving emails (though unable to download products)
 
 ## 1.0 (December 10th, 2014)

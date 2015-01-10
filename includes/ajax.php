@@ -433,6 +433,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 	$from_name 	  = $emailmeta['_edd_pup_from_name'][0];
 	$from_email   = $emailmeta['_edd_pup_from_email'][0];
 	$attachments  = apply_filters( 'edd_pup_attachments', array(), $payment_id, $payment_data );
+	$lognotes	  = edd_get_option( 'edd_pup_log_notes' );
 	
 	add_filter('edd_email_template', 'edd_pup_template' );
 		
@@ -503,8 +504,10 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 		//$mailresult = true;
 	}
 	
-	// Update payment notes to log this email being sent	
-	edd_insert_payment_note( $payment_id, 'Sent product update email "'. $subject .'" <a href="'.admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=view_pup_email&id='.$email_id ).'">View Email</a>' );
+	// Update payment notes to log this email being sent
+	if ( !isset( $lognotes['sent'] ) ) {
+		edd_insert_payment_note( $payment_id, 'Sent product update email "'. $subject .'" <a href="'.admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=view_pup_email&id='.$email_id ).'">View Email</a>' );
+	}
     
     return $mailresult;
 }
