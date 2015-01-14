@@ -270,13 +270,41 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 	
 	        $eddpup_settings = array(
 	            array(
-	                'id' => 'edd_pup_settings_head',
+	                'id'   => 'edd_pup_settings_head',
 	                'name' => '<span id="edd_pup_settings"><strong>' . __( 'Product Updates Settings', 'edd-pup' ) . '</strong></span>',
 	                'desc' => __( 'Configure the Product Updates settings', 'edd-pup' ),
 	                'type' => 'header'
 	            ),
 	            array(
-	                'id' => 'edd_pup_auto_del',
+	                'id'   => 'edd_pup_test',
+	                'name' => __( 'Enable Test Mode', 'edd-pup' ),
+	                'desc' => __( 'When checked, EDD Product Updates will simulate emails being sent without actually sending them.', 'edd-pup' ),
+	                'type' => 'checkbox'
+	            ),
+	            array(
+	                'id'   => 'edd_pup_throttle',
+	                'name' => __( 'Enable Email Throttling', 'edd-pup' ),
+	                'desc' => __( 'When checked, emails will be throttled based on your preferences below rather than sent immediately when they are processed.', 'edd-pup' ),
+	                'type' => 'checkbox'
+	            ),
+	            array(
+	                'id'   => 'edd_pup_throttle_batch',
+	                'name' => __( 'Throttle Batch Number', 'edd-pup' ),
+	                'desc' => __( 'When checked, emails will be throttled based on your preferences below rather than sent as soon as they are processed.', 'edd-pup' ),
+	                'type' => 'number',
+	                'size' => 'small',
+	                'std'  => 10
+	            ),
+	            array(
+	                'id'   => 'edd_pup_throttle_interval',
+	                'name' => __( 'Throttle Batch Interval', 'edd-pup' ),
+	                'desc' => __( 'In seconds.', 'edd-pup' ),
+	                'type' => 'number',
+	                'size' => 'small',
+	                'std'  => 0
+	            ),
+	            array(
+	                'id'   => 'edd_pup_auto_del',
 	                'name' => __( 'Disable automatic queue removal', 'edd-pup' ),
 	                'desc' => __( 'When checked, emails will remain in the queue indefinitely instead of being removed after 48 hours.', 'edd-pup' ),
 	                'type' => 'checkbox'
@@ -287,7 +315,7 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 	       
 	        $eddpup_settings[] =
 	            array(
-	                'id' => 'edd_pup_license',
+	                'id'   => 'edd_pup_license',
 	                'name' => __( 'Easy Digital Downloads Software Licensing Integration', 'edd-pup' ),
 	                'desc' => __( 'If enabled, only customers with active software licenses will receive update emails', 'edd-pup' ),
 	                'type' => 'checkbox'
@@ -297,28 +325,28 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 	        
 	        $eddpup_settings2 = array(
 				array(
-					'id' => 'edd_pup_log_notes',
+					'id'   => 'edd_pup_log_notes',
 					'name' => __( 'Disable customer log notes', 'edd-pup' ),
 					'desc' => __( 'If checked, log notes will not be generated on a customer\'s payment history page for the corresponding actions.', 'edd-pup' ),
 					'type' => 'multicheck',
 					'options' => array( 'sent' => __( 'Sent email log notes' , 'edd-pup' ), 'unsubscribe' => __( 'Unsubscribe log notes' , 'edd-pup' ), 'resubscribe' => __( 'Resubscribe log notes' , 'edd-pup' ) )
 				),
 				array(
-					'id' => 'edd_pup_template',
+					'id'   => 'edd_pup_template',
 					'name' => __( 'Email Template', 'edd-pup' ),
 					'desc' => __( 'Choose a template to be used for the product update emails.', 'edd-pup' ),
 					'type' => 'select',
 					'options' => array_merge( array( 'inherit' => __( 'Same Template as Purchase Receipts', 'edd-pup') ), edd_pup_get_email_templates() )
 				),
 				array(
-					'id' => 'edd_pup_default_subject',
+					'id'   => 'edd_pup_default_subject',
 					'name' => __( 'Default Product Update Subject', 'edd' ),
 					'desc' => __('Enter the default subject line for Product Update emails.', 'edd'),
 					'type' => 'text',
 					'std'  => __( 'New product update available', 'edd-pup' )
 				),				
 				array(
-					'id' => 'edd_pup_default_message',
+					'id'   => 'edd_pup_default_message',
 					'name' => __( 'Default Product Update Message', 'edd' ),
 					'desc' => __('Enter the default message for Product Update emails. HTML is accepted. Available template tags:', 'edd') . '<br>' . edd_get_emails_tags_list(),
 					'type' => 'rich_editor',

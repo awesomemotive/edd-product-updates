@@ -365,6 +365,7 @@ add_action( 'wp_ajax_edd_pup_ajax_start', 'edd_pup_ajax_start' );
 function edd_pup_ajax_trigger(){
 	
 	global $wpdb;
+	global $edd_options;
 	
 	if ( !empty( $_POST['emailid'] ) && ( absint( $_POST['emailid'] ) != 0 ) ) {
 		$email_id = $_POST['emailid'];
@@ -375,11 +376,23 @@ function edd_pup_ajax_trigger(){
 
 	// Refresh email ID transient
 	set_transient( 'edd_pup_sending_email_'. get_current_user_id(), $email_id, 60);
-			
+
 	$batch = $_POST['iteration'];
 	$sent = $_POST['sent'];
 	$limit = 10;
 	$rows = array();
+		
+	/* Throttle emails if enabled in settings
+	if ( isset( $edd_options['edd_pup_throttle'] ) ) {
+		
+		$last = $wpdb->query( "SELECT UNIX_TIMESTAMP(sent_date) FROM $wpdb->edd_pup_queue WHERE email_id = $email_id AND sent = 1 ORDER BY sent_date DESC LIMIT 1" )
+		$now = time();
+		
+		if ( ( $now - $last ) < $edd_options['edd_pup_throttle_int'] ) {
+			echo json_encode(array('status'=>'new','sent'=>0,'total'=>absint($total),'processed'=>absint($processed+$count)));
+			exit;
+		}
+	}*/
 	
 	$query = "SELECT * FROM $wpdb->edd_pup_queue WHERE email_id = $email_id AND sent = 0 LIMIT $limit";
 	
@@ -387,7 +400,7 @@ function edd_pup_ajax_trigger(){
 
 	foreach ( $customers as $customer ) {
 	
-			$trigger = edd_pup_ajax_send_email( $customer['customer_id'], $email_id );
+			$trigger = edd_pup_ajax_send_email( $customer['customer_id'], $email_id, $edd_options['edd_pup_test'] );
 						
 			// Reset file download limits for customers' eligible updates
 			$customer_updates = edd_pup_get_customer_updates( $customer['customer_id'], $email_id );
@@ -423,7 +436,7 @@ add_action( 'wp_ajax_edd_pup_ajax_trigger', 'edd_pup_ajax_trigger' );
  * @param int $email_id Email ID for a edd_pup_email post-type
  * @return void
  */
-function edd_pup_ajax_send_email( $payment_id, $email_id ) {
+function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 
 	$userid 	  = get_current_user_id();
 	$emailpost 	  = get_post( $email_id );
@@ -467,7 +480,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 		$edd_emails->__set( 'from_name', $from_name );
 		$edd_emails->__set( 'from_address', $from_email );
 		
-		$mailresult = $edd_emails->send( $email, $subject, $message, $attachments );
+		$mailresult = isset( $test_mode ) ? true : $edd_emails->send( $email, $subject, $message, $attachments );
 		// For testing purposes only - comment the above line and uncomment this line below
 		//$mailresult = true;
 				
@@ -499,7 +512,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id ) {
 		$message .= apply_filters( 'edd_pup_message', edd_email_template_tags( $emailpost->post_content, $payment_data, $payment_id ), $payment_id, $payment_data );
 		$message .= $email_body_footer;	
 			
-		$mailresult = wp_mail( $email, $subject, $message, $headers, $attachments );
+		$mailresult = isset( $test_mode ) ? true : wp_mail( $email, $subject, $message, $headers, $attachments );
 		// For testing purposes only - comment the above line and uncomment this line below
 		//$mailresult = true;
 	}
