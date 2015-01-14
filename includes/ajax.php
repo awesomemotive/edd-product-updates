@@ -731,21 +731,9 @@ add_action( 'wp_ajax_edd_pup_send_test_email', 'edd_pup_send_test_email' );
  */
 function edd_pup_test_email( $email_id, $to = null ) {	
 	
-	$email     = get_post( $email_id );
-	$emailmeta = get_post_custom( $email_id );
-	
-	add_filter('edd_email_template', 'edd_pup_template' );
-
-	if ( version_compare( get_option( 'edd_version' ), '2.1' ) >= 0 ) {
-		$edd_emails = new EDD_Emails;
-		$message = $edd_emails->build_email( edd_email_preview_template_tags( $email->post_content ) );
-	} else {
-		$message = edd_get_email_body_header();
-		$message .= apply_filters( 'edd_pup_test_message', edd_apply_email_template( $email->post_content, null, null ), $email_id );
-		$message .= edd_get_email_body_footer();	
-	}
-
-	$from_name = isset( $emailmeta['_edd_pup_from_name'][0] ) ? $emailmeta['_edd_pup_from_name'][0] : get_bloginfo('name');
+	$email     	= get_post( $email_id );
+	$emailmeta 	= get_post_custom( $email_id );
+	$from_name 	= isset( $emailmeta['_edd_pup_from_name'][0] ) ? $emailmeta['_edd_pup_from_name'][0] : get_bloginfo('name');
 	$from_email = isset( $emailmeta['_edd_pup_from_email'][0] ) ? $emailmeta['_edd_pup_from_email'][0] : get_option('admin_email');
 
 	$subject = apply_filters( 'edd_pup_test_subject', isset( $email->post_excerpt )
@@ -753,13 +741,35 @@ function edd_pup_test_email( $email_id, $to = null ) {
 		: __( '(no subject)', 'edd-pup' ), 0 );
 	$subject = strip_tags ( edd_email_preview_template_tags( $subject ) );
 
-	$headers = "From: " . stripslashes_deep( html_entity_decode( $from_name, ENT_COMPAT, 'UTF-8' ) ) . " <$from_email>\r\n";
+	$headers  = "From: " . stripslashes_deep( html_entity_decode( $from_name, ENT_COMPAT, 'UTF-8' ) ) . " <$from_email>\r\n";
 	$headers .= "Reply-To: ". $from_email . "\r\n";
 	$headers .= "Content-Type: text/html; charset=utf-8\r\n";
-	$headers = apply_filters( 'edd_pup_test_headers', $headers );
-	
-	foreach ( $to as $recipient ) {
-		wp_mail( $recipient, $subject, $message, $headers );
+	$headers  = apply_filters( 'edd_pup_test_headers', $headers );
+		
+	add_filter('edd_email_template', 'edd_pup_template' );
+
+	if ( version_compare( get_option( 'edd_version' ), '2.1' ) >= 0 ) {
+		
+		$edd_emails = new EDD_emails();
+		$message = edd_email_preview_template_tags( $email->post_content );
+		$edd_emails->__set( 'from_name', $from_name );
+		$edd_emails->__set( 'from_address', $from_email );
+		
+		// Send the email
+		foreach ( $to as $recipient ) {
+			$edd_emails->send( $recipient, $subject, $message );
+		}
+		
+		//$edd_emails = new EDD_Emails;
+		//$message = $edd_emails->build_email( edd_email_preview_template_tags( $email->post_content ) );
+	} else {
+		$message = edd_get_email_body_header();
+		$message .= apply_filters( 'edd_pup_test_message', edd_apply_email_template( $email->post_content, null, null ), $email_id );
+		$message .= edd_get_email_body_footer();
+		
+		foreach ( $to as $recipient ) {
+			wp_mail( $recipient, $subject, $message, $headers );
+		}
 	}
 	
 	return $to;
