@@ -227,8 +227,9 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 				} else {
 				
 					$licenses = edd_pup_get_license_keys( $customer->post_id );
+					$enabled  = get_post_status( $licenses[$item['id']]['license_id'] ) == 'publish' ? true : false;
 					
-					if ( !empty( $licenses ) && edd_software_licensing()->check_license( array( 'key' => $licenses[ $item['id'] ], 'item_name' => $item['name']) ) === 'valid' ) {
+					if ( !empty( $licenses ) && $enabled && edd_software_licensing()->get_license_status( $licenses[$item['id']]['license_id'] ) == ( 'active' || 'inactive' ) ) {
 						$count++;
 						break;
 					}
@@ -368,9 +369,10 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = tru
 		// If Software Licensing integration is active and the $item has software licensing enabled
 		if ( isset( $edd_options['edd_pup_license'] ) && isset( $licenseditems[ $item['id'] ] ) ) {
 			
-			// If the customer has licenses and the license for this $item is valid
-			if ( !empty( $licenses ) && edd_software_licensing()->check_license( array( 'key' => $licenses[ $item['id'] ], 'item_name' => $item['name']) ) === 'valid' ) {	
-				
+			// If the customer has licenses and the license for this $item is enabled and active
+			$enabled  = get_post_status( $licenses[$item['id']]['license_id'] ) == 'publish' ? true : false;
+						
+			if ( !empty( $licenses ) && $enabled && edd_software_licensing()->get_license_status( $licenses[$item['id']]['license_id'] ) === ( 'active' || 'inactive' ) ) {
 				// Add the $item as an eligible updates
 				$customer_updates[ $item['id'] ] = $object ? $item : $item['name'];
 			}
@@ -421,7 +423,7 @@ function edd_pup_get_license_keys( $payment_id ){
 	if ( $licenses ) {	
 		foreach ( $licenses as $license ){
 			$meta = get_post_custom( $license->ID );
-			$keys[ $meta['_edd_sl_download_id'][0] ] = $meta['_edd_sl_key'][0];
+			$keys[ $meta['_edd_sl_download_id'][0] ] = array( 'license_id' => $license->ID, 'key' => $meta['_edd_sl_key'][0] );
 		}
 	}
 	
