@@ -481,8 +481,6 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 		$edd_emails->__set( 'from_address', $from_email );
 		
 		$mailresult = isset( $test_mode ) ? true : $edd_emails->send( $email, $subject, $message, $attachments );
-		// For testing purposes only - comment the above line and uncomment this line below
-		//$mailresult = true;
 				
 	} else {
 		
@@ -513,8 +511,6 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 		$message .= $email_body_footer;	
 			
 		$mailresult = isset( $test_mode ) ? true : wp_mail( $email, $subject, $message, $headers, $attachments );
-		// For testing purposes only - comment the above line and uncomment this line below
-		//$mailresult = true;
 	}
 	
 	// Update payment notes to log this email being sent
