@@ -143,8 +143,15 @@ switch ( strtolower( $email->post_status ) ){
 							<p><strong><?php _e( 'From Email', 'edd-pup' ); ?>:</strong> <?php echo $emailmeta['_edd_pup_from_email'][0]; ?></p>
 							<p><strong><?php _e( 'Subject', 'edd-pup' ); ?>:</strong> <?php echo $emailmeta['_edd_pup_subject'][0]; ?></p>
 							<p><strong><?php _e( 'Message', 'edd-pup' ); ?>:</strong></p>
+							<div class="message-toggle-wrap">
+								<button class="message-toggle active" data-message="preview"><?php _e( 'Preview', 'edd-pup' ); ?></button> 
+								<button class="message-toggle" data-message="original"><?php _e( 'Original', 'edd-pup' );?></button>
+							</div>
 							<div id="message-preview">
 								<?php echo $emailmeta['_edd_pup_message'][0]; ?>
+							</div>
+							<div id="message-original" style="display:none;">
+								<?php echo $email->post_content; ?>	
 							</div>
 						</div>
 					</div>

@@ -14,16 +14,24 @@ jQuery(document).ready(function ($) {
 		});
 		
 		// Toggle bundle filters on and off on edit screen
-		$('#bundle_filters').click( function() {
+		$('#edd-pup-single-email .message-toggle').click( function() {
 			
-			if ( $(this).data('state') == 'hidden' ) {
-				$(this).text( eddPup.bf2 ).data('state','visible');
-			} else {
-				$(this).text( eddPup.bf1 ).data('state','hidden');
+			if ( $(this).hasClass('active') ) {
+				return false;
+			} else {				
+				if ( $(this).data('message') == 'preview' ) {
+					$('#message-preview').show();
+					$('#message-original' ).hide();
+				} else if ( $(this).data('message') == 'original' ) {
+					$('#message-original' ).show();		
+					$('#message-preview').hide();			
+				} else {
+					return false;
+				}
+				$('#message-preview','#message-original' ).toggle();
+				$('.message-toggle').toggleClass('active');
+				return false;
 			}
-			
-			$('.bundle-filters-wrap').toggle();
-			return false;
 		});
 		
 		

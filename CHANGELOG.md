@@ -2,10 +2,14 @@
 * Feature: Advanced filters for bundle product behavior in the emails
 * Feature: Set default message and subject in Downloads > Settings > Emails menu
 * Feature: Disable log notes from being recorded when customers are sent emails, unsubscribe, or resubscribe
+* Feature: Toggle between a "Preview" of sent emails or the original message without tags interpreted
 * Enhancement: "Same Template as Purchase Receipt" option in Product Update settings
+* Tweak: Test emails are now sent using EDD_emails class for EDD versions 2.1+
 * Tweak: Change "Send New Email" to "Add New Update Email" on main list view page
+* Added: "Test Mode" into settings for simulation of sending emails without actually sending them (good for debugging)
 * Fix: Links not outputting from {updated\_products\_links} when customers have purchased only a bundled product
 * Fix: Customers with statuses other than "Complete" still receiving emails (though unable to download products)
+* Fix: Customers with an inactive website, but otherwise active/valid license key not receiving emails
 
 ## 1.0 (December 10th, 2014)
 

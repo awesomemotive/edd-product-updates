@@ -94,7 +94,8 @@
 	padding: 20px 0;
 }
 
-#edd-pup-single-email #message-preview {
+#edd-pup-single-email #message-preview,
+#edd-pup-single-email #message-original {
 	padding: 10px 20px;
 	border: 1px solid #e6e6e6;
 	overflow: auto;
@@ -158,6 +159,32 @@
 
 #edd-pup-single-email .bundle-filters-wrap {
 	margin-top: 10px;
+}
+
+#edd-pup-single-email .message-toggle-wrap {
+	margin-bottom: 10px;
+}
+
+#edd-pup-single-email .message-toggle {
+	padding: 10px 20px;
+	border: 1px solid #cecece;
+	background: #e6e6e6;
+}
+
+#edd-pup-single-email .message-toggle:hover {
+	background: #c0c0c0;
+	cursor: pointer;
+}
+
+#edd-pup-single-email .message-toggle.active {
+	background: #0074a2;
+	border: 1px solid #666;
+	color: #fff;
+	cursor: auto;
+}
+
+#edd-pup-single-email .message-toggle:focus {
+	outline: none;
 }
 
 /* Fix for view email page */
