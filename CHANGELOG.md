@@ -1,16 +1,18 @@
 ## 1.1 (January 9th, 2015)
 * Feature: Advanced filters for bundle product behavior in the emails
 * Feature: Set default message and subject in Downloads > Settings > Emails menu
-* Feature: Disable log notes from being recorded when customers are sent emails, unsubscribe, or resubscribe
-* Feature: Toggle between a "Preview" of sent emails or the original message without tags interpreted
+* Feature: Option to disable log notes when customers are sent emails, unsubscribe, or resubscribe
+* Feature: Toggle between "Preview" of sent emails or the original message on the view email page
 * Enhancement: "Same Template as Purchase Receipt" option in Product Update settings
-* Tweak: Test emails are now sent using EDD_emails class for EDD versions 2.1+
+* Enhancement: Specify which user is processing an email in the alert on the view email page
+* Tweak: Test emails are now sent using full scope of EDD_emails class for EDD versions 2.1+
 * Tweak: Change "Send New Email" to "Add New Update Email" on main list view page
-* Added: "Test Mode" into settings for simulation of sending emails without actually sending them (good for debugging)
+* Added: "Test Mode" option in settings for simulation of sending emails without actually sending them (good for debugging)
 * Added: `edd_pup_valid_license_statuses` filter to optionally expand which type of licensed customers get emails
 * Fix: Links not outputting from {updated\_products\_links} when customers have purchased only a bundled product
 * Fix: Customers with statuses other than "Complete" still receiving emails (though unable to download products)
-* Fix: Customers with an inactive website, but otherwise active/valid license key not receiving emails
+* Fix: Customers with an inactive website, but otherwise active/valid EDD Software Licensing license key not receiving emails
+* Fix: Issue with email trigger function causing extension to use transients as primary source of info instead of fallback
 
 ## 1.0 (December 10th, 2014)
 
