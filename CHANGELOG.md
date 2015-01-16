@@ -7,6 +7,7 @@
 * Tweak: Test emails are now sent using EDD_emails class for EDD versions 2.1+
 * Tweak: Change "Send New Email" to "Add New Update Email" on main list view page
 * Added: "Test Mode" into settings for simulation of sending emails without actually sending them (good for debugging)
+* Added: `edd_pup_valid_license_statuses` filter to optionally expand which type of licensed customers get emails
 * Fix: Links not outputting from {updated\_products\_links} when customers have purchased only a bundled product
 * Fix: Customers with statuses other than "Complete" still receiving emails (though unable to download products)
 * Fix: Customers with an inactive website, but otherwise active/valid license key not receiving emails
