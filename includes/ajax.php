@@ -367,21 +367,23 @@ function edd_pup_ajax_trigger(){
 	global $wpdb;
 	global $edd_options;
 	
-	if ( !empty( $_POST['emailid'] ) && ( absint( $_POST['emailid'] ) != 0 ) ) {
-		$email_id = $_POST['emailid'];
-		
+	
+	global $wpdb;
+	
+	if ( !empty( $_POST['email_id'] ) && ( absint( $_POST['email_id'] ) != 0 ) ) {
+		$email_id = $_POST['email_id'];	
 	} else {
 		$email_id = get_transient( 'edd_pup_sending_email_'. get_current_user_id() );
 	}
 
 	// Refresh email ID transient
 	set_transient( 'edd_pup_sending_email_'. get_current_user_id(), $email_id, 60);
-
+			
 	$batch = $_POST['iteration'];
 	$sent = $_POST['sent'];
 	$limit = 10;
 	$rows = array();
-		
+			
 	/* Throttle emails if enabled in settings
 	if ( isset( $edd_options['edd_pup_throttle'] ) ) {
 		
