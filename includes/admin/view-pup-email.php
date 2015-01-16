@@ -13,6 +13,7 @@ if ( ! isset( $_GET['id'] ) || ! is_numeric( $_GET['id'] ) ) {
 }
 global $edd_options;
 $bundle				= 0;
+$user				= get_current_user_id();
 $email_id  			= absint( $_GET['id'] );
 $email     			= get_post( $email_id );
 $emailmeta			= get_post_custom( $email_id );
@@ -127,7 +128,11 @@ switch ( strtolower( $email->post_status ) ){
 					<div class="postbox">
 						<h3 class="hndle"><span><?php _e( 'Email Currently Processing', 'edd-pup' ); ?></span></h3>
 						<div class="inside">
-							<p><?php _e( 'This email is currently processing and being used to send messages to customers of the products listed on the sidebar.', 'edd-pup' ); ?></p>
+							<?php if ( $email->post_author == $user ): ?>
+							<p><?php _e( 'You are currently processing this email to send messages to customers of the products listed on the sidebar.', 'edd-pup' ); ?></p>
+							<?php else: ?>
+							<p><?php printf( __( '%s (%s) is currently processing this email to send messages to customers of the products listed on the sidebar.', 'edd-pup' ), get_the_author_meta( 'display_name', $email->post_author ), get_the_author_meta( 'user_login', $email->post_author ) ); ?></p>
+							<?php endif;?>
 						</div>
 					</div>
 				</div>
