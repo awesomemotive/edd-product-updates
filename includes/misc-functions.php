@@ -149,6 +149,64 @@ function edd_pup_save_email( $data, $email_id = null ) {
 }
 
 /**
+ * Duplicates an existing email.
+ *
+ * @since 1.1
+ * @param int $post_id the post ID of the email being duplicated
+ * @return int|bool the ID of the new email if successful, otherwise returns false on failure
+ */
+function edd_pup_create_duplicate_email( $post_id = 0 ) {
+	
+	if ( $post_id == 0 ) {
+		return false;
+	}
+	
+	$post = get_post( $post_id );
+		
+	$new_post = array(
+	  'post_content'   => $post->post_content,
+	  'post_name'      => '',
+	  'post_title'     => $post->post_title .' '. __( 'Copy', 'edd-pup' ),
+	  'post_status'    => 'draft',
+	  'post_type'      => 'edd_pup_email',
+	  'post_author'    => '',
+	  'ping_status'    => 'closed',
+	  'post_parent'    => 0,
+	  'menu_order'     => 0,
+	  'to_ping'        => '',
+	  'pinged'         => '',
+	  'post_password'  => '',
+	  'guid'           => '',
+	  'post_content_filtered' => '',
+	  'post_excerpt'   => $post->post_excerpt,
+	  'comment_status' => 'closed'
+	);
+
+	// Create post and get the ID
+	$create_id = wp_insert_post( $new_post );
+		
+	// Insert custom meta for newly created post
+	if ( 0 != $create_id )	{
+				
+		$meta = get_post_custom( $post_id );
+	
+		add_post_meta ( $create_id, '_edd_pup_from_name', $meta['_edd_pup_from_name'][0], true );
+		add_post_meta ( $create_id, '_edd_pup_from_email', $meta['_edd_pup_from_email'][0], true );
+		add_post_meta ( $create_id, '_edd_pup_subject', $post->excerpt, true );
+		add_post_meta ( $create_id, '_edd_pup_message', $post->post_content, true );
+		add_post_meta ( $create_id, '_edd_pup_updated_products', maybe_unserialize( $meta['_edd_pup_updated_products'][0] ), true );
+		add_post_meta ( $create_id, '_edd_pup_recipients', $meta['_edd_pup_recipients'][0] );	
+		add_post_meta ( $create_id, '_edd_pup_filters', maybe_unserialize( $meta['_edd_pup_filters'][0] ), true );
+	}
+	
+	if ( 0 != $create_id) {	
+		return $create_id;
+	} else {
+		return false;
+	}
+}
+
+/**
  * Count number of customers who will receive product update emails
  *
  * 

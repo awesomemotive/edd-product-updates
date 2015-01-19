@@ -47,6 +47,13 @@ function edd_pup_notices() {
 				case 5:
 					$message = __( '1 email successfully deleted.', 'edd-pup' );
 					break;
+				case 6:
+					$message = sprintf( __( '<strong>Email did not duplicate successfully</strong>. If the issue continues, please <a href="%s" target="_%s">contact Easy Digital Downloads support</a> for help.', 'edd-pup' ), $supporturl, '_blank' );
+					$style = 'error';
+					break;
+				case 7:
+					$message = __( 'Email successfully duplicated.', 'edd-pup' );
+					break;
 			}
 	    ?>
 	    <div class="<?php echo $style; ?> edd-pup-message">
