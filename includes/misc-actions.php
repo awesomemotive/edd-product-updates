@@ -94,15 +94,19 @@ function edd_pup_duplicate_email( $data ) {
 	}
 	
 	$new_post = edd_pup_create_duplicate_email( $data['id'] );
+	$baseurl  = admin_url( 'edit.php?post_type=download&page=edd-prod-updates' );
 	
 	if ( false == $new_post ) {
 		wp_die( 'Something went wrong', 'oops' );
 	}
 
 	if ( false === $new_post || empty( $new_post ) ) {
-		wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 6, admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ) ) );
+		wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 6, $baseurl ) ) );
 	} else {
-		wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 7, admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) ) ) );
+		
+		$url = $data['redirect'] == 1 ? admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=edit_pup_email&id='. $new_post ) : $baseurl;
+		
+		wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 7, $url ) ) );
 		
 	}
 	
