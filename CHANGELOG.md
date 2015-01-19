@@ -13,7 +13,7 @@
 * Fix: Links not outputting from {updated\_products\_links} when customers have purchased only a bundled product
 * Fix: Customers with statuses other than "Complete" still receiving emails (though unable to download products)
 * Fix: Customers with an inactive website, but otherwise active/valid EDD Software Licensing license key not receiving emails
-* Fix: Issue with email trigger function causing extension to use transients as primary source of info instead of fallback
+* Fix: Issue with email trigger function causing extension to use transients as primary source of info instead of as a fallback
 
 ## 1.0 (December 10th, 2014)
 
