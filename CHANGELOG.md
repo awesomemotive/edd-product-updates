@@ -3,6 +3,7 @@
 * Feature: Set default message and subject in Downloads > Settings > Emails menu
 * Feature: Option to disable log notes when customers are sent emails, unsubscribe, or resubscribe
 * Feature: Toggle between "Preview" of sent emails or the original message on the view email page
+* Feature: Ability to duplicate product update emails
 * Enhancement: "Same Template as Purchase Receipt" option in Product Update settings
 * Enhancement: Specify which user is processing an email in the alert on the view email page
 * Tweak: Test emails are now sent using full scope of EDD_emails class for EDD versions 2.1+
