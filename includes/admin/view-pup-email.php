@@ -23,7 +23,9 @@ $filters			= isset ( $emailmeta['_edd_pup_filters'][0] ) ? maybe_unserialize( $e
 $queue				= edd_pup_check_queue( $email_id );
 $processing 		= edd_pup_is_processing( $email_id ) ? true : false;
 $dateformat 		= get_option( 'date_format' ). ' ' . get_option( 'time_format' );
+$baseurl			= admin_url( 'edit.php?post_type=download&page=edd-prod-updates' );
 $restarturl 		= add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id, 'restart' => 1 ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) );
+$duplicateurl		= wp_nonce_url( add_query_arg( array( 'edd_action' => 'pup_duplicate_email', 'id' => $email_id, 'redirect' => 1 ), $baseurl ), 'edd-pup-duplicate-nonce' );
 
 // Find if any products were bundles
 foreach ( $updated_products as $prod_id => $prod_name ) {
@@ -54,7 +56,8 @@ switch ( strtolower( $email->post_status ) ){
 <div id="edd-pup-single-email" class="wrap">
 	<h2><?php echo $email->post_title; ?></h2>
 	<br>
-	<a href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ); ?>" class="button-secondary"><?php _e( 'Go Back', 'edd-pup' ); ?></a>
+	<a href="<?php echo $baseurl ?>" class="button-secondary"><?php _e( 'Go Back', 'edd-pup' ); ?></a>
+	<a href="<?php echo $duplicateurl ?>" class="button-primary"><?php _e( 'Send another email like this', 'edd-pup');?></a>
 	<div id="poststuff">
 		<div id="post-body" class="metabox-holder columns-2">
 			<div id="postbox-container-1" class="postbox-container">
