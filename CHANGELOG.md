@@ -1,9 +1,9 @@
 ## 1.1 (January 9th, 2015)
-* Feature: Advanced filters for bundle product behavior in the emails
-* Feature: Set default message and subject in Downloads > Settings > Emails menu
-* Feature: Option to disable log notes when customers are sent emails, unsubscribe, or resubscribe
+* Feature: Advanced options for bundle products when creating and sending emails
+* Feature: Set default message and default subject line in settings
+* Feature: Option to disable log notes when customers are either sent emails, unsubscribe, or resubscribe
 * Feature: Toggle between "Preview" of sent emails or the original message on the view email page
-* Feature: Ability to duplicate product update emails
+* Feature: Ability to duplicate emails
 * Enhancement: "Same Template as Purchase Receipt" option in Product Update settings
 * Enhancement: Specify which user is processing an email in the alert on the view email page
 * Tweak: Test emails are now sent using full scope of EDD_emails class for EDD versions 2.1+
@@ -14,6 +14,7 @@
 * Fix: Customers with statuses other than "Complete" still receiving emails (though unable to download products)
 * Fix: Customers with an inactive website, but otherwise active/valid EDD Software Licensing license key not receiving emails
 * Fix: Issue with email trigger function causing extension to use transients as primary source of info instead of as a fallback
+* Fix: Javascript error on preview and test emails when visual editor is disabled by user
 
 ## 1.0 (December 10th, 2014)
 

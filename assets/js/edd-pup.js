@@ -94,15 +94,20 @@ jQuery(document).ready(function ($) {
     
 	function emailPreview() {
 	
-		var	button = $('#edd-pup-open-preview');
+		var	button = $('#edd-pup-open-preview'),
+			tinymce = $('#edd_pup_tinymce_status').val();
 		
            button.mousedown( function() {
-           
-			   	tinyMCE.triggerSave();
-			   		
+
+	           		if ( tinymce == 'true' ) {
+				   		tinyMCE.triggerSave();
+				   	}
+			   	
   				}).click( function () {
   				
-          		tinyMCE.triggerSave();
+	           		if ( tinymce == 'true' ) {
+				   		tinyMCE.triggerSave();
+				   	}
           		
            		var url = document.URL,
            			form = $('#edd-pup-email-edit').serialize(),
@@ -166,15 +171,20 @@ jQuery(document).ready(function ($) {
 		
 	function emailTest() {
 	
-		var	button = $('#edd-pup-send-test');
+		var	button = $('#edd-pup-send-test'),
+			tinymce = $('#edd_pup_tinymce_status').val();
 		
            button.mousedown( function() {
-           
-			   	tinyMCE.triggerSave();
+           		
+           		if ( tinymce == 'true' ) {
+			   		tinyMCE.triggerSave();
+			   	}
 			   		
   				}).click( function () {
   				
-          		tinyMCE.triggerSave();
+           		if ( tinymce == 'true' ) {
+			   		tinyMCE.triggerSave();
+			   	}
            		var url = document.URL,
            			form = $('#edd-pup-email-edit').serialize(),
            			data = {'action': 'edd_pup_send_test_email', 'form' : form, 'url' : url };
@@ -226,11 +236,14 @@ jQuery(document).ready(function ($) {
 	function emailConfirmPreview() {
 	
 		var	button = $('#send-prod-updates'),
-			spinner = $('.edd-pup-spin');
+			spinner = $('.edd-pup-spin'),
+			tinymce = $('#edd_pup_tinymce_status').val();
 		
            button.mousedown( function () {
            		
-           		tinyMCE.triggerSave();
+           		if ( tinymce == 'true' ) {
+           			tinyMCE.triggerSave();
+           		}
            		
            		}).click( function() {
 
