@@ -159,7 +159,7 @@ switch ( strtolower( $email->post_status ) ){
 								<?php echo $emailmeta['_edd_pup_message'][0]; ?>
 							</div>
 							<div id="message-original" style="display:none;">
-								<?php echo $email->post_content; ?>	
+								<?php echo wpautop( $email->post_content ); ?>	
 							</div>
 						</div>
 					</div>
