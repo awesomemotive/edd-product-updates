@@ -281,7 +281,7 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 	                'desc' => __( 'When checked, EDD Product Updates will simulate emails being sent without actually sending them.', 'edd-pup' ),
 	                'type' => 'checkbox'
 	            ),
-	            array(
+	            /*array(
 	                'id'   => 'edd_pup_throttle',
 	                'name' => __( 'Enable Email Throttling', 'edd-pup' ),
 	                'desc' => __( 'When checked, emails will be throttled based on your preferences below rather than sent immediately when they are processed.', 'edd-pup' ),
@@ -302,7 +302,7 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 	                'type' => 'number',
 	                'size' => 'small',
 	                'std'  => 0
-	            ),
+	            ),*/
 	            array(
 	                'id'   => 'edd_pup_auto_del',
 	                'name' => __( 'Disable automatic queue removal', 'edd-pup' ),
