@@ -104,7 +104,7 @@ function edd_pup_duplicate_email( $data ) {
 		wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 6, $baseurl ) ) );
 	} else {
 		
-		$url = $data['redirect'] == 1 ? admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=edit_pup_email&id='. $new_post ) : $baseurl;
+		$url = isset( $data['redirect'] ) && $data['redirect'] == 1 ? admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=edit_pup_email&id='. $new_post ) : $baseurl;
 		
 		wp_redirect( esc_url_raw( add_query_arg( 'edd_pup_notice', 7, $url ) ) );
 		
