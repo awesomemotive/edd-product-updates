@@ -1,4 +1,4 @@
-## 1.1 (January 9th, 2015)
+## 1.1 (February 18th, 2015)
 * Feature: Advanced options for bundle products when creating and sending emails
 * Feature: Set default message and default subject line in settings
 * Feature: Option to disable log notes when customers are either sent emails, unsubscribe, or resubscribe
