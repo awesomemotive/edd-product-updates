@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Easy Digital Downloads - Product Updates
  * Description:     Batch send product update emails to EDD customers
- * Version:         1.0.0
+ * Version:         1.1.0
  * Author:          Evan Luzi
  * Author URI:      http://www.evanluzi.com/
  * Text Domain:     edd-pup
