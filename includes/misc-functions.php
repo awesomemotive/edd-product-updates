@@ -65,7 +65,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
 	
 	// Set variables that are the same for all customers
 	$from_name = isset( $data['from_name'] ) ? $data['from_name'] : get_bloginfo('name');
-	$from_email = isset( $data['from_email'] ) ? $data['from_email'] : get_option('admin_email');
+	$from_email = isset( $data['from_email'] ) ? $data['from_email'] : get_bloginfo('admin_email');
 	$subject = apply_filters( 'edd_purchase_subject', ! empty( $data['subject'] )
 		? wp_strip_all_tags( $data['subject'], true )
 		: __( 'New Product Update', 'edd-pup' ) );

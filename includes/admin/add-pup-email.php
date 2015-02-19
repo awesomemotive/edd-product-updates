@@ -12,11 +12,10 @@ $products = edd_pup_get_all_downloads();
 $tags = edd_get_email_tags();
 $recipients = 0;
 
-// Default Subject
-
+// Defaults
+$defaultname     = edd_get_option( 'edd_pup_default_from_name', get_bloginfo('name') );
+$defaultemail    = edd_get_option( 'edd_pup_default_from_email', get_bloginfo('admin_email') );
 $defaultsubject  = edd_get_option( 'edd_pup_default_subject', __( 'New product update available', 'edd-pup' ) );
-
-// Default email message
 $defaultmessage  = '<p>'.__( 'Hello {name},', 'edd-pup').'</p>';
 $defaultmessage .= '<p>'.__( 'There are updates available for the following products:', 'edd-pup' ).'</p>';
 $defaultmessage .= '{updated_products}';
@@ -126,11 +125,11 @@ $defaultmessage  = edd_get_option( 'edd_pup_default_message', $defaultmessage );
 						<div class="inside">
 							<!-- from name  -->
 							<strong><?php _e( 'From Name', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="regular-text" name="from_name" id="from_name" value="" placeholder="<?php echo get_bloginfo('name'); ?>"/>
+							<input type="text" class="regular-text" name="from_name" id="from_name" value="<?php echo $defaultname; ?>" placeholder="<?php _e( 'Your Name', 'edd-pup'); ?>"/>
 							<p class="description"><?php _e( 'The name customers will see the product update coming from.' , 'edd-pup' ); ?></p>
 							<!-- from email -->
 							<strong><?php _e( 'From Email', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="regular-text" name="from_email" id="from_email" value="" placeholder="<?php echo get_bloginfo('admin_email'); ?>"/>
+							<input type="text" class="regular-text" name="from_email" id="from_email" value="<?php echo $defaultemail; ?>" placeholder="<?php _e( 'your_email@website.com', 'edd-pup'); ?>"/>
 							<p class="description"><?php _e( 'The email address customers will receive the product update from.' , 'edd-pup' ); ?></p>
 							<!-- subject    -->
 							<strong><?php _e( 'Subject', 'edd-pup' ); ?>:</strong>

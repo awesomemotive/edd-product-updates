@@ -151,11 +151,11 @@ if ( $status != 'draft' ) {
 						<div class="inside">
 							<!-- from name  -->
 							<strong><?php _e( 'From Name', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="regular-text" name="from_name" id="from_name" placeholder="<?php echo get_bloginfo('name'); ?>" value="<?php echo $fromname; ?>" />
+							<input type="text" class="regular-text" name="from_name" id="from_name" placeholder="<?php _e( 'Your Name', 'edd-pup'); ?>" value="<?php echo $fromname; ?>" />
 							<p class="description"><?php _e( 'The name customers will see the product update coming from.' , 'edd-pup' ); ?></p>
 							<!-- from email -->
 							<strong><?php _e( 'From Email', 'edd-pup' ); ?>:</strong>
-							<input type="text" class="regular-text" name="from_email" id="from_email" placeholder="<?php echo get_bloginfo('admin_email'); ?>" value="<?php echo $fromemail; ?>" />
+							<input type="text" class="regular-text" name="from_email" id="from_email" placeholder="<?php _e( 'your_email@website.com', 'edd-pup'); ?>" value="<?php echo $fromemail; ?>" />
 							<p class="description"><?php _e( 'The email address customers will receive the product update from.' , 'edd-pup' ); ?></p>
 							<!-- subject    -->
 							<strong><?php _e( 'Subject', 'edd-pup' ); ?>:</strong>

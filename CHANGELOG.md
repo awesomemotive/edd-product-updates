@@ -1,6 +1,6 @@
-## 1.1 (February 18th, 2015)
+## 1.1 (February 19th, 2015)
 * Feature: Advanced options for bundle products when creating and sending emails
-* Feature: Set default message and default subject line in settings
+* Feature: Set default from name, from email address, subject, and message in settings
 * Feature: Option to disable log notes when customers are either sent emails, unsubscribe, or resubscribe
 * Feature: Toggle between "Preview" of sent emails or the original message on the view email page
 * Feature: Ability to duplicate emails

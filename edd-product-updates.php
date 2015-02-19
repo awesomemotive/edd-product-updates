@@ -339,6 +339,20 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 					'options' => array_merge( array( 'inherit' => __( 'Same Template as Purchase Receipts', 'edd-pup') ), edd_pup_get_email_templates() )
 				),
 				array(
+					'id'   => 'edd_pup_default_from_name',
+					'name' => __( 'Default Product Update From Name', 'edd' ),
+					'desc' => __('Enter the default "From Name" for Product Update emails.', 'edd'),
+					'type' => 'text',
+					'std'  => get_bloginfo('name')
+				),
+				array(
+					'id'   => 'edd_pup_default_from_email',
+					'name' => __( 'Default Product Update From Email', 'edd' ),
+					'desc' => __('Enter the default email address customers will receive Product Update emails from.', 'edd'),
+					'type' => 'text',
+					'std'  => get_bloginfo('admin_email')
+				),
+				array(
 					'id'   => 'edd_pup_default_subject',
 					'name' => __( 'Default Product Update Subject', 'edd' ),
 					'desc' => __('Enter the default subject line for Product Update emails.', 'edd'),
