@@ -571,7 +571,7 @@ function edd_pup_verify_unsub_link() {
 		$action   = sanitize_text_field( $_GET['edd_action'] );
 		$email    = sanitize_email( rawurldecode( $_GET['email'] ) );
 		$key      = sanitize_key( $_GET['purchase_key'] );
-		$preview  = isset( $_GET['preview'] ) ? boolval( $_GET['preview'] ) : false;
+		$preview  = isset( $_GET['preview'] ) && is_numeric( $_GET['preview'] ) && $_GET['preview'] == 1 ? true : false;
 
 		$meta_query = array(
 			'relation'  => 'AND',
