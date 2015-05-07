@@ -315,7 +315,8 @@ function edd_pup_ajax_start(){
 		foreach ( $customers as $customer ){
 				
 			// Check what products customers are eligible for updates and add to queue only if updates are available to customer
-			$customer_updates = serialize( edd_pup_eligible_updates( $customer['post_id'], $products, true, $licenseditems, $email_id ) );
+			$updates = edd_pup_eligible_updates( $customer['post_id'], $products, true, $licenseditems, $email_id );
+			$customer_updates = !empty( $updates ) ? serialize( $updates ) : null;
 
 			if ( ! empty( $customer_updates ) ) {
 				
