@@ -383,6 +383,7 @@ function edd_pup_ajax_trigger(){
 	$sent = $_POST['sent'];
 	$limit = 10;
 	$rows = array();
+	$testmode = edd_get_option( 'edd_pup_test' );
 			
 	/* Throttle emails if enabled in settings
 	if ( isset( $edd_options['edd_pup_throttle'] ) ) {
@@ -402,7 +403,7 @@ function edd_pup_ajax_trigger(){
 
 	foreach ( $customers as $customer ) {
 	
-			$trigger = edd_pup_ajax_send_email( $customer['customer_id'], $email_id, $edd_options['edd_pup_test'] );
+			$trigger = edd_pup_ajax_send_email( $customer['customer_id'], $email_id, $testmode );
 						
 			// Reset file download limits for customers' eligible updates
 			$customer_updates = edd_pup_get_customer_updates( $customer['customer_id'], $email_id );
