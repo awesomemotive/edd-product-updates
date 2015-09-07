@@ -272,7 +272,13 @@ jQuery(document).ready(function ($) {
 								alert( eddPup.a3 );
 								spinner.toggleClass('loading');
 								button.prop("disabled", false);
-														
+
+							} else if ( r == 'nobundles' ) {
+							
+								alert( eddPup.a12 );
+								spinner.toggleClass('loading');
+								button.prop("disabled", false);
+																					
 							} else if ( r == 'noncefail' ) {
 								
 								alert( eddPup.a7 + ' Nonce failure A.' );

@@ -192,6 +192,7 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 				'a9' => __( 'Unable to clear the queue. Please try again or contact support at https://easydigitaldownloads.com/support', 'edd-pup' ),
 				'a10' => __( 'Test email successfully sent.', 'edd-pup' ),
 				'a11' => __( 'The WordPress account you are logged into is already sending an email and cannot process multiple emails at once. Please pause the email your account is currently sending or wait for it to finish before attempting to send another.', 'edd-pup' ),
+				'a12' => __( 'Please choose at least one product bundle or turn off the "Send only to bundle customers" option.', 'edd-pup' ),
 				
 				// Status messages for sending popup	
 				's1' => __( 'Sending emails.', 'edd-pup' ),

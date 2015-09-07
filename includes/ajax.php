@@ -62,6 +62,37 @@ function edd_pup_email_confirm_html(){
 	$email_body    = isset( $email->post_content ) ? stripslashes( $email->post_content ) : 'Cannot retrieve message content';
     $subject       = empty( $emailmeta['_edd_pup_subject'][0] ) ? '(no subject)' : strip_tags( edd_email_preview_template_tags( $emailmeta['_edd_pup_subject'][0] ) );
     $productlist   = '';
+    
+    // Create product list
+	foreach ( $products as $product_id => $product ) {
+		$bundle = edd_is_bundled_product( $product_id );
+		
+		// Filter bundle customers only
+		if ( $filters['bundle_2'] && !$bundle ) {
+			continue;
+		}
+		
+		$productlist .= '<li data-id="'. $product_id .'">'. $product .'</li>';
+	
+		if ( $bundle ) {
+			$bundledproducts = edd_get_bundled_products( $product_id );
+			$productlist .= '<ul id="edd-pup-confirm-bundle-products">';
+			
+			foreach ( $bundledproducts as $bundleitem ) {
+				if ( isset( $products[ $bundleitem ] ) ) {
+					$productlist .= '<li data-id="'.$bundleitem.'">'. $products[$bundleitem ].'</li>';
+				}
+			}
+			$productlist .= '</ul>';
+			$bundlenum++;
+		}
+	}
+	
+	// Throw error if no bundled products are selected, but send only to bundle customers option is
+	if ( empty( $productlist ) ) {
+		echo 'nobundles';
+		die();
+	}
     	
 	// Construct templated email HTML
 	add_filter('edd_email_template', 'edd_pup_template' );
@@ -100,32 +131,7 @@ function edd_pup_email_confirm_html(){
 					<ul>
 						<li><strong><?php _e( 'Updated Products:', 'edd-pup' ); ?></strong></li>
 							<ul id="edd-pup-confirm-products">
-							<?php foreach ( $products as $product_id => $product ) {
-									$bundle = edd_is_bundled_product( $product_id );
-									
-									// Filter bundle customers only
-									if ( $filters['bundle_2'] && !$bundle ) {
-										continue;
-									}
-									
-									$productlist .= '<li data-id="'. $product_id .'">'. $product .'</li>';
-
-									if ( $bundle ) {
-										$bundledproducts = edd_get_bundled_products( $product_id );
-										$productlist .= '<ul id="edd-pup-confirm-bundle-products">';
-										
-										foreach ( $bundledproducts as $bundleitem ) {
-											if ( isset( $products[ $bundleitem ] ) ) {
-												$productlist .= '<li data-id="'.$bundleitem.'">'. $products[$bundleitem ].'</li>';
-											}
-										}
-										$productlist .= '</ul>';
-										$bundlenum++;
-									}
-								}
-									
-								echo $productlist;
-							?>
+							<?php echo $productlist; ?>
 							</ul>
 						<?php if ( $bundlenum > 0 ):?>
 						<li><strong><?php _e( 'Bundle Filters:', 'edd-pup' ); ?></strong></li>
@@ -290,7 +296,7 @@ function edd_pup_ajax_start(){
 				}
 			}
 			
-			$products = $bundles;
+				$products = $bundles;
 		}
 		
 		$customers = edd_pup_user_send_updates( $products, true, $limit, $processed );
