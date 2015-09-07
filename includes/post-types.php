@@ -42,6 +42,7 @@ function edd_pup_post_types() {
 		'labels' 			=> apply_filters( 'edd_pup_email_labels', $edd_pup_email_labels ),
 		'public' 			=> true,
 		'exclude_from_search' => true,
+		'publicly_queryable' => false,
 		'query_var' 		=> false,
 		'rewrite' 			=> false,
 		'show_ui'			=> true,
