@@ -31,10 +31,10 @@ function edd_pup_sanitize_save( $data ) {
 	$data['message'] 	= wp_kses_post( $data['message'] );
 	$data['email-id']	= isset( $data['email-id'] ) ? absint( $data['email-id'] ) : 0;
 	$data['recipients']	= absint( $data['recipients'] );
-	$data['from_name'] 	= sanitize_text_field( $data['from_name'] );
+	$data['from_name'] 	= esc_attr( sanitize_text_field( $data['from_name'] ) );
 	$data['from_email'] = sanitize_email( $data['from_email'] );
 	$data['title']		= sanitize_text_field( $data['title'], 'ID:'. $data['email-id'], 'save' );
-	$data['subject']	= sanitize_text_field( $data['subject'] );
+	$data['subject']	= esc_attr( sanitize_text_field( $data['subject'] ) );
 	$data['bundle_1']	= sanitize_text_field( $data['bundle_1'] );
 	$data['bundle_2']	= isset( $data['bundle_2'] ) ? 1 : 0;
 	
