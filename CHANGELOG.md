@@ -1,3 +1,11 @@
+## 1.1.1 (September 11th, 2015)
+* Fix: Detection and alert for customers trying to send an email only to bundle customers without a bundle selected
+* Fix: Removes email templates from being accessible on the front end
+* Fix: Sanitize "From Name" and "Subject" fields properly
+* Fix: Some customers without updates being added to the email queue
+* Fix: Switch to `edd_get_option()` for determining if test mode is enabled to fix PHP undefined index notice
+* Fix: Remove `boolval()` for greater PHP compatibility
+
 ## 1.1 (February 19th, 2015)
 * Feature: Advanced options for bundle products when creating and sending emails
 * Feature: Set default from name, from email address, subject, and message in settings
