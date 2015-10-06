@@ -398,7 +398,7 @@
 .progress-bar:before {
 	-webkit-animation: animatedProgress 15s linear infinite;
 	bottom: 0;
-	background: url("img/stripes.png") 0 0 repeat;
+	background: url("../img/stripes.png") 0 0 repeat;
 	border-radius: 4px 4px 0 0;
 }
 .progress-bar:after {
