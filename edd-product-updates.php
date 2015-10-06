@@ -272,7 +272,7 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 	        $eddpup_settings = array(
 	            array(
 	                'id'   => 'edd_pup_settings_head',
-	                'name' => '<span id="edd_pup_settings"><strong>' . __( 'Product Updates Settings', 'edd-pup' ) . '</strong></span>',
+	                'name' => '<strong>' . __( 'Product Updates Settings', 'edd-pup' ) . '</strong>',
 	                'desc' => __( 'Configure the Product Updates settings', 'edd-pup' ),
 	                'type' => 'header'
 	            ),
