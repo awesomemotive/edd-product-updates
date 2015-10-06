@@ -490,7 +490,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 		$edd_emails->__set( 'from_name', $from_name );
 		$edd_emails->__set( 'from_address', $from_email );
 		
-		$mailresult = isset( $test_mode ) ? true : $edd_emails->send( $email, $subject, $message, $attachments );
+		$mailresult = ( isset( $test_mode ) && $test_mode === true ) ? true : $edd_emails->send( $email, $subject, $message, $attachments );
 				
 	} else {
 		
@@ -520,7 +520,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 		$message .= apply_filters( 'edd_pup_message', edd_email_template_tags( $emailpost->post_content, $payment_data, $payment_id ), $payment_id, $payment_data );
 		$message .= $email_body_footer;	
 			
-		$mailresult = isset( $test_mode ) ? true : wp_mail( $email, $subject, $message, $headers, $attachments );
+		$mailresult = ( isset( $test_mode ) && $test_mode === true ) ? true : wp_mail( $email, $subject, $message, $headers, $attachments );
 	}
 	
 	// Update payment notes to log this email being sent
