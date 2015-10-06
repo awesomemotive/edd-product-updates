@@ -374,9 +374,6 @@ function edd_pup_ajax_trigger(){
 	global $wpdb;
 	global $edd_options;
 	
-	
-	global $wpdb;
-	
 	if ( !empty( $_POST['email_id'] ) && ( absint( $_POST['email_id'] ) != 0 ) ) {
 		$email_id = $_POST['email_id'];	
 	} else {
@@ -409,7 +406,7 @@ function edd_pup_ajax_trigger(){
 	$customers = $wpdb->get_results( $query , ARRAY_A);
 
 	foreach ( $customers as $customer ) {
-	
+
 			$trigger = edd_pup_ajax_send_email( $customer['customer_id'], $email_id, $testmode );
 						
 			// Reset file download limits for customers' eligible updates
