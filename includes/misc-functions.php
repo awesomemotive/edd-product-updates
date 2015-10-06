@@ -400,7 +400,7 @@ function edd_pup_get_all_downloads(){
  *
  * @return array/object $customer_updates
  */
-function edd_pup_eligible_updates( $payment_id, $updated_products, $object = true, $licenseditems = null ){
+function edd_pup_eligible_updates( $payment_id, $updated_products, $object = true, $licenseditems = null, $email_id = 0 ){
 	
 	if ( empty( $payment_id) || empty( $updated_products ) || $email_id = 0 ) {
 		return false;
@@ -419,7 +419,7 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = tru
 		$licenses = edd_pup_get_license_keys( $payment_id );
 	}
 	
-	foreach ( $payment_meta['cart_details'] as $item ){
+	foreach ( maybe_unserialize( $payment_meta['cart_details'] ) as $item ){
 		
 		// Skip $item if it is not a product being updated
 		if ( !isset( $updated_products[ $item['id'] ] ) ){
