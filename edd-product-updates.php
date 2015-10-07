@@ -374,12 +374,13 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
         }
 
 	    /*
-		 * Activation function fires when the plugin is activated.
+		 * Create the custom database table for the email queue.
 		 *
-		 * This function is fired when the activation hook is called by WordPress,
-		 * 
+		 * @since 1.1.2
+		 * @return void
 		 */
-		public static function activation() {
+
+		public static function create_table() {
 			
 	        /* Create custom database table for email send queue */
 		    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -408,6 +409,41 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 				wp_schedule_event( time(), 'daily', 'edd_pup_cron_clear_queue' );  
 	  
 			}
+	    }
+	    
+	    
+	    /**
+	     * Triggers custom database creation on plugin activation for WPMU and single-site installs
+	     * 
+	     * @access public
+	     * @static
+	     * @param mixed $network_wide
+	     * @return void
+	     * @since 0.9.2
+	     */
+	    public static function activation( $network_wide ) {
+		    
+		    global $wpdb;
+		    
+		    if ( is_multisite() && $network_wide ) {
+		        
+		        // store the current blog id
+		        $current_blog = $wpdb->blogid;
+		        
+		        // Get all blogs in the network and activate plugin on each one
+		        $blog_ids = $wpdb->get_col( "SELECT blog_id FROM $wpdb->blogs" );
+		        
+		        foreach ( $blog_ids as $blog_id ) {
+		            switch_to_blog( $blog_id );
+					self::create_table();
+		            restore_current_blog();
+		        }
+		        
+		    } else {
+			    
+		        self::create_table();
+		    
+		    }   
 	    }
         
         
@@ -462,6 +498,43 @@ function edd_pup_register_table() {
 		
 add_action( 'init', 'edd_pup_register_table', 1 );
 add_action( 'switch_blog', 'edd_pup_register_table' );
+
+/**
+ * Create custom database table whenever a new blog is created for WPMU
+ * 
+ * @access public
+ * @param mixed $blog_id
+ * @param mixed $user_id
+ * @param mixed $domain
+ * @param mixed $path
+ * @param mixed $site_id
+ * @param mixed $meta
+ * @return void
+ * @since 1.1.2
+ */
+function on_create_blog( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
+    if ( is_plugin_active_for_network( 'edd-product-updates-1.1.1/edd-product-updates.php' ) ) {
+        switch_to_blog( $blog_id );
+        EDD_Product_Updates::create_table();
+        restore_current_blog();
+    }
+}
+add_action( 'wpmu_new_blog', 'on_create_blog', 10, 6 );
+
+/**
+ * Delete the custom database table whenever a blog is deleted for WPMU
+ * 
+ * @access public
+ * @param mixed $tables
+ * @return void
+ * @since 1.1.2
+ */
+function on_delete_blog( $tables ) {
+    global $wpdb;
+    $tables[] = $wpdb->prefix . 'edd_pup_queue';
+    return $tables;
+}
+add_filter( 'wpmu_drop_tables', 'on_delete_blog' );
 
 /**
  * Checks the email queue every day for emails older than 48 hours and clears them.
