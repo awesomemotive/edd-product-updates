@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Easy Digital Downloads - Product Updates
  * Description:     Batch send product update emails to EDD customers
- * Version:         1.1.1
+ * Version:         1.1.2
  * Author:          Evan Luzi
  * Author URI:      http://www.evanluzi.com/
  * Text Domain:     edd-pup
@@ -62,7 +62,7 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
          */
         private function setup_constants() {
             // Plugin version
-            define( 'EDD_Product_Updates_VER', '1.1.1' );
+            define( 'EDD_Product_Updates_VER', '1.1.2' );
 
             // Plugin path
             define( 'EDD_Product_Updates_DIR', plugin_dir_path( __FILE__ ) );
@@ -493,7 +493,7 @@ function edd_pup_register_table() {
     global $wpdb;
     $wpdb->edd_pup_queue = "{$wpdb->prefix}edd_pup_queue";
     
-    update_option( 'edd_pup_version', '1.1.1' );			
+    update_option( 'edd_pup_version', '1.1.2' );			
 }
 		
 add_action( 'init', 'edd_pup_register_table', 1 );
@@ -513,7 +513,7 @@ add_action( 'switch_blog', 'edd_pup_register_table' );
  * @since 1.1.2
  */
 function on_create_blog( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
-    if ( is_plugin_active_for_network( 'edd-product-updates-1.1.1/edd-product-updates.php' ) ) {
+    if ( is_plugin_active_for_network( 'edd-product-updates/edd-product-updates.php' ) ) {
         switch_to_blog( $blog_id );
         EDD_Product_Updates::create_table();
         restore_current_blog();
