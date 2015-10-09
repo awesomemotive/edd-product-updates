@@ -1,3 +1,11 @@
+## 1.1.2 (October 9th, 2015)
+* Fix: Redundancy for situations where a user's email may not be fetched from the right part of the metadata
+* Fix: Database compatibility with network activated multisite installations
+* Fix: Issues with emails not sending even with test mode disabled
+* Fix: Issue of customer updates not recognized due to serialized string on return
+* Fix: 404 error on stripes.png file
+* Tweak: Style change for "Product Updates Settings" header in Settings->Emails tab
+
 ## 1.1.1 (September 11th, 2015)
 * Fix: Detection and alert for customers trying to send an email only to bundle customers without a bundle selected
 * Fix: Removes email templates from being accessible on the front end
