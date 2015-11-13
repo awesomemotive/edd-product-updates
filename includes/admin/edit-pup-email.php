@@ -103,7 +103,7 @@ if ( $status != 'draft' ) {
 							
 							<!-- products -->
 							<strong><?php _e( 'Choose products being updated', 'edd-pup' ) ; ?>:</strong>
-							<?php echo EDD()->html->product_dropdown( array( 'multiple' => true, 'chosen' => true, 'name' => 'products[]', 'id' => 'products-select', 'selected' => is_array( $updated_products ) ? array_keys( $updated_products ) : $updated_products ) ); ?>
+							<?php echo EDD()->html->product_dropdown( array( 'multiple' => true, 'chosen' => true, 'name' => 'products[]', 'id' => 'products-select', 'placeholder' => sprintf( __( 'Select one or more %s', 'edd-pup' ), edd_get_label_plural() ), 'selected' => is_array( $updated_products ) ? array_keys( $updated_products ) : $updated_products ) ); ?>
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
 							
 							<!-- advanced settings -->

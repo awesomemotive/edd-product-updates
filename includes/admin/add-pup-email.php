@@ -96,7 +96,7 @@ $defaultmessage  = edd_get_option( 'edd_pup_default_message', $defaultmessage );
 							
 							<!-- products -->
 							<strong><?php _e( 'Choose products being updated', 'edd-pup' ) ; ?>:</strong>
-							<?php echo EDD()->html->product_dropdown( array( 'multiple' => true, 'chosen' => true, 'name' => 'products[]', 'id' => 'products-select' ) ); ?>
+							<?php echo EDD()->html->product_dropdown( array( 'multiple' => true, 'chosen' => true, 'name' => 'products[]', 'id' => 'products-select', 'selected' => array(), 'placeholder' => sprintf( __( 'Select one or more %s', 'edd-pup' ), edd_get_label_plural() ) ) ); ?>
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
 							<!-- advanced settings -->
 							<a href="#" id="bundle_filters" data-state="hidden" style="display:none;"><?php _e( 'Show Bundle Filters', 'edd-pup' );?></a>
