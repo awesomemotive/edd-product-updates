@@ -312,7 +312,6 @@ function edd_pup_ajax_start(){
 			wp_update_post( array( 'ID' => $email_id, 'post_status' => 'pending' ) );
 			
 			// Update email with info on EDD Software Licensing Integration
-			global $edd_options;
 			update_post_meta( $email_id, '_edd_pup_licensing_status', edd_get_option( 'edd_pup_license' ) ? 'active' : 'inactive' );
 			
 		}
