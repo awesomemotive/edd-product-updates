@@ -313,7 +313,7 @@ function edd_pup_ajax_start(){
 			
 			// Update email with info on EDD Software Licensing Integration
 			global $edd_options;
-			update_post_meta( $email_id, '_edd_pup_licensing_status', isset( $edd_options['edd_pup_license'] ) ? 'active' : 'inactive' );
+			update_post_meta( $email_id, '_edd_pup_licensing_status', edd_get_option( 'edd_pup_license' ) ? 'active' : 'inactive' );
 			
 		}
 		
@@ -372,7 +372,6 @@ add_action( 'wp_ajax_edd_pup_ajax_start', 'edd_pup_ajax_start' );
 function edd_pup_ajax_trigger(){
 	
 	global $wpdb;
-	global $edd_options;
 	
 	if ( !empty( $_POST['email_id'] ) && ( absint( $_POST['email_id'] ) != 0 ) ) {
 		$email_id = $_POST['email_id'];	
@@ -390,6 +389,7 @@ function edd_pup_ajax_trigger(){
 	$testmode = edd_get_option( 'edd_pup_test' );
 			
 	/* Throttle emails if enabled in settings
+	global $edd_options;
 	if ( isset( $edd_options['edd_pup_throttle'] ) ) {
 		
 		$last = $wpdb->query( "SELECT UNIX_TIMESTAMP(sent_date) FROM $wpdb->edd_pup_queue WHERE email_id = $email_id AND sent = 1 ORDER BY sent_date DESC LIMIT 1" )
@@ -487,7 +487,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 		$edd_emails->__set( 'from_name', $from_name );
 		$edd_emails->__set( 'from_address', $from_email );
 		
-		$mailresult = ( isset( $test_mode ) && $test_mode === true ) ? true : $edd_emails->send( $email, $subject, $message, $attachments );
+		$mailresult = ( isset( $test_mode ) && $test_mode == true ) ? true : $edd_emails->send( $email, $subject, $message, $attachments );
 				
 	} else {
 		
@@ -517,7 +517,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 		$message .= apply_filters( 'edd_pup_message', edd_email_template_tags( $emailpost->post_content, $payment_data, $payment_id ), $payment_id, $payment_data );
 		$message .= $email_body_footer;	
 			
-		$mailresult = ( isset( $test_mode ) && $test_mode === true ) ? true : wp_mail( $email, $subject, $message, $headers, $attachments );
+		$mailresult = ( isset( $test_mode ) && $test_mode == true ) ? true : wp_mail( $email, $subject, $message, $headers, $attachments );
 	}
 	
 	// Update payment notes to log this email being sent
@@ -733,7 +733,7 @@ add_action( 'wp_ajax_edd_pup_send_test_email', 'edd_pup_send_test_email' );
 /**
  * Email the product update test email to the admin account
  *
- * @global $edd_options Array of all the EDD Options
+ *
  * @return void
  */
 function edd_pup_test_email( $email_id, $to = null ) {	
