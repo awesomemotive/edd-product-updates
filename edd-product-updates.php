@@ -544,8 +544,9 @@ add_filter( 'wpmu_drop_tables', 'on_delete_blog' );
  * @since 0.9.3.1
  */
 function edd_pup_cron_clear(){
+	global $edd_options;
 	
-	if ( edd_get_option( 'edd_pup_auto_del' ) == false ) {
+	if ( !isset( $edd_options['edd_pup_auto_del'] ) ) {
 	
 		global $wpdb;
 		
@@ -595,10 +596,11 @@ register_deactivation_hook( __FILE__, 'edd_pup_delete_cron_schedule' );
  * @since 0.9.2
  */
 function edd_pup_uninstall(){
-
+    
+    global $edd_options;
 	global $wpdb;
     
-    if ( edd_get_option( 'uninstall_on_delete' ) ) {
+    if ( isset( $edd_options['uninstall_on_delete'] ) ) {
 	    
 	    //Remove custom database table
 	    $wpdb->query("DROP TABLE IF EXISTS $wpdb->edd_pup_queue");

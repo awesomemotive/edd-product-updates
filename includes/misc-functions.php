@@ -227,12 +227,12 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 	if ( empty( $products ) ) {
 		return 0;
 	}
-
+	
+	global $edd_options;
     global $wpdb;
     
     $count = 0;
     $b = $subscribed ? 0 : 1;
-    $licensing = edd_get_option( 'edd_pup_license' );
 	$products = !empty( $products ) ? $products : get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
 	$filters = isset( $filters ) ? $filters : get_post_meta( $email_id, '_edd_pup_filters', true );
 	
@@ -252,7 +252,7 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 	}
         
     // Active EDD Software Licensing integration
-	if ( ( $licensing != false ) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
+	if ( isset( $edd_options['edd_pup_license'] ) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
 	
 		// Get customers who have a completed payment and are subscribed for updates
 		$customers = $wpdb->get_results(
@@ -269,9 +269,9 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 		// Get updated products with EDD software licensing enabled
 		$products_imp = implode( ',' , array_keys( $products ) );
 		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1 AND post_id IN ( $products_imp )", OBJECT_K );
-		
+			
 		foreach ( $customers as $customer ) {
-
+			
 			$paymentmeta = unserialize( $customer->meta_value );
 
 			foreach ( $paymentmeta['cart_details'] as $item ) {
@@ -298,7 +298,6 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 						$count++;
 						break;
 					}
-					
 				}
 			}
 		}
@@ -417,11 +416,11 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = tru
 		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1", OBJECT_K );
 	}
 	
+	global $edd_options;
 	$customer_updates = '';
-	$licensing = edd_get_option( 'edd_pup_license' );
 	$payment_meta = get_post_meta( $payment_id, '_edd_payment_meta', true );
 	
-	if ( ( $licensing != false ) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
+	if ( isset( $edd_options['edd_pup_license'] ) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
 		$licenses = edd_pup_get_license_keys( $payment_id );
 	}
 	
@@ -433,7 +432,7 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = tru
 		}
 		
 		// If Software Licensing integration is active and the $item has software licensing enabled
-		if ( ( $licensing != false ) && isset( $licenseditems[ $item['id'] ] ) ) {
+		if ( isset( $edd_options['edd_pup_license'] ) && isset( $licenseditems[ $item['id'] ] ) ) {
 			
 			// If the customer has licenses and the license for this $item is enabled and active
 			$enabled  = get_post_status( $licenses[$item['id']]['license_id'] ) == 'publish' ? true : false;
@@ -724,16 +723,15 @@ function edd_pup_get_email_templates() {
  * @return void
  */
 function edd_pup_template(){
+	global $edd_options;
 	
-	$template = edd_get_option( 'edd_pup_template' );
-	
-	if ( ! isset( $template ) ) {
-		$template = 'default';
+	if ( ! isset( $edd_options['edd_pup_template'] ) ) {
+		$edd_options['edd_pup_template'] = 'default';
 	}
 	
-	if ( $template == 'inherit' ) {
+	if ( $edd_options['edd_pup_template'] == 'inherit' ) {
 		return edd_get_option( 'email_template' );
 	} else {
-		return $template;
+		return $edd_options['edd_pup_template'];
 	}
 }
