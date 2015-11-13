@@ -74,6 +74,11 @@ function edd_pup_save_email( $data, $email_id = null ) {
 		'bundle_1' => $data['bundle_1'],
 		'bundle_2' => $data['bundle_2'] );
 		
+	// Remove product_dropdown placeholder from being saved as a product
+	if ( isset( $products[0] ) ) {
+		unset( $products[0]);
+	}
+		
 	if ( 0 != $email_id ) {
 		
 		// Don't save any changes unless email is editable
