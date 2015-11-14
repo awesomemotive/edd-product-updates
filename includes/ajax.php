@@ -325,14 +325,14 @@ function edd_pup_ajax_start(){
 
 			if ( ! empty( $customer_updates ) ) {
 				
-				$queue[] = '('.$customer['post_id'].', '.$email_id.', \''.$customer_updates.'\', 0)';
+				$queue[] = '('.$customer['post_id'] . $email_id.', '.$customer['post_id'].', '.$email_id.', \''.$customer_updates.'\', 0)';
 				$count++;
 								
 				// Insert into database in batches of 1000
 				if ( $i % $limit == 0 ){
 
 					$queueinsert = implode( ',', $queue );
-					$wpdb->query( "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, products, sent) VALUES $queueinsert" );
+					$wpdb->query( "INSERT INTO $wpdb->edd_pup_queue (eddpup_id, customer_id, email_id, products, sent) VALUES $queueinsert ON DUPLICATE KEY UPDATE eddpup_id = eddpup_id" );
 					
 					// Reset defaults for next batch
 					$queue = '';
@@ -348,7 +348,7 @@ function edd_pup_ajax_start(){
 		// Insert leftovers or if batch is less than 1000
 		if ( ! empty( $queue ) ) {
 			$queueinsert = implode( ',', $queue );
-			$wpdb->query( "INSERT INTO $wpdb->edd_pup_queue (customer_id, email_id, products, sent) VALUES $queueinsert" );
+			$wpdb->query( "INSERT INTO $wpdb->edd_pup_queue (eddpup_id, customer_id, email_id, products, sent) VALUES $queueinsert ON DUPLICATE KEY UPDATE eddpup_id = eddpup_id" );
 		}
 	    		
 		echo json_encode(array('status'=>'new','sent'=>0,'total'=>absint($total),'processed'=>absint($processed+$count)));
