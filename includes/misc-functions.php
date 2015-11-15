@@ -438,10 +438,8 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = tru
 			
 			// If the customer has licenses and the license for this $item is enabled and active
 			$enabled  = get_post_status( $licenses[$item['id']]['license_id'] ) == 'publish' ? true : false;
-			$status   = edd_software_licensing()->get_license_status( $licenses[$item['id']]['license_id'] );
-			$accepted = apply_filters( 'edd_pup_valid_license_statuses', array( 'active', 'inactive' ) );
 					
-			if ( !empty( $licenses ) && $enabled && in_array( $status, $accepted ) ) {
+			if ( !empty( $licenses ) && $enabled && in_array( edd_software_licensing()->get_license_status( $licenses[$item['id']]['license_id'] ), apply_filters( 'edd_pup_valid_license_statuses', array( 'active', 'inactive' ) ) ) ) {
 				// Add the $item as an eligible updates
 				$customer_updates[ $item['id'] ] = $object ? $item : $item['name'];
 			}
