@@ -265,7 +265,7 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 	    		AND meta_key = '_edd_payment_meta'
 				AND meta_value NOT LIKE '%%\"edd_send_prod_updates\";b:0%%'
 			", OBJECT_K);
-					
+											
 		// Get updated products with EDD software licensing enabled
 		$products_imp = implode( ',' , array_keys( $products ) );
 		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1 AND post_id IN ( $products_imp )", OBJECT_K );
@@ -273,8 +273,9 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 		foreach ( $customers as $customer ) {
 
 			$paymentmeta = unserialize( $customer->meta_value );
+			$cart_details = is_array( $paymentmeta['cart_details'] ) ? $paymentmeta['cart_details'] : array( $paymentmeta['cart_details'] );
 
-			foreach ( $paymentmeta['cart_details'] as $item ) {
+			foreach ( $cart_details as $item ) {
 				
 				// Skip $item if it is not a product being updated
 				if ( !isset( $products[ $item['id'] ] ) ){
@@ -283,6 +284,7 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 			
 				// Check if they have purchased any non-licensed products which would send them the email anyway
 				if ( !isset( $licenseditems[ $item['id'] ] ) && isset( $products[ $item['id'] ] ) ) {
+					
 					$count++;
 					break;
 					
@@ -291,10 +293,9 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 				
 					$licenses = edd_pup_get_license_keys( $customer->post_id );
 					$enabled  = get_post_status( $licenses[$item['id']]['license_id'] ) == 'publish' ? true : false;
-					$status   = edd_software_licensing()->get_license_status( $licenses[$item['id']]['license_id'] );
-					$accepted = apply_filters( 'edd_pup_valid_license_statuses', array( 'active', 'inactive' ) );
-					
-					if ( !empty( $licenses ) && $enabled && in_array( $status, $accepted ) ) {
+										
+					if ( !empty( $licenses ) && $enabled && in_array( edd_software_licensing()->get_license_status( $licenses[$item['id']]['license_id'] ), apply_filters( 'edd_pup_valid_license_statuses', array( 'active', 'inactive' ) ) ) ) {
+						
 						$count++;
 						break;
 					}
@@ -302,7 +303,7 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 				}
 			}
 		}
-		
+
 	// Inactive EDD Software Licensing integration
 	} else {
 	
