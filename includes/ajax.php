@@ -372,10 +372,14 @@ function edd_pup_ajax_trigger(){
 	
 	global $wpdb;
 	
+	// Define email_id from AJAX process and make sure it's a number
 	if ( !empty( $_POST['email_id'] ) && ( absint( $_POST['email_id'] ) != 0 ) ) {
-		$email_id = $_POST['email_id'];	
-	} else {
-		$email_id = get_transient( 'edd_pup_sending_email_'. get_current_user_id() );
+		$email_id = $_POST['email_id'];
+		
+	// If not available via AJAX, pull it from the transient; Throw an error if transient doesn't exist
+	} else if ( ( $email_id = get_transient( 'edd_pup_sending_email_'. get_current_user_id() ) ) === false ) {
+		echo 'epat_id_err';
+		exit;
 	}
 
 	// Refresh email ID transient
@@ -401,8 +405,13 @@ function edd_pup_ajax_trigger(){
 	}*/
 	
 	$query = "SELECT * FROM $wpdb->edd_pup_queue WHERE email_id = $email_id AND sent = 0 LIMIT $limit";
-	
 	$customers = $wpdb->get_results( $query , ARRAY_A);
+	
+	// Throw an error if MYSQL returns an error. This will only work if WP_DEBUG_DISPLAY is off.
+	if ( $wpdb->last_error ) {
+		echo 'epat_res_err';
+		exit;
+	}
 
 	foreach ( $customers as $customer ) {
 
@@ -428,6 +437,11 @@ function edd_pup_ajax_trigger(){
 	if ( ! empty( $rows ) ) {
 		$updateids = implode(',',$rows);
 		$wpdb->query( "UPDATE $wpdb->edd_pup_queue SET sent=1 WHERE eddpup_id IN ($updateids)" );
+	}
+	
+	if ( $wpdb->last_error ) {
+		echo 'epat_up_err';
+		exit;
 	}
 	
 	echo $sent;

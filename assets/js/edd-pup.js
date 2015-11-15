@@ -593,9 +593,26 @@ jQuery(document).ready(function ($) {
 				var err = 0;
 				
 				if ( !$.isNumeric(s) ) {
-					alert ( eddPup.a7 + ' Numeric failure.' );
+					
+					if ( s == 'epat_id_err' ) {
+						alert ( eddPup.a7 + ' Email ID undefined.' );
+					} else if ( s == 'epat_res_err' ) {
+						alert ( eddPup.a7 + ' MYSQL results error.' );
+					} else if ( s == 'epat_up_err' ) {
+						alert ( eddPup.a7 + ' MYSQL update error.' );			
+					} else {
+						alert ( eddPup.a7 + ' Numeric failure.' );
+					}
+					
 					clock.timer('pause');
+					if ( button.attr('data-action') != 'resume' ) {
+						button.attr({
+							'data-action': 'resume',
+							value: eddPup.v3 });
+						paused++;
+					}
 					return false;
+					   
 				}
 				
 				function progressColor( color1, color2 ){
