@@ -1,3 +1,13 @@
+## 1.1.3 (November 16th, 2015)
+* Fix: Rare cases of customers receiving the same email message multiple times
+* Fix: Prevent placeholder in product dropdown selector from being saved as a product and incorrectly influencing customer counts
+* Fix: When Software Licensing integration is enabled, check for array before passing customer cart details to foreach loop
+* Fix: When Software Licensing integration is enabled, check that a customer's license exists before trying to get its status
+* Enhancement: UI changes for the number of estimated recipients on the Edit Product Update Email admin page
+* Tweak: Switch all cases of `$edd_options` global to use `edd_get_option()`
+* Tweak: Update placeholder text for product dropdown selector on add/edit email pages
+* Tweak: Better error handling for database errors when `WP_DEBUG_DISPLAY` is off.
+
 ## 1.1.2 (October 9th, 2015)
 * Fix: Redundancy for situations where a user's email may not be fetched from the right part of the metadata
 * Fix: Database compatibility with network activated multisite installations
