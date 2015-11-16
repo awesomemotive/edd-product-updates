@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Easy Digital Downloads - Product Updates
  * Description:     Batch send product update emails to EDD customers
- * Version:         1.1.2
+ * Version:         1.1.3
  * Author:          Evan Luzi
  * Author URI:      http://www.evanluzi.com/
  * Text Domain:     edd-pup
@@ -493,7 +493,7 @@ function edd_pup_register_table() {
     global $wpdb;
     $wpdb->edd_pup_queue = "{$wpdb->prefix}edd_pup_queue";
     
-    update_option( 'edd_pup_version', '1.1.2' );			
+    update_option( 'edd_pup_version', '1.1.3' );			
 }
 		
 add_action( 'init', 'edd_pup_register_table', 1 );
