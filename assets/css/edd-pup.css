@@ -54,7 +54,8 @@
 /* Single Email Edit Page
 --------------------------------------------- */
 
-#edd-pup-single-email #minor-publishing-actions a {
+#edd-pup-single-email #minor-publishing-actions a,
+#edd-pup-single-email .recipients-wrap {
 	text-align: center;
 }
 
@@ -71,7 +72,8 @@
 	margin: 0 auto;
 }
 
-#edd-pup-single-email .tag-list {
+#edd-pup-single-email .tag-list,
+#edd-pup-single-email .recipients-wrap {
 	padding: 10px;
 }
 
@@ -185,6 +187,13 @@
 
 #edd-pup-single-email .message-toggle:focus {
 	outline: none;
+}
+
+#edd-pup-single-email .recipient-count {
+	font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+    display: block;
 }
 
 /* Fix for view email page */

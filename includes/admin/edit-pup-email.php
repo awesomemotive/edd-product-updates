@@ -28,6 +28,7 @@ if ( $status != 'draft' ) {
 	</script>
 	<?php
 }
+
 ?>
 
 <form id="edd-pup-email-edit" action="" method="POST">
@@ -41,7 +42,7 @@ if ( $status != 'draft' ) {
 		<div id="post-body" class="metabox-holder columns-2">
 			<div id="postbox-container-1" class="postbox-container">
 				<!-- actions -->
-				<div id="side-sortables" class="meta-box-sortables ui-sortable">
+				<div id="side-sortables-actions" class="meta-box-sortables ui-sortable">
 					<div id="submitdiv" class="postbox">
 						<h3 class="hndle"><span><?php _e( 'Email Actions', 'edd-pup' ); ?></span></h3>
 						<div class="inside">
@@ -77,8 +78,20 @@ if ( $status != 'draft' ) {
 						</div>
 					</div>
 				</div>
+				<!-- recipients -->
+				<div id="side-sortables-recipients" class="meta-box-sortables ui-sortable">
+					<div id="submitdiv" class="postbox">
+						<h3 class="hndle"><span><?php _e( 'Estimated Recipients', 'edd-pup' ); ?></span></h3>
+						<div class="inside">
+							<div class="recipients-wrap">
+								<p><?php printf( _n( '<span class="recipient-count">1</span> customer will receive this email', '<span class="recipient-count">%s</span> customers will receive this email', $recipients, 'edd-pup' ), number_format( $recipients ) ); ?></p>
+								<input type="hidden" name="recipients" class="recipient-input" value="<?php echo absint($recipients); ?>" />
+							</div>
+						</div>
+					</div>
+				</div>											
 				<!-- tags -->
-				<div id="side-sortables" class="meta-box-sortables ui-sortable">
+				<div id="side-sortables-tags" class="meta-box-sortables ui-sortable">
 					<div id="submitdiv" class="postbox">
 						<h3 class="hndle"><span><?php _e( 'Template Tags', 'edd-pup' ); ?></span></h3>
 						<div class="inside">
@@ -122,12 +135,8 @@ if ( $status != 'draft' ) {
 								<input type="checkbox" name="bundle_2" id="bundle_2" value="<?php echo $filters['bundle_2'];?>" <?php checked( $filters['bundle_2'], 1 ); ?>/>
 								<p class="description">Only send this email to customers who have purchased a bundle selected above.</p>
 							</div>
-								<!-- exclude since last update option
-								<strong><?php _e( 'Exclude recent customers', 'edd-pup' ); ?>:</strong>
-								<input type="checkbox" name="recent" id="recent" value="1"<?php checked( $filters['bundle_2'], 1 ); ?>/>
-								<p class="description"><?php _e( 'Do not send to customers who have purchased a product since it was last updated.' , 'edd-pup' ); ?></p>
-													
-								 EDD Software Licensing Select
+									
+								<!-- EDD Software Licensing Select
 								<strong>EDD Software Licensing:</strong>
 								<?php foreach ( $products as $product_id => $title ):
 									if ( is_array( $updated_products) && array_key_exists( $product_id, $updated_products ) ) {
@@ -139,10 +148,6 @@ if ( $status != 'draft' ) {
 								<br>
 								<?php endforeach; ?>
 								<p class="description">Choose whether to show all products in a bundle or only the products within the bundle that have been updated (and selected above) when using the {updated_products_links} tag.</p>-->
-							
-							<!-- recipients -->
-								<p><strong><?php _e( 'Recipients', 'edd-pup' ); ?>:</strong> <?php printf( _n( '<span class="recipient-count">1</span> customer will receive this email', '<span class="recipient-count">%s</span> customers will receive this email', $recipients, 'edd-pup' ), number_format( $recipients ) ); ?></p>
-								<input type="hidden" name="recipients" class="recipient-input" value="<?php echo absint($recipients); ?>" />
 						</div>
 					</div>
 					
