@@ -120,7 +120,6 @@ if ( $status != 'draft' ) {
 							<p class="description"><?php _e( 'Select which products and its customers you wish to update with this email', 'edd-pup' ); ?></p>
 							
 							<!-- advanced settings -->
-							<a href="#" id="bundle_filters" data-state="hidden" style="display:none;"></a>
 							<div class="bundle-filters-wrap">								
 								<!-- bundle option 1-->
 								<strong><?php _e( 'Bundled product link output:', 'edd-pup' );?></strong>
@@ -135,19 +134,6 @@ if ( $status != 'draft' ) {
 								<input type="checkbox" name="bundle_2" id="bundle_2" value="<?php echo $filters['bundle_2'];?>" <?php checked( $filters['bundle_2'], 1 ); ?>/>
 								<p class="description">Only send this email to customers who have purchased a bundle selected above.</p>
 							</div>
-									
-								<!-- EDD Software Licensing Select
-								<strong>EDD Software Licensing:</strong>
-								<?php foreach ( $products as $product_id => $title ):
-									if ( is_array( $updated_products) && array_key_exists( $product_id, $updated_products ) ) {
-										$checked = 'checked="checked"';
-									} else { $checked = ''; }
-								?>
-								<input name="edd_soft_license[<?php echo $product_id; ?>]" id="edd_soft_license[<?php echo $product_id; ?>]" type="checkbox" value="<?php echo $title; ?>" <?php echo $checked; ?>>
-								<label for="edd_soft_license[<?php echo $product_id; ?>]"><?php echo $title; ?></label>
-								<br>
-								<?php endforeach; ?>
-								<p class="description">Choose whether to show all products in a bundle or only the products within the bundle that have been updated (and selected above) when using the {updated_products_links} tag.</p>-->
 						</div>
 					</div>
 					

@@ -72,7 +72,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
 	$products = isset( $data['products'] ) ? $data['products'] : '';
 	$filters = array(
 		'bundle_1' => $data['bundle_1'],
-		'bundle_2' => $data['bundle_2'] );
+		'bundle_2' => $data['bundle_2']);
 		
 	// Remove product_dropdown placeholder from being saved as a product
 	if ( isset( $products[0] ) ) {
@@ -676,7 +676,7 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
     		AND m.meta_value NOT LIKE '%\"edd_send_prod_updates\";b:$bool%'
     		AND ($q 
     		AND p.ID = m.post_id
-    		AND p.post_status = 'publish' 
+    		AND p.post_status = 'publish'
     		$limit $offset
     	", ARRAY_A );
     
