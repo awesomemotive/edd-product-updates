@@ -13,7 +13,7 @@ jQuery(document).ready(function ($) {
 			
 		});
 		
-		// Toggle bundle filters on and off on edit screen
+		// Toggle original/preview email on and off on view email screen
 		$('#edd-pup-single-email .message-toggle').click( function() {
 			
 			if ( $(this).hasClass('active') ) {
@@ -33,7 +33,6 @@ jQuery(document).ready(function ($) {
 				return false;
 			}
 		});
-		
 		
 		if ( $('#edd-pup-queue-details').length ){
 			$('#edd-pup-view-queue-alert').colorbox({
