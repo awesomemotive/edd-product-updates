@@ -520,11 +520,10 @@ function edd_pup_products_links_tag_plain( $payment_id, $email = null ) {
  */
 function edd_pup_unsub_tag( $payment_id ) {
 	
-	$purchase_data = get_post_meta( $payment_id, '_edd_payment_meta', true );
 	$unsub_link_params = array(
 		'order_id'     => $payment_id,
-		'email'        => rawurlencode( $purchase_data['user_info']['email'] ),
-		'purchase_key' => isset( $purchase_data['key'] ) ? $purchase_data['key'] : edd_get_payment_key( $payment_id ),
+		'email'        => edd_get_payment_user_email( $payment_id ),
+		'purchase_key' => edd_get_payment_key( $payment_id ),
 		'edd_action'   => 'prod_update_unsub'
 	);
 	$unsublink = add_query_arg( $unsub_link_params, ''.home_url() );
@@ -542,11 +541,10 @@ function edd_pup_unsub_tag( $payment_id ) {
  */
 function edd_pup_unsub_tag_plain( $payment_id ) {
 	
-	$purchase_data = get_post_meta( $payment_id, '_edd_payment_meta', true );
 	$unsub_link_params = array(
 		'order_id'     => $payment_id,
-		'email'        => rawurlencode( $purchase_data['user_info']['email'] ),
-		'purchase_key' => isset( $purchase_data['key'] ) ? $purchase_data['key'] : edd_get_payment_key( $payment_id ),
+		'email'        => edd_get_payment_user_email( $payment_id ),
+		'purchase_key' => edd_get_payment_key( $payment_id ),
 		'edd_action'   => 'prod_update_unsub'
 	);
 
