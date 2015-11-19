@@ -1,3 +1,7 @@
+## 1.1.3.1 (November 19th, 2015)
+* Fix: Proper version number listed
+* Tweak: Simplification of unsubscribe link behavior
+
 ## 1.1.3 (November 16th, 2015)
 * Fix: Rare cases of customers receiving the same email message multiple times
 * Fix: Prevent placeholder in product dropdown selector from being saved as a product and incorrectly influencing customer counts
