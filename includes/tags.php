@@ -565,34 +565,18 @@ function edd_pup_verify_unsub_link() {
 			return;
 		}
 
-		$order_id = absint( $_GET['order_id'] );
+		$url_id   = sanitize_text_field( $_GET['order_id'] );
 		$action   = sanitize_text_field( $_GET['edd_action'] );
 		$email    = sanitize_email( rawurldecode( $_GET['email'] ) );
 		$key      = sanitize_key( $_GET['purchase_key'] );
 		$preview  = isset( $_GET['preview'] ) && is_numeric( $_GET['preview'] ) && $_GET['preview'] == 1 ? true : false;
-
-		$meta_query = array(
-			'relation'  => 'AND',
-			array(
-				'key'   => '_edd_payment_purchase_key',
-				'value' => $key
-			),
-			array(
-				'key'   => '_edd_payment_user_email',
-				'value' => $email
-			)
-		);
-
-		$payments = get_posts( array(
-				'meta_query' => $meta_query,
-				'post_type'  => 'edd_payment'
-			) );
+		$order_id = edd_get_purchase_id_by_key( $key );
 		
 		if ( $preview ) {
 			
 			edd_pup_unsub_message( $order_id, $key, $email, $action, true );
 		
-		} else if ( $payments ) {
+		} else if ( $url_id == $order_id ) {
 			
 			edd_pup_unsub_page( $order_id, $key, $email, $action );
 
