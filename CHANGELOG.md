@@ -1,32 +1,25 @@
-## 1.1.3.1 (November 19th, 2015)
-* Fix: Proper version number listed
-* Tweak: Simplification of unsubscribe link behavior
-
-## 1.1.3 (November 16th, 2015)
+## 1.2 (November 21st, 2015)
 * Fix: Rare cases of customers receiving the same email message multiple times
 * Fix: Prevent placeholder in product dropdown selector from being saved as a product and incorrectly influencing customer counts
 * Fix: When Software Licensing integration is enabled, check for array before passing customer cart details to foreach loop
 * Fix: When Software Licensing integration is enabled, check that a customer's license exists before trying to get its status
-* Enhancement: UI changes for the number of estimated recipients on the Edit Product Update Email admin page
-* Tweak: Switch all cases of `$edd_options` global to use `edd_get_option()`
-* Tweak: Update placeholder text for product dropdown selector on add/edit email pages
-* Tweak: Better error handling for database errors when `WP_DEBUG_DISPLAY` is off.
-
-## 1.1.2 (October 9th, 2015)
 * Fix: Redundancy for situations where a user's email may not be fetched from the right part of the metadata
 * Fix: Database compatibility with network activated multisite installations
 * Fix: Issues with emails not sending even with test mode disabled
 * Fix: Issue of customer updates not recognized due to serialized string on return
 * Fix: 404 error on stripes.png file
-* Tweak: Style change for "Product Updates Settings" header in Settings->Emails tab
-
-## 1.1.1 (September 11th, 2015)
 * Fix: Detection and alert for customers trying to send an email only to bundle customers without a bundle selected
 * Fix: Removes email templates from being accessible on the front end
 * Fix: Sanitize "From Name" and "Subject" fields properly
 * Fix: Some customers without updates being added to the email queue
 * Fix: Switch to `edd_get_option()` for determining if test mode is enabled to fix PHP undefined index notice
 * Fix: Remove `boolval()` for greater PHP compatibility
+* Enhancement: UI changes for the number of estimated recipients on the Edit Product Update Email admin page
+* Tweak: Switch all cases of global `$edd_options` to use `edd_get_option()`
+* Tweak: Update placeholder text for product dropdown selector on add/edit email pages
+* Tweak: Better error handling for database errors when `WP_DEBUG_DISPLAY` is off.
+* Tweak: Simplification of unsubscribe link behavior
+* Tweak: Style change for "Product Updates Settings" header in Settings->Emails tab
 
 ## 1.1 (February 19th, 2015)
 * Feature: Advanced options for bundle products when creating and sending emails
