@@ -193,6 +193,7 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 				'a10' => __( 'Test email successfully sent.', 'edd-pup' ),
 				'a11' => __( 'The WordPress account you are logged into is already sending an email and cannot process multiple emails at once. Please pause the email your account is currently sending or wait for it to finish before attempting to send another.', 'edd-pup' ),
 				'a12' => __( 'Please choose at least one product bundle or turn off the "Send only to bundle customers" option.', 'edd-pup' ),
+				'a13' => __( 'With these settings, zero customers will receive this email. If you have software licensing integration enabled, all of your licenses may be expired for the products chosen.', 'edd-pup' ),
 				
 				// Status messages for sending popup	
 				's1' => __( 'Sending emails.', 'edd-pup' ),

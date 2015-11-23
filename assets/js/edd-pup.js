@@ -277,6 +277,12 @@ jQuery(document).ready(function ($) {
 								alert( eddPup.a12 );
 								spinner.toggleClass('loading');
 								button.prop("disabled", false);
+								
+							} else if ( r == 'nocust' ) {
+								
+								alert( eddPup.a13 );
+								spinner.toggleClass('loading');
+								button.prop("disabled", false);								
 																					
 							} else if ( r == 'noncefail' ) {
 								

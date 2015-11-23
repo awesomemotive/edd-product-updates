@@ -63,6 +63,12 @@ function edd_pup_email_confirm_html(){
     $subject       = empty( $emailmeta['_edd_pup_subject'][0] ) ? '(no subject)' : strip_tags( edd_email_preview_template_tags( $emailmeta['_edd_pup_subject'][0] ) );
     $productlist   = '';
     
+    // No customers in the update
+    if ( $customercount == 0 ) {
+	    echo 'nocust';
+	    die();
+    }
+    
     // Create product list
 	foreach ( $products as $product_id => $product ) {
 		$bundle = edd_is_bundled_product( $product_id );

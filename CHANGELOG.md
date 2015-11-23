@@ -15,6 +15,7 @@
 * Fix: Switch to `edd_get_option()` for determining if test mode is enabled to fix PHP undefined index notice
 * Fix: Remove `boolval()` for greater PHP compatibility
 * Enhancement: UI changes for the number of estimated recipients on the Edit Product Update Email admin page
+* Tweak: Prevent send email dialog from appearing if zero customers will receive the email update
 * Tweak: Switch all cases of global `$edd_options` to use `edd_get_option()`
 * Tweak: Update placeholder text for product dropdown selector on add/edit email pages
 * Tweak: Better error handling for database errors when `WP_DEBUG_DISPLAY` is off.
