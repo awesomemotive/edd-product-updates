@@ -1,3 +1,6 @@
+## 1.2.1 (December 10th, 2015)
+* Tweak: Change capability check for adding admin page
+
 ## 1.2 (November 21st, 2015)
 * Fix: Rare cases of customers receiving the same email message multiple times
 * Fix: Prevent placeholder in product dropdown selector from being saved as a product and incorrectly influencing customer counts

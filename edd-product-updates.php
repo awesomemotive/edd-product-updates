@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Easy Digital Downloads - Product Updates
  * Description:     Batch send product update emails to EDD customers
- * Version:         1.2
+ * Version:         1.2.1
  * Author:          Evan Luzi
  * Author URI:      http://www.evanluzi.com/
  * Text Domain:     edd-pup
@@ -62,7 +62,7 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
          */
         private function setup_constants() {
             // Plugin version
-            define( 'EDD_Product_Updates_VER', '1.2' );
+            define( 'EDD_Product_Updates_VER', '1.2.1' );
 
             // Plugin path
             define( 'EDD_Product_Updates_DIR', plugin_dir_path( __FILE__ ) );
@@ -121,7 +121,7 @@ if( !class_exists( 'EDD_Product_Updates' ) ) {
 		 * @return		void
 		 */
 		public function add_submenu() {
-			add_submenu_page( 'edit.php?post_type=download', __( 'Easy Digital Download Email Product Updates', 'edd' ), __( 'Product Updates', 'edd' ), 'install_plugins', 'edd-prod-updates', array( $this, 'admin_page' ) );			
+			add_submenu_page( 'edit.php?post_type=download', __( 'Easy Digital Download Email Product Updates', 'edd' ), __( 'Product Updates', 'edd' ), 'manage_shop_settings', 'edd-prod-updates', array( $this, 'admin_page' ) );			
 		}
 
 		/**
