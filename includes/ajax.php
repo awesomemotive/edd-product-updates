@@ -505,9 +505,10 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 		$message = edd_do_email_tags( $emailpost->post_content, $payment_id );
 		$edd_emails->__set( 'from_name', $from_name );
 		$edd_emails->__set( 'from_address', $from_email );
+		$stripped_message = stripslashes( $message );
 		
-		$mailresult = ( isset( $test_mode ) && $test_mode == true ) ? true : $edd_emails->send( $email, $subject, $message, $attachments );
-				
+		$mailresult = ( isset( $test_mode ) && $test_mode == true ) ? true : $edd_emails->send( $email, $subject, $stripped_message, $attachments );
+
 	} else {
 		
 		$email_body_header = get_transient( 'edd_pup_email_body_header_'. $userid );
@@ -535,8 +536,9 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 		$message = $email_body_header;
 		$message .= apply_filters( 'edd_pup_message', edd_email_template_tags( $emailpost->post_content, $payment_data, $payment_id ), $payment_id, $payment_data );
 		$message .= $email_body_footer;	
-			
-		$mailresult = ( isset( $test_mode ) && $test_mode == true ) ? true : wp_mail( $email, $subject, $message, $headers, $attachments );
+		$stripped_message = stripslashes( $message );
+		
+		$mailresult = ( isset( $test_mode ) && $test_mode == true ) ? true : wp_mail( $email, $subject, $stripped_message, $headers, $attachments );
 	}
 	
 	// Update payment notes to log this email being sent
@@ -544,6 +546,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 		edd_insert_payment_note( $payment_id, 'Sent product update email "'. $subject .'" <a href="'.admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=view_pup_email&id='.$email_id ).'">View Email</a>' );
 	}
     
+	
     return $mailresult;
 }
 
@@ -743,7 +746,7 @@ function edd_pup_send_test_email() {
 			_e( 'Your email address was invalid. Please enter a valid email address to send the test.', 'edd-pup' );
 		}
 	
-	}	
+	}
 	
     die();
 }
@@ -780,10 +783,11 @@ function edd_pup_test_email( $email_id, $to = null ) {
 		$message = edd_email_preview_template_tags( $email->post_content );
 		$edd_emails->__set( 'from_name', $from_name );
 		$edd_emails->__set( 'from_address', $from_email );
+		$stripped_message = stripslashes( $message );
 		
 		// Send the email
 		foreach ( $to as $recipient ) {
-			$edd_emails->send( $recipient, $subject, $message );
+			$edd_emails->send( $recipient, $subject, $stripped_message );
 		}
 		
 		//$edd_emails = new EDD_Emails;
@@ -792,9 +796,10 @@ function edd_pup_test_email( $email_id, $to = null ) {
 		$message = edd_get_email_body_header();
 		$message .= apply_filters( 'edd_pup_test_message', edd_apply_email_template( $email->post_content, null, null ), $email_id );
 		$message .= edd_get_email_body_footer();
+		$stripped_message = stripslashes( $message );
 		
 		foreach ( $to as $recipient ) {
-			wp_mail( $recipient, $subject, $message, $headers );
+			wp_mail( $recipient, $subject, $stripped_message, $headers );
 		}
 	}
 	
