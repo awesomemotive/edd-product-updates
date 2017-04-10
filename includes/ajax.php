@@ -8,8 +8,8 @@
  *
  *
  * @package    EDD_PUP
- * @author     Evan Luzi
- * @copyright  Copyright 2014 Evan Luzi, The Black and Blue, LLC
+ * @author     DevriX
+ * @copyright  Copyright (c) 2014-2017
  * @since      0.9
  */
 
@@ -212,7 +212,9 @@ function edd_pup_ajax_preview() {
 	
 		if ( version_compare( get_option( 'edd_version' ), '2.1' ) >= 0 ) {
 			$edd_emails = new EDD_Emails;
-			$preview = $edd_emails->build_email( edd_email_preview_template_tags( $email->post_content ) );
+			$message = edd_email_preview_template_tags( $email->post_content );
+			$stripped_message = stripslashes( $message );
+			$preview = $edd_emails->build_email( $stripped_message );
 		} else {
 			$preview = edd_apply_email_template( $email->post_content, null, null );		
 		}
@@ -426,13 +428,15 @@ function edd_pup_ajax_trigger(){
 			// Reset file download limits for customers' eligible updates
 			$customer_updates = edd_pup_get_customer_updates( $customer['customer_id'], $email_id );
 			
-			foreach ( $customer_updates as $download ) {
-				$limit = edd_get_file_download_limit( $download['id'] );
-				if ( ! empty( $limit ) ) {
-					edd_set_file_download_limit_override( $download['id'], $customer['customer_id'] );
+			if ( is_array( $customer_updates ) ) {
+				foreach ( $customer_updates as $download ) {
+					$limit = edd_get_file_download_limit( $download['id'] );
+					if ( ! empty( $limit ) ) {
+						edd_set_file_download_limit_override( $download['id'], $customer['customer_id'] );
+					}
 				}
 			}
-			
+
 			if ( true == $trigger ) {
 				$rows[] = $customer['eddpup_id'];
 				$sent++;
@@ -502,7 +506,10 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 	if ( version_compare( get_option( 'edd_version' ), '2.1' ) >= 0 ) {
 	
 		$edd_emails = new EDD_emails();
-		$message = edd_do_email_tags( $emailpost->post_content, $payment_id );
+
+		$replaced_products = apply_filters( 'edd_email_replace_products', $emailpost->post_content, $payment_id );
+
+		$message = edd_do_email_tags( $replaced_products, $payment_id );
 		$edd_emails->__set( 'from_name', $from_name );
 		$edd_emails->__set( 'from_address', $from_email );
 		$stripped_message = stripslashes( $message );

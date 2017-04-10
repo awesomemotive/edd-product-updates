@@ -6,8 +6,8 @@
  *
  *
  * @package    EDD_PUP
- * @author     Evan Luzi
- * @copyright  Copyright 2014 Evan Luzi, The Black and Blue, LLC
+ * @author     DevriX
+ * @copyright  Copyright (c) 2014-2017
  * @since      0.9.2
  */
 
@@ -47,6 +47,7 @@ function edd_pup_post_types() {
 		'rewrite' 			=> false,
 		'show_ui'			=> true,
 		'show_in_menu'		=> 'edit.php?post_type=download&page=edd-prod-updates',
+		'show_in_nav_menus' => false,
 		'capability_type' 	=> 'install_plugins',
 		//'map_meta_cap'      => true,
 		'supports' 			=> array( 'title', 'editor', 'thumbnail', 'excerpt', 'revisions' ),

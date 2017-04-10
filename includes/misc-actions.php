@@ -3,8 +3,8 @@
  * EDD Product Updates Miscellanous Actions
  *
  * @package    EDD_PUP
- * @author     Evan Luzi
- * @copyright  Copyright 2014 Evan Luzi, The Black and Blue, LLC
+ * @author     DevriX
+ * @copyright  Copyright (c) 2014-2017
  * @since      0.9.3
  */
 

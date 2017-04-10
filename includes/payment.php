@@ -4,10 +4,10 @@
  *
  * Add unsubscribe option on payment history page for customers
  *
- *
+ * 
  * @package    EDD_PUP
- * @author     Evan Luzi
- * @copyright  Copyright 2014 Evan Luzi, The Black and Blue, LLC
+ * @author     DevriX
+ * @copyright  Copyright (c) 2014-2017
  * @since      0.9
  */
 
@@ -24,6 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function edd_pup_order_history( $payment_id ){
 
 	$payment_meta = edd_get_payment_meta( $payment_id );
+
 	$sendupdates = isset( $payment_meta['edd_send_prod_updates'] ) ? $payment_meta['edd_send_prod_updates'] : true ;
 
 	ob_start();
@@ -43,6 +44,9 @@ add_action('edd_view_order_details_update_inner','edd_pup_order_history');
 
 /**
  * Store the unsubscribe custom field into EDD's payment meta
+ *
+ * This filter is commented for now because its causing problem since 
+ * $_POST['edd-send-product-updates'] doesn't exist here
  * 
  * @access public
  * @param mixed $payment_meta
@@ -51,10 +55,10 @@ add_action('edd_view_order_details_update_inner','edd_pup_order_history');
 function edd_pup_store_field( $payment_meta ) {
 
 	$payment_meta['edd_send_prod_updates'] = isset( $_POST['edd-send-product-updates'] ) ? true : false ;
-    
+
     return $payment_meta;
 }
-add_filter( 'edd_payment_meta', 'edd_pup_store_field');
+// add_filter( 'edd_payment_meta', 'edd_pup_store_field');
 
 /**
  * Check "Send Product Updates?" option by default on payment completion

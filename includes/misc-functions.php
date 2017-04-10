@@ -3,8 +3,8 @@
  * EDD Product Updates Miscellanous Functions
  *
  * @package    EDD_PUP
- * @author     Evan Luzi
- * @copyright  Copyright 2014 Evan Luzi, The Black and Blue, LLC
+ * @author     DevriX
+ * @copyright  Copyright (c) 2014-2017
  * @since      0.9.3
  */
 
@@ -427,6 +427,7 @@ function edd_pup_eligible_updates( $payment_id, $updated_products, $object = tru
 	}
 	
 	foreach ( maybe_unserialize( $payment_meta['cart_details'] ) as $item ){
+		$item['name'] = addslashes( $item['name'] );
 		
 		// Skip $item if it is not a product being updated
 		if ( !isset( $updated_products[ $item['id'] ] ) ){

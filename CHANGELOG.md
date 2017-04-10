@@ -1,3 +1,13 @@
+## 1.2.5 (February 27th, 2017)
+* Fix: Not checking automatically the option for product update after payment. This problem cause not sending an update for products which are bought before fixing this bug.
+
+## 1.2.4 (January 16th, 2017)
+* Fix: Bug with quotes and slashes in product name
+* Fix: "Invalid argument supplied for foreach()" warning
+
+## 1.2.3 (November 1st, 2016)
+* Fix: Adding `addslashes` on product name, trying to fix bug with quotes and slashes
+
 ## 1.2.1 (December 10th, 2015)
 * Tweak: Change capability check for adding admin page
 

@@ -7,8 +7,8 @@
  *
  *
  * @package    EDD_PUP
- * @author     Evan Luzi
- * @copyright  Copyright 2014 Evan Luzi, The Black and Blue, LLC
+ * @author     DevriX
+ * @copyright  Copyright (c) 2014-2017
  * @since      0.9
  */
 
@@ -106,6 +106,30 @@ function edd_pup_preview_tags( $message ) {
 	return $message;
 }
 add_filter('edd_email_preview_template_tags', 'edd_pup_preview_tags', 999);
+
+
+/**
+ * Replacing only {updated_products} and {updated_products_links} tag in message content
+ * The reason for this function is to avoid EDD's build-in function - edd_do_email_tags() for those two tags
+ * @param  string 	$message
+ * @param  mixed 	$payment_id
+ * @return string   Edited message with replaced those two tags
+ */
+function edd_replace_products_and_products_links( $message, $payment_id ) {
+
+	$email_id = get_transient( 'edd_pup_preview_email_'. get_current_user_id() );
+
+	if ( false !== $email_id ) {
+		$updated_links    = edd_pup_products_links_tag( $payment_id, $email_id );
+		$updated_products = edd_pup_products_tag( $payment_id, $email_id );
+	}
+
+	$message = str_replace( '{updated_products_links}', $updated_links, $message );
+	$message = str_replace( '{updated_products}', $updated_products, $message );
+
+	return $message;
+}
+add_filter( 'edd_email_replace_products', 'edd_replace_products_and_products_links', 999, 2 );
 
 /**
  * Email template tag: updated_products
