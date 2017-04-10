@@ -104,8 +104,8 @@ $defaultmessage  = edd_get_option( 'edd_pup_default_message', $defaultmessage );
 								<!-- bundle option 1-->
 								<strong><?php _e( 'Bundled product link output:', 'edd-pup' );?></strong>
 									<select name="bundle_1" class="bundle-input" value="">
-										<option value="updated" selected="selected"><?php _e( 'Show links for updated products only', 'edd-pup' );?></option>
-										<option value="all"><?php _e( 'Show links for all products', 'edd-pup' );?></option>
+										<option value="all" selected="selected"><?php _e( 'Show links for all products', 'edd-pup' );?></option>
+										<option value="updated"><?php _e( 'Show links for updated products only', 'edd-pup' );?></option>
 									</select>
 								<p class="description"><?php _e ( 'Choose whether to show links for all products in a bundle or only the products within the bundle that have been updated (and selected above) when using the {updated_products_links} tag.', 'edd-pup' );?></p>
 								

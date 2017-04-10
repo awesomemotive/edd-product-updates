@@ -2,7 +2,7 @@
 /**
  * Plugin Name:     Easy Digital Downloads - Product Updates
  * Description:     Batch send product update emails to EDD customers
- * Version:         1.2.5
+ * Version:         1.2.6
  * Author:          DevriX
  * Author URI:      http://devrix.com/
  * Text Domain:     edd-pup

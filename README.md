@@ -3,7 +3,7 @@
 EDD Product Updates Extension
 ===================
 
-Version 1.2.5
+Version 1.2.6
 
 This extension allows you to send specialized product update emails to your customers when using [Easy Digital Downloads](http://easydigitaldownloads.com/). For instance, if you release an updated edition of an eBook, instead of confusing customers by resending their purchase receipts – with purchase language, downloads to all the products they bought, and no context for the email – you can use this extension to send them an email with a message tailored to the update while taking full advantage of Easy Digital Download's powerful download link expiration system.
 
@@ -36,6 +36,14 @@ This extension allows you to send specialized product update emails to your cust
 6. Go to Downloads -> Settings -> Emails and scroll to the bottom
 7. Customize your product update emails!
 
+## Instructions
+
+**Not all products are updated in the selected bundle. How to choose which products are updated?**
+	1. Select `Show links for updated products only` instead of the default one - `Show links for all products`.
+	2. The `Choose products being updated` is containing your bundle product and there you have to list also all updated products in that bundle.
+
+	Example: There is a Bundle1 with Product1, Product2 and Product3. Only Product2 and Product3 are updated. So the options `Choose products being updated` should contain: Bundle1, Product2 and Product3.
+
 ## Known Issues
 * Filters and actions need to be added throughout
 * If `WP_DEBUG_DISPLAY` is set to true and an error occurs during the sending process, it may return a false positive that emails weren't sent.
@@ -46,12 +54,13 @@ This extension allows you to send specialized product update emails to your cust
 * Limited variable pricing support.
 
 **Tested With:**
-* **Wordpress:** 4.0 / **EDD:** 2.1.7 / **PHP:** 5.5.17
-* **Wordpress:** 4.0 / **EDD:** 2.1.7 / **PHP:** 5.2.17
-* **Wordpress:** 3.9.1 / **EDD:** 2.0.4 / **PHP:** 5.4.33
+* **WordPress:** 4.7.3 / **EDD:** 2.7.7 / **PHP:** 7.0.15
+* **WordPress:** 4.0 / **EDD:** 2.1.7 / **PHP:** 5.5.17
+* **WordPress:** 4.0 / **EDD:** 2.1.7 / **PHP:** 5.2.17
+* **WordPress:** 3.9.1 / **EDD:** 2.0.4 / **PHP:** 5.4.33
 
 **Requirements:**
-* **Wordpress:** 3.0+
+* **WordPress:** 3.0+
 * **EDD:** 2.0
 * **PHP:** 4.3 (depending on WP version)
 

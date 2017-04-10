@@ -1,3 +1,6 @@
+## 1.2.6 (April 10th, 2017)
+* Tweak: Change the default option for bundle update - `Show links for all products` instead of `Show links for updated products only`.
+
 ## 1.2.5 (February 27th, 2017)
 * Fix: Not checking automatically the option for product update after payment. This problem cause not sending an update for products which are bought before fixing this bug.
 
