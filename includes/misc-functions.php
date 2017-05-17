@@ -669,7 +669,7 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
 		
 		$i++;
 	}
-    
+	
     return $wpdb->get_results(
     	"SELECT m.post_id 
     	FROM $wpdb->postmeta m, $wpdb->posts p
@@ -681,6 +681,58 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
     		$limit $offset
     	", ARRAY_A );
     
+}
+
+function edd_pup_get_products( $email_id ){
+	$filters   = get_post_meta( $email_id, '_edd_pup_filters', true );
+	$products  = get_post_meta( $email_id, '_edd_pup_updated_products', true );
+
+	// Filter for bundle only email sends
+	if ( $filters['bundle_2'] ) {
+		$bundles = array();
+		foreach ( $products as $prod_id => $prod_name ) {
+			if ( edd_is_bundled_product( $prod_id ) ) {
+				$bundles[$prod_id] = $prod_name;
+			}
+		}
+
+		$products = $bundles;
+	}
+	return $products;
+}
+
+function edd_pup_build_queue( $customers, $products, $email_id, $limit, $test = false ){
+	global $wpdb;
+	$i = 1;
+	$count = 0;
+	$queue = array();
+	$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1", OBJECT_K );
+	// Start building queue
+	foreach ( $customers as $customer ){
+		// Check what products customers are eligible for updates and add to queue only if updates are available to customer
+		$updates = edd_pup_eligible_updates( $customer['post_id'], $products, true, $licenseditems, $email_id );
+		//var_dump($updates);
+		$customer_updates = !empty( $updates ) ? serialize( $updates ) : null;
+		if ( ! empty( $customer_updates ) ) {
+			if( $test ){		
+				$queue[] = array(
+					'eddpup_id' => $customer['post_id'] . $email_id,
+					'customer_id'=> $customer['post_id'], 
+					'email_id' => $email_id,
+					'products' => $updates,
+					'sent' => 0,
+				);				
+			} else {
+				$queue[] = '('.$customer['post_id'] . $email_id.', '.$customer['post_id'].', '.$email_id.', \''.$customer_updates.'\', 0)';				
+			}
+			// Insert into database in batches of 1000
+			if ( $i % $limit == 0 ){
+				break;
+			}
+		}
+		$i++;
+	}
+	return $queue;
 }
 
 /**

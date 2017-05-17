@@ -287,26 +287,12 @@ function edd_pup_ajax_start(){
 		}
 		
 		global $wpdb;
-		$i = 1;
-		$count = 0;
 		$limit = 1000;
 		$total = isset( $_POST['total'] ) ? absint( $_POST['total'] ) : $recipients;
 		$email_id  = intval( $_POST['email_id'] );
-		$filters   = get_post_meta( $email_id, '_edd_pup_filters', true );
-		$products  = get_post_meta( $email_id, '_edd_pup_updated_products', true );
 		
-		// Filter for bundle only email sends
-		if ( $filters['bundle_2'] ) {
-			$bundles = array();
-			foreach ( $products as $prod_id => $prod_name ) {
-				if ( edd_is_bundled_product( $prod_id ) ) {
-					$bundles[$prod_id] = $prod_name;
-				}
-			}
-			
-				$products = $bundles;
-		}
-		
+		$products = edd_pup_get_products($email_id);				
+				
 		$customers = edd_pup_user_send_updates( $products, true, $limit, $processed );
 		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1", OBJECT_K );
 
@@ -323,42 +309,15 @@ function edd_pup_ajax_start(){
 			update_post_meta( $email_id, '_edd_pup_licensing_status', edd_get_option( 'edd_pup_license' ) ? 'active' : 'inactive' );
 			
 		}
-		
-		// Start building queue
-		foreach ( $customers as $customer ){
-				
-			// Check what products customers are eligible for updates and add to queue only if updates are available to customer
-			$updates = edd_pup_eligible_updates( $customer['post_id'], $products, true, $licenseditems, $email_id );
-			$customer_updates = !empty( $updates ) ? serialize( $updates ) : null;
-
-			if ( ! empty( $customer_updates ) ) {
-				
-				$queue[] = '('.$customer['post_id'] . $email_id.', '.$customer['post_id'].', '.$email_id.', \''.$customer_updates.'\', 0)';
-				$count++;
-								
-				// Insert into database in batches of 1000
-				if ( $i % $limit == 0 ){
-
-					$queueinsert = implode( ',', $queue );
-					$wpdb->query( "INSERT INTO $wpdb->edd_pup_queue (eddpup_id, customer_id, email_id, products, sent) VALUES $queueinsert ON DUPLICATE KEY UPDATE eddpup_id = eddpup_id" );
-					
-					// Reset defaults for next batch
-					$queue = '';
-					
-					break;
-				}
-			
-			}
-			
-			$i++;
-		}
+		$queue = edd_pup_build_queue( $customers, $products, $email_id, $limit );
+		$count = count( $queue );
 		
 		// Insert leftovers or if batch is less than 1000
 		if ( ! empty( $queue ) ) {
 			$queueinsert = implode( ',', $queue );
 			$wpdb->query( "INSERT INTO $wpdb->edd_pup_queue (eddpup_id, customer_id, email_id, products, sent) VALUES $queueinsert ON DUPLICATE KEY UPDATE eddpup_id = eddpup_id" );
 		}
-	    		
+	    
 		echo json_encode(array('status'=>'new','sent'=>0,'total'=>absint($total),'processed'=>absint($processed+$count)));
 		
 		exit;
@@ -415,6 +374,7 @@ function edd_pup_ajax_trigger(){
 	$query = "SELECT * FROM $wpdb->edd_pup_queue WHERE email_id = $email_id AND sent = 0 LIMIT $limit";
 	$customers = $wpdb->get_results( $query , ARRAY_A);
 	
+	
 	// Throw an error if MYSQL returns an error. This will only work if WP_DEBUG_DISPLAY is off.
 	if ( $wpdb->last_error ) {
 		echo 'epat_res_err';
@@ -424,23 +384,25 @@ function edd_pup_ajax_trigger(){
 	foreach ( $customers as $customer ) {
 
 			$trigger = edd_pup_ajax_send_email( $customer['customer_id'], $email_id, $testmode );
-						
-			// Reset file download limits for customers' eligible updates
-			$customer_updates = edd_pup_get_customer_updates( $customer['customer_id'], $email_id );
-			
-			if ( is_array( $customer_updates ) ) {
-				foreach ( $customer_updates as $download ) {
-					$limit = edd_get_file_download_limit( $download['id'] );
-					if ( ! empty( $limit ) ) {
-						edd_set_file_download_limit_override( $download['id'], $customer['customer_id'] );
+				
+			if( !$testmode && ( $trigger && 'nothig' !== $trigger )  ){
+				// Reset file download limits for customers' eligible updates
+				$customer_updates = edd_pup_get_customer_updates( $customer['customer_id'], $email_id );
+
+				if ( is_array( $customer_updates ) ) {
+					foreach ( $customer_updates as $download ) {
+						$limit = edd_get_file_download_limit( $download['id'] );
+						if ( ! empty( $limit ) ) {
+							edd_set_file_download_limit_override( $download['id'], $customer['customer_id'] );
+						}
 					}
 				}
-			}
 
-			if ( true == $trigger ) {
+			}
+			if ( true == $trigger || 'nothig' == $trigger ) {
 				$rows[] = $customer['eddpup_id'];
 				$sent++;
-			}
+			}				
 	}
 	
 	// Designate emails in database as having been sent
@@ -477,7 +439,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 	$from_email   = $emailmeta['_edd_pup_from_email'][0];
 	$attachments  = apply_filters( 'edd_pup_attachments', array(), $payment_id, $payment_data );
 	$lognotes	  = edd_get_option( 'edd_pup_log_notes' );
-	
+		
 	add_filter('edd_email_template', 'edd_pup_template' );
 		
 	/* If subject doesn't use tags (and thus is the same for each customer)
@@ -506,15 +468,25 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 	if ( version_compare( get_option( 'edd_version' ), '2.1' ) >= 0 ) {
 	
 		$edd_emails = new EDD_emails();
-
-		$replaced_products = apply_filters( 'edd_email_replace_products', $emailpost->post_content, $payment_id );
-
-		$message = edd_do_email_tags( $replaced_products, $payment_id );
-		$edd_emails->__set( 'from_name', $from_name );
-		$edd_emails->__set( 'from_address', $from_email );
-		$stripped_message = stripslashes( $message );
 		
-		$mailresult = ( isset( $test_mode ) && $test_mode == true ) ? true : $edd_emails->send( $email, $subject, $stripped_message, $attachments );
+		$updated_links    = edd_pup_products_links_tag( $payment_id, null, $email_id);
+		$updated_products = edd_pup_products_tag( $payment_id, null, $email_id );
+		
+		if( $updated_links || $updated_products ){
+			$message = str_replace( '{updated_products_links}', $updated_links, $emailpost->post_content );
+			$replaced_products = str_replace( '{updated_products}', $updated_products, $message );
+
+
+
+			$message = edd_do_email_tags( $replaced_products, $payment_id );
+			$edd_emails->__set( 'from_name', $from_name );
+			$edd_emails->__set( 'from_address', $from_email );
+			$stripped_message = stripslashes( $message );
+
+			$mailresult = ( isset( $test_mode ) && $test_mode == true ) ? compact( 'email', 'subject', 'stripped_message', 'headers', 'attachments' ) : $edd_emails->send( $email, $subject, $stripped_message, $attachments );		
+		} else {
+			$mailresult = 'nothig';
+		}
 
 	} else {
 		
@@ -545,7 +517,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 		$message .= $email_body_footer;	
 		$stripped_message = stripslashes( $message );
 		
-		$mailresult = ( isset( $test_mode ) && $test_mode == true ) ? true : wp_mail( $email, $subject, $stripped_message, $headers, $attachments );
+		$mailresult = ( isset( $test_mode ) && $test_mode == true ) ? compact( 'email', 'subject', 'stripped_message', 'headers', 'attachments' ) : wp_mail( $email, $subject, $stripped_message, $headers, $attachments );
 	}
 	
 	// Update payment notes to log this email being sent

@@ -3,7 +3,7 @@
 EDD Product Updates Extension
 ===================
 
-Version 1.2.6
+Version 1.2.7
 
 This extension allows you to send specialized product update emails to your customers when using [Easy Digital Downloads](http://easydigitaldownloads.com/). For instance, if you release an updated edition of an eBook, instead of confusing customers by resending their purchase receipts – with purchase language, downloads to all the products they bought, and no context for the email – you can use this extension to send them an email with a message tailored to the update while taking full advantage of Easy Digital Download's powerful download link expiration system.
 
@@ -38,11 +38,12 @@ This extension allows you to send specialized product update emails to your cust
 
 ## Instructions
 
-**Not all products are updated in the selected bundle. How to choose which products are updated?**
-	1. Select `Show links for updated products only` instead of the default one - `Show links for all products`.
-	2. The `Choose products being updated` is containing your bundle product and there you have to list also all updated products in that bundle.
+* **Not all products are updated in the selected bundle. How to choose which products are updated?**
 
-	Example: There is a Bundle1 with Product1, Product2 and Product3. Only Product2 and Product3 are updated. So the options `Choose products being updated` should contain: Bundle1, Product2 and Product3.
+1. Select `Show links for updated products only` instead of the default one - `Show links for all products`.
+2. The `Choose products being updated` is containing your bundle product and there you have to list also all updated products in that bundle.
+
+**Example:** There is a Bundle1 with Product1, Product2 and Product3. Only Product2 and Product3 are updated. So the options `Choose products being updated` should contain: Bundle1, Product2 and Product3.
 
 ## Known Issues
 * Filters and actions need to be added throughout
@@ -65,4 +66,4 @@ This extension allows you to send specialized product update emails to your cust
 * **PHP:** 4.3 (depending on WP version)
 
 ## Questions?
-Email mario [at] peshev.net
+Email contact [at] devrix.com

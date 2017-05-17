@@ -139,63 +139,72 @@ add_filter( 'edd_email_replace_products', 'edd_replace_products_and_products_lin
  * @param mixed $payment_id
  * @return void
  */
-function edd_pup_products_tag( $payment_id, $email = null ) {
+function edd_pup_products_tag( $payment_id, $email = null, $email_id = null ) {
 
 	
 	// Used to generate accurate tag outputs for preview and test emails
 	if ( isset( $email ) && absint( $email ) != 0 ) {
 		$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );		
-		$updated_products = is_array( $updated_products ) ? $updated_products : array ( $updated_products );
-
-		foreach ( $updated_products as $id => $name ) {
-		
-			$customer_updates[$id] = array( 'id' => $id, 'name' => $name);
-		
+		if( !empty( $updated_products ) ){
+			$updated_products = is_array( $updated_products ) ? $updated_products : array ( $updated_products );			
+		}
+		$customer_updates = array();
+		if( is_array( $updated_products ) ){
+			foreach ( $updated_products as $id => $name ) {
+				$customer_updates[$id] = array( 'id' => $id, 'name' => $name);
+			}			
 		}
 
 		
 	} else {
-	
-		$email = get_transient( 'edd_pup_sending_email_'. get_current_user_id() );
-		$customer_updates = edd_pup_get_customer_updates( $payment_id, $email );
-		$customer_updates = is_array( $customer_updates ) ? $customer_updates : array( $customer_updates );
-	
-	}
-	
-	$filters = get_post_meta( $email, '_edd_pup_filters', true );
-	$productlist = '<ul>';
-
-	foreach ( $customer_updates as $product ) {
-		
-
-		if ( edd_is_bundled_product( $product['id'] ) ) {
-				
-			$bundled_products = edd_get_bundled_products( $product['id'] );
-			
-			$productlist .= '<li>'. $product['name'] .'</li>';
-			$productlist .= '<ul>';		
-			
-			foreach ( $bundled_products as $bundle_item ) {
-			
-				if ( isset( $customer_updates[ $bundle_item ] ) ) {
-	
-					$productlist .= '<li><em>'. get_the_title( $bundle_item ) .'</em></li>';
-				}
-			}
-			
-			$productlist .= '</ul>';
-			
-		} else if ( $filters['bundle_2'] ) {
-			
-			continue;	
-			
+		if( empty( $email_id ) ){
+			$email = get_transient( 'edd_pup_sending_email_'. get_current_user_id() );			
 		} else {
-			
-			$productlist .= '<li>'. $product['name'] .'</li>';
+			$email = $email_id;
 		}
+		$customer_updates = edd_pup_get_customer_updates( $payment_id, $email );
+		if( !empty( $customer_updates ) ){
+			$customer_updates = is_array( $customer_updates ) ? $customer_updates : array( $customer_updates );			
+		}
+	
+	}
+	$productlist = '';
+	$filters = get_post_meta( $email, '_edd_pup_filters', true );
+	if( is_array( $customer_updates ) ){
+		$productlist = '<ul>';
+		
+		foreach ( $customer_updates as $product ) {
+
+
+			if ( edd_is_bundled_product( $product['id'] ) ) {
+
+				$bundled_products = edd_get_bundled_products( $product['id'] );
+
+				$productlist .= '<li>'. $product['name'] .'</li>';
+				$productlist .= '<ul>';		
+
+				foreach ( $bundled_products as $bundle_item ) {
+
+					if ( isset( $customer_updates[ $bundle_item ] ) ) {
+
+						$productlist .= '<li><em>'. get_the_title( $bundle_item ) .'</em></li>';
+					}
+				}
+
+				$productlist .= '</ul>';
+
+			} else if ( $filters['bundle_2'] ) {
+
+				continue;	
+
+			} else {
+
+				$productlist .= '<li>'. $product['name'] .'</li>';
+			}
+		}
+		$productlist .= '</ul>';
 	}
 
-	$productlist .= '</ul>';
 
 	return $productlist;
 }
@@ -288,31 +297,42 @@ function edd_pup_products_tag_plain( $payment_id, $email = null ) {
  * @param mixed $payment_id
  * @return void
  */
-function edd_pup_products_links_tag( $payment_id, $email = null ) {	
-		
+function edd_pup_products_links_tag( $payment_id, $email = null, $email_id = null ) {	
+	
 	// Used to generate accurate tag outputs for preview and test emails
 	if ( isset( $email ) && absint( $email ) != 0 ) {
 
 		$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );
-		$updated_products = is_array( $updated_products ) ? $updated_products : array ( $updated_products );
-	
-		foreach ( $updated_products as $id => $name ) {
-		
-			$customer_updates[$id] = array( 'id' => $id, 'name' => $name);
-		
+		if( !empty( $updated_products ) ){
+			$updated_products = is_array( $updated_products ) ? $updated_products : array ( $updated_products );			
 		}
+		$customer_updates = array();
+		if( is_array( $updated_products ) ){
+			foreach ( $updated_products as $id => $name ) {
+				$customer_updates[$id] = array( 'id' => $id, 'name' => $name);
+			}			
+		}
+	
 		
 	} else {
-	
-		$email = get_transient( 'edd_pup_sending_email_'. get_current_user_id() );
+		if( empty( $email_id ) ){
+			$email = get_transient( 'edd_pup_sending_email_'. get_current_user_id() );
+		} else {
+			$email = $email_id;
+		}
 		$updated_products = get_post_meta( $email, '_edd_pup_updated_products', true );
-		$updated_products = is_array( $updated_products ) ? $updated_products : array ( $updated_products );
+		if( !empty( $updated_products ) ){
+			$updated_products = is_array( $updated_products ) ? $updated_products : array ( $updated_products );			
+		}
 		$customer_updates = edd_pup_get_customer_updates( $payment_id, $email );
-		$customer_updates = is_array( $customer_updates ) ? $customer_updates : array( $customer_updates );
+		if( !empty( $customer_updates ) ){
+			$customer_updates = is_array( $customer_updates ) ? $customer_updates : array( $customer_updates );
+			
+		}
 	}
 	
 	$filters = get_post_meta( $email, '_edd_pup_filters', true );
-
+	
 	if ( $customer_updates ) {
 	
 		$show_names    = apply_filters( 'edd_pup_email_show_names', true );
@@ -408,7 +428,7 @@ function edd_pup_products_links_tag( $payment_id, $email = null ) {
 
 		return $download_list;
 	}
-	
+	return false;
 }
 
 /**
