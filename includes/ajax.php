@@ -23,8 +23,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @return void
  * @since 0.9
  */
-function edd_pup_email_confirm_html(){
-	$form = array();
+function edd_pup_email_confirm_html(){	
+	$form = array();	
 	parse_str( $_POST['form'], $form );
 	parse_str( $_POST['url'], $url );
 	
@@ -489,35 +489,47 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 		}
 
 	} else {
-		
-		$email_body_header = get_transient( 'edd_pup_email_body_header_'. $userid );
-		
-		if ( false === $email_body_header ) {
+		$updated_links    = edd_pup_products_links_tag( $payment_id, null, $email_id);
+		$updated_products = edd_pup_products_tag( $payment_id, null, $email_id );
+
+		if( $updated_links || $updated_products ){
 			
-			$email_body_header = edd_get_email_body_header();
+			$email_body_header = get_transient( 'edd_pup_email_body_header_'. $userid );
+
+			if ( false === $email_body_header ) {
+
+				$email_body_header = edd_get_email_body_header();
+
+				set_transient( 'edd_pup_email_body_header_'. $userid, $email_body_header, 60 * 60 );
+			}
+
+			$email_body_footer = get_transient( 'edd_pup_email_body_footer_'. $userid );
+
+			if ( false === $email_body_footer ) {
+
+				$email_body_footer = edd_get_email_body_footer();
+
+				set_transient( 'edd_pup_email_body_footer_'. $userid, $email_body_footer, 60 * 60 );
+			}
+
+			$headers = "From: " . stripslashes_deep( html_entity_decode( $from_name, ENT_COMPAT, 'UTF-8' ) ) . " <$from_email>\r\n";
+			$headers .= "Reply-To: ". $from_email . "\r\n";
+			$headers .= "Content-Type: text/html; charset=utf-8\r\n";
 			
-			set_transient( 'edd_pup_email_body_header_'. $userid, $email_body_header, 60 * 60 );
+			$message = $email_body_header;
+			
+			$_message = str_replace( '{updated_products_links}', $updated_links, $emailpost->post_content );
+			$replaced_products = str_replace( '{updated_products}', $updated_products, $_message );
+			
+			$message .= apply_filters( 'edd_pup_message', edd_email_template_tags( $replaced_products, $payment_data, $payment_id ), $payment_id, $payment_data );
+			
+			$message .= $email_body_footer;	
+			$stripped_message = stripslashes( $message );
+
+			$mailresult = ( isset( $test_mode ) && $test_mode == true ) ? compact( 'email', 'subject', 'stripped_message', 'headers', 'attachments' ) : wp_mail( $email, $subject, $stripped_message, $headers, $attachments );
+		} else {
+			$mailresult = 'nothig';
 		}
-		
-		$email_body_footer = get_transient( 'edd_pup_email_body_footer_'. $userid );
-		
-		if ( false === $email_body_footer ) {
-			
-			$email_body_footer = edd_get_email_body_footer();
-			
-			set_transient( 'edd_pup_email_body_footer_'. $userid, $email_body_footer, 60 * 60 );
-		}
-		
-		$headers = "From: " . stripslashes_deep( html_entity_decode( $from_name, ENT_COMPAT, 'UTF-8' ) ) . " <$from_email>\r\n";
-		$headers .= "Reply-To: ". $from_email . "\r\n";
-		$headers .= "Content-Type: text/html; charset=utf-8\r\n";
-				
-		$message = $email_body_header;
-		$message .= apply_filters( 'edd_pup_message', edd_email_template_tags( $emailpost->post_content, $payment_data, $payment_id ), $payment_id, $payment_data );
-		$message .= $email_body_footer;	
-		$stripped_message = stripslashes( $message );
-		
-		$mailresult = ( isset( $test_mode ) && $test_mode == true ) ? compact( 'email', 'subject', 'stripped_message', 'headers', 'attachments' ) : wp_mail( $email, $subject, $stripped_message, $headers, $attachments );
 	}
 	
 	// Update payment notes to log this email being sent
