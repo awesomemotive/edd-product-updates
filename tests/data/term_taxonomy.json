@@ -1,0 +1,6 @@
+[{"term_taxonomy_id":1, "term_id":1, "taxonomy":"category", "description":"", "parent":0, "count":1},
+ {"term_taxonomy_id":2, "term_id":2, "taxonomy":"edd_log_type", "description":"", "parent":0, "count":45},
+ {"term_taxonomy_id":3, "term_id":3, "taxonomy":"edd_log_type", "description":"", "parent":0, "count":4},
+ {"term_taxonomy_id":4, "term_id":4, "taxonomy":"download_tag", "description":"", "parent":0, "count":1},
+ {"term_taxonomy_id":5, "term_id":5, "taxonomy":"download_tag", "description":"", "parent":0, "count":1},
+ {"term_taxonomy_id":6, "term_id":6, "taxonomy":"edd_log_type", "description":"", "parent":0, "count":6}]

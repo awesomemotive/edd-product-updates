@@ -1,0 +1,6 @@
+[{"term_id":1, "name":"Uncategorized", "slug":"uncategorized", "term_group":0},
+ {"term_id":2, "name":"sale", "slug":"sale", "term_group":0},
+ {"term_id":3, "name":"file_download", "slug":"file_download", "term_group":0},
+ {"term_id":4, "name":"music", "slug":"music", "term_group":0},
+ {"term_id":5, "name":"all", "slug":"all", "term_group":0},
+ {"term_id":6, "name":"gateway_error", "slug":"gateway_error", "term_group":0}]

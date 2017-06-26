@@ -70,6 +70,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
 		? wp_strip_all_tags( $data['subject'], true )
 		: __( 'New Product Update', 'edd-pup' ) );
 	$products = isset( $data['products'] ) ? $data['products'] : '';
+	$unique_client = isset( $data['edd_pup_unique_client'] ) ? 1 : 0;
 	$filters = array(
 		'bundle_1' => $data['bundle_1'],
 		'bundle_2' => $data['bundle_2']);
@@ -104,6 +105,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
 		update_post_meta ( $email_id, '_edd_pup_updated_products', $products );
 		update_post_meta ( $email_id, '_edd_pup_recipients', $recipients );
 		update_post_meta ( $email_id, '_edd_pup_filters', $filters );
+		update_post_meta ( $email_id, '_edd_pup_unique_client', $unique_client );
 			
 		if ( ( $update_id != 0 ) && ( $update_id == $email_id ) ) {
 			return $email_id;
@@ -145,6 +147,7 @@ function edd_pup_save_email( $data, $email_id = null ) {
 			add_post_meta ( $create_id, '_edd_pup_updated_products', $products, true );
 			add_post_meta ( $create_id, '_edd_pup_recipients', $recipients );	
 			add_post_meta ( $create_id, '_edd_pup_filters', $filters, true );
+			add_post_meta ( $create_id, '_edd_pup_unique_client', $unique_client, true );
 		}
 		
     	if ( 0 != $create_id) {	
@@ -472,8 +475,7 @@ function edd_pup_get_customer_updates( $payment_id, $email_id ) {
 	global $wpdb;
 	$payment_id = absint( $payment_id );
 	$email_id = absint( $email_id );
-	
-	return unserialize( trim( $wpdb->get_var( $wpdb->prepare( "SELECT products FROM $wpdb->edd_pup_queue WHERE email_id = %d AND customer_id = %d", $email_id, $payment_id ) ) ) );
+	return maybe_unserialize( trim( $wpdb->get_var( $wpdb->prepare( "SELECT products FROM $wpdb->edd_pup_queue WHERE email_id = %d AND customer_id = %d", $email_id, $payment_id ) ) ) );
 }
 
 /**
@@ -642,7 +644,7 @@ function edd_pup_emails_processing() {
  *
  * @return array payment_ids that are subscribed/unsubscribed for updates and have purchashed at least one product being updated.
  */
-function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit = null, $offset = null ){
+function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit = null, $offset = null, $unique_user = false ){
     if ( empty( $products ) ) {
 	    return;
     }
@@ -668,6 +670,43 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
 		}
 		
 		$i++;
+	}
+	
+	$query = 
+	"SELECT m.post_id 
+    	FROM $wpdb->postmeta m, $wpdb->posts p
+    	WHERE m.meta_key = '_edd_payment_meta'
+    		AND m.meta_value NOT LIKE '%\"edd_send_prod_updates\";b:$bool%'
+    		AND ($q 
+    		AND p.ID = m.post_id
+    		AND p.post_status = 'publish'
+    		$limit $offset
+    ";
+	
+	if( $unique_user ){
+		$query = 
+		"SELECT
+			payment_users.meta_value AS payment_user,
+			payments.post_id AS post_id    
+		FROM (
+			( $query ) payments
+			INNER JOIN 
+			$wpdb->postmeta AS payment_users
+			ON payments.post_id = payment_users.post_id
+			AND payment_users.meta_key = '_edd_payment_user_id'
+		);";
+		$payments = array();
+		$results = $wpdb->get_results( $query );
+		if( is_array( $results ) ){
+			foreach ( $results as $result ){
+				if( isset( $result->payment_user ) ){
+					$payments[ $result->payment_user ][] = array(
+						'post_id'	=> $result->post_id,
+					);
+				}				
+			}
+		}
+		return $payments;
 	}
 	
     return $wpdb->get_results(
@@ -709,30 +748,61 @@ function edd_pup_build_queue( $customers, $products, $email_id, $limit, $test = 
 	$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1", OBJECT_K );
 	// Start building queue
 	foreach ( $customers as $customer ){
-		// Check what products customers are eligible for updates and add to queue only if updates are available to customer
-		$updates = edd_pup_eligible_updates( $customer['post_id'], $products, true, $licenseditems, $email_id );
-		//var_dump($updates);
-		$customer_updates = !empty( $updates ) ? serialize( $updates ) : null;
-		if ( ! empty( $customer_updates ) ) {
-			if( $test ){		
-				$queue[] = array(
-					'eddpup_id' => $customer['post_id'] . $email_id,
-					'customer_id'=> $customer['post_id'], 
-					'email_id' => $email_id,
-					'products' => $updates,
-					'sent' => 0,
-				);				
-			} else {
-				$queue[] = '('.$customer['post_id'] . $email_id.', '.$customer['post_id'].', '.$email_id.', \''.$customer_updates.'\', 0)';				
+			$customer_id = '';
+			$customer_updates = null;
+			if( isset( $customer['post_id'] ) ){
+				// Check what products customers are eligible for updates and add to queue only if updates are available to customer
+				$updates = edd_pup_eligible_updates( $customer['post_id'], $products, true, $licenseditems, $email_id );
+				$customer_updates = edd_pup_serialize_updates( $updates );
+				$customer_id = $customer['post_id'];
+			} elseif( is_array( $customer ) ){
+				$updates = $customer_ids = array();
+				foreach ( $customer as $payment ){
+					$updates[ $payment['post_id'] ][] = edd_pup_eligible_updates( $payment['post_id'], $products, true, $licenseditems, $email_id );
+					$customer_id = $payment['post_id'];
+				}
+				$customer_updates = edd_pup_serialize_updates( $updates );
 			}
-			// Insert into database in batches of 1000
-			if ( $i % $limit == 0 ){
-				break;
-			}
-		}
+			if ( ! empty( $customer_updates ) ) {
+				if( $test ){		
+					$queue[] = array(
+						'eddpup_id' => $customer_id . $email_id,
+						'customer_id'=> $customer_id, 
+						'email_id' => $email_id,
+						'products' => $updates,
+						'sent' => 0,
+					);				
+				} else {
+					$queue[] = '('.$customer_id . $email_id.', '.$customer_id.' , '.$email_id.', \''.$customer_updates.'\', 0)';				
+				}
+				// Insert into database in batches of 1000
+				if ( $i % $limit == 0 ){
+					break;
+				}
+			}			
+		
 		$i++;
 	}
 	return $queue;
+}
+
+function edd_pup_serialize_updates( $updates ){
+	global $wpdb;
+	if( !empty( $updates ) ){
+		array_walk_recursive( $updates, function( &$item, $key ) use( $wpdb ){
+			if( is_string( $item ) ){
+				$_item = $wpdb->_escape( $item );
+				// if string need to be escaped, remove to 
+				// avoid not valid serialize string
+				// and the user email not sending !!!
+				if( $_item != $item ){
+					$item = '';
+				}
+			}
+		} );		
+		return @serialize( $updates );
+	}
+	return null;
 }
 
 /**

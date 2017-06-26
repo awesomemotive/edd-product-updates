@@ -242,7 +242,7 @@ add_action( 'wp_ajax_edd_pup_ajax_preview', 'edd_pup_ajax_preview' );
  * @param mixed $data
  * @return $count (the number of emails logged in the queue to be sent)
  */
-function edd_pup_ajax_start(){
+function edd_pup_ajax_start( $test_mode = false ){
 	
 	// Nonce security check
 	if ( ! wp_verify_nonce( $_POST['nonce'], 'edd_pup_ajax_start' ) ) {
@@ -266,9 +266,12 @@ function edd_pup_ajax_start(){
 				
 		set_transient( 'edd_pup_sending_email_'. $userid, $_POST['email_id'] );
 		$restart['status'] = 'restart';
-		   
-	    echo json_encode($restart);
-	    exit;
+		if( $test_mode ){
+			return json_encode($restart);
+		} else {
+			echo json_encode($restart);
+			exit;		
+		}   	   
 	    
     } else {
 	    
@@ -292,8 +295,11 @@ function edd_pup_ajax_start(){
 		$email_id  = intval( $_POST['email_id'] );
 		
 		$products = edd_pup_get_products($email_id);				
-				
-		$customers = edd_pup_user_send_updates( $products, true, $limit, $processed );
+		$unique_client = get_post_meta( $email_id, '_edd_pup_unique_client', TRUE );
+		$customers = edd_pup_user_send_updates( $products, true, $limit, $processed, $unique_client );
+		if( $unique_client ){
+			$total = count( $customers );
+		}
 		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1", OBJECT_K );
 
 		// Set email ID transient
@@ -317,10 +323,13 @@ function edd_pup_ajax_start(){
 			$queueinsert = implode( ',', $queue );
 			$wpdb->query( "INSERT INTO $wpdb->edd_pup_queue (eddpup_id, customer_id, email_id, products, sent) VALUES $queueinsert ON DUPLICATE KEY UPDATE eddpup_id = eddpup_id" );
 		}
-	    
-		echo json_encode(array('status'=>'new','sent'=>0,'total'=>absint($total),'processed'=>absint($processed+$count)));
 		
-		exit;
+		if( $test_mode ){
+			return json_encode(array('status'=>'new','sent'=>0,'total'=>absint($total),'processed'=>absint($processed+$count)));
+		} else {
+			echo json_encode(array('status'=>'new','sent'=>0,'total'=>absint($total),'processed'=>absint($processed+$count)));
+			exit;			
+		}
 	
 	}
 
@@ -335,7 +344,7 @@ add_action( 'wp_ajax_edd_pup_ajax_start', 'edd_pup_ajax_start' );
  * @since 0.9.2
  * @return $sent (number of emails successfully processed)
  */
-function edd_pup_ajax_trigger(){
+function edd_pup_ajax_trigger( $test_mode = false ){
 	
 	global $wpdb;
 	
@@ -380,22 +389,59 @@ function edd_pup_ajax_trigger(){
 		echo 'epat_res_err';
 		exit;
 	}
-
+	$unique_users = get_post_meta( $email_id, '_edd_pup_unique_client', TRUE );
+	
 	foreach ( $customers as $customer ) {
-
-			$trigger = edd_pup_ajax_send_email( $customer['customer_id'], $email_id, $testmode );
+			$payment_ids = array();
+			$payment_id = 0;
+			if( $unique_users ){
+				$customer_products = @unserialize( $customer['products'] );
+				if( is_array( $customer_products ) ){
+					foreach ( $customer_products as $payment_id => $customer_products_item ){
+						$payment_ids[] = $payment_id;
+					}
+				}			
+			} else {				
+				$payment_id = $customer['customer_id'];
+			}
+			$trigger = edd_pup_ajax_send_email( $payment_id, $email_id, $testmode, $payment_ids );
 				
 			if( !$testmode && ( $trigger && 'nothig' !== $trigger )  ){
-				// Reset file download limits for customers' eligible updates
-				$customer_updates = edd_pup_get_customer_updates( $customer['customer_id'], $email_id );
+				if( is_array( $payment_ids ) ){
+					foreach ( $payment_ids as $payment_ids_item ){
+						// Reset file download limits for customers' eligible updates
+						$_customer_updates = edd_pup_get_customer_updates( $payment_ids_item, $email_id );
+						$customer_updates = array();
+						if ( is_array( $_customer_updates ) ) {		
+							foreach( $_customer_updates as $customer_update_payment_items ){
+								foreach( $customer_update_payment_items as $customer_update_item ){
+									$customer_updates = array_merge( $customer_updates, $customer_update_item );	
+								}
+							}
+						}
+						if ( is_array( $customer_updates ) ) {
+							foreach ( $customer_updates as $download ) {
+								$limit = edd_get_file_download_limit( $download['id'] );
+								if ( ! empty( $limit ) ) {
+									edd_set_file_download_limit_override( $download['id'], $payment_id );
+								}
+							}
+						}
+						
+					}
+				} else {
+					// Reset file download limits for customers' eligible updates
+					$customer_updates = edd_pup_get_customer_updates( $payment_id, $email_id );
 
-				if ( is_array( $customer_updates ) ) {
-					foreach ( $customer_updates as $download ) {
-						$limit = edd_get_file_download_limit( $download['id'] );
-						if ( ! empty( $limit ) ) {
-							edd_set_file_download_limit_override( $download['id'], $customer['customer_id'] );
+					if ( is_array( $customer_updates ) ) {
+						foreach ( $customer_updates as $download ) {
+							$limit = edd_get_file_download_limit( $download['id'] );
+							if ( ! empty( $limit ) ) {
+								edd_set_file_download_limit_override( $download['id'], $payment_id );
+							}
 						}
 					}
+					
 				}
 
 			}
@@ -410,14 +456,22 @@ function edd_pup_ajax_trigger(){
 		$updateids = implode(',',$rows);
 		$wpdb->query( "UPDATE $wpdb->edd_pup_queue SET sent=1 WHERE eddpup_id IN ($updateids)" );
 	}
-	
-	if ( $wpdb->last_error ) {
-		echo 'epat_up_err';
-		exit;
+	if( $test_mode ){
+		if ( $wpdb->last_error ) {
+			return 'epat_up_err';
+		}
+
+		return $sent;	
+	} else {
+		if ( $wpdb->last_error ) {
+			echo 'epat_up_err';
+			exit;
+		}
+
+		echo $sent;
+		exit;			
 	}
 	
-	echo $sent;
-	exit;
 }
 add_action( 'wp_ajax_edd_pup_ajax_trigger', 'edd_pup_ajax_trigger' );
 
@@ -428,7 +482,7 @@ add_action( 'wp_ajax_edd_pup_ajax_trigger', 'edd_pup_ajax_trigger' );
  * @param int $email_id Email ID for a edd_pup_email post-type
  * @return void
  */
-function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
+function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null, $payment_ids = false ) {
 
 	$userid 	  = get_current_user_id();
 	$emailpost 	  = get_post( $email_id );
@@ -469,15 +523,15 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 	
 		$edd_emails = new EDD_emails();
 		
-		$updated_links    = edd_pup_products_links_tag( $payment_id, null, $email_id);
-		$updated_products = edd_pup_products_tag( $payment_id, null, $email_id );
+		$updated_links    = edd_pup_products_links_tag( $payment_id, null, $email_id, $payment_ids );
+		$updated_products = edd_pup_products_tag( $payment_id, null, $email_id, $payment_ids );
 		
-		if( $updated_links || $updated_products ){
+		$_updated_links = strip_tags( $updated_links, '<a>' );
+		$_updated_products = strip_tags( $updated_products, '<a>' );
+		
+		if( $_updated_links || $_updated_products ){
 			$message = str_replace( '{updated_products_links}', $updated_links, $emailpost->post_content );
 			$replaced_products = str_replace( '{updated_products}', $updated_products, $message );
-
-
-
 			$message = edd_do_email_tags( $replaced_products, $payment_id );
 			$edd_emails->__set( 'from_name', $from_name );
 			$edd_emails->__set( 'from_address', $from_email );
@@ -489,10 +543,13 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null ) {
 		}
 
 	} else {
-		$updated_links    = edd_pup_products_links_tag( $payment_id, null, $email_id);
-		$updated_products = edd_pup_products_tag( $payment_id, null, $email_id );
+		$updated_links    = edd_pup_products_links_tag( $payment_id, null, $email_id , $payment_ids );
+		$updated_products = edd_pup_products_tag( $payment_id, null, $email_id, $payment_ids );
 
-		if( $updated_links || $updated_products ){
+		$_updated_links = strip_tags( $updated_links, '<a>' );
+		$_updated_products = strip_tags( $updated_products, '<a>' );
+		
+		if( $_updated_links || $_updated_products ){
 			
 			$email_body_header = get_transient( 'edd_pup_email_body_header_'. $userid );
 

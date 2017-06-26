@@ -25,6 +25,8 @@ class EDD_Extension_Activation {
      *
      * @access      public
      * @since       1.0.0
+	 * @param string $plugin_path The main plugin path
+	 * @param string $plugin_file The main plugin fine
      * @return      void
      */
     public function __construct( $plugin_path, $plugin_file ) {

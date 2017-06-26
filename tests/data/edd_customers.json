@@ -1,0 +1,13 @@
+[{"id":1, "user_id":3, "email":"kamena.dacheva@gmail.com", "name":"Kamena Dacheva", "purchase_value":"0.000000", "purchase_count":7, "payment_ids":"14,32,34,41,50,64,96", "notes":"", "date_created":"2016-12-19 12:43:59"},
+ {"id":2, "user_id":0, "email":"jovo_kolev@abv.bg", "name":"yovo Kolev", "purchase_value":"23.000000", "purchase_count":2, "payment_ids":"47,52,75,394,396", "notes":"", "date_created":"2016-12-19 13:42:39"},
+ {"id":3, "user_id":0, "email":"metodiew@gmail.com", "name":"Stanko Metodiev", "purchase_value":"3.000000", "purchase_count":2, "payment_ids":"100,102", "notes":"", "date_created":"2016-12-19 16:57:46"},
+ {"id":4, "user_id":0, "email":"stanko@metodiew.com", "name":"Stanko Metodiev", "purchase_value":"23.000000", "purchase_count":2, "payment_ids":"104,115", "notes":"", "date_created":"2016-12-19 17:01:37"},
+ {"id":5, "user_id":4, "email":"marianbelchev@gmail.com", "name":"FirstName LastName", "purchase_value":"24.000000", "purchase_count":4, "payment_ids":"123,136,154,344", "notes":"", "date_created":"2017-01-09 11:45:11"},
+ {"id":6, "user_id":0, "email":"jovo4@abv.bg", "name":"jovo4 kolev", "purchase_value":"16.000000", "purchase_count":5, "payment_ids":"312,321,323,329,398,457", "notes":"", "date_created":"2017-04-07 08:03:28"},
+ {"id":7, "user_id":0, "email":"jovo1@abv.bg", "name":"jovo1 ", "purchase_value":"13.000000", "purchase_count":4, "payment_ids":"337,419,421,423", "notes":"", "date_created":"2017-04-07 09:12:54"},
+ {"id":8, "user_id":0, "email":"jovo5@abv.bg", "name":"jovo5 ", "purchase_value":"3.000000", "purchase_count":3, "payment_ids":"364,412,443,445", "notes":"", "date_created":"2017-05-17 10:01:43"},
+ {"id":9, "user_id":0, "email":"jovo.kolev@hotmail.com", "name":"jovo kolev", "purchase_value":"3.000000", "purchase_count":1, "payment_ids":"405", "notes":"", "date_created":"2017-06-12 09:48:30"},
+ {"id":10, "user_id":0, "email":"jovo2@abv.bg", "name":"jovo2 ", "purchase_value":"27.000000", "purchase_count":1, "payment_ids":"431", "notes":"", "date_created":"2017-06-13 12:40:03"},
+ {"id":11, "user_id":7, "email":"kevokiza@p33.org", "name":"Ivan ", "purchase_value":"0.000000", "purchase_count":2, "payment_ids":"452,491,495", "notes":"", "date_created":"2017-06-14 08:21:13"},
+ {"id":12, "user_id":6, "email":"meatman89fs@gmail.com", "name":"Mudrik Anatolievich", "purchase_value":"0.000000", "purchase_count":0, "payment_ids":"456", "notes":"", "date_created":"2017-06-14 08:29:33"},
+ {"id":13, "user_id":0, "email":"jovo3@abv.bg", "name":"ss ", "purchase_value":"131.000000", "purchase_count":5, "payment_ids":"459,467,468,482,508,510", "notes":"", "date_created":"2017-06-14 13:33:28"}]

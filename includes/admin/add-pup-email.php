@@ -113,6 +113,10 @@ $defaultmessage  = edd_get_option( 'edd_pup_default_message', $defaultmessage );
 								<strong>Send only to bundle customers:</strong>
 								<input type="checkbox" name="bundle_2" id="bundle_2" value="0"/>
 								<p class="description">Only send this email to customers who have purchased a bundle selected above.</p>
+								<!-- Send update to the one customer user once option -->
+								<strong><?php _e( 'Send email to unique user once', 'edd-pup' ); ?>:</strong>
+								<input type="checkbox" name="edd_pup_unique_client" id="edd_pup_unique_client" value="0"/>
+								<p class="description"><?php _e ( 'Send update to the one customer user once, if user purchase the products multiple times, He will receive only one email from this update.', 'edd-pup' ); ?></p>
 							</div>
 							<!-- recipients
 								<p><strong><?php printf( _n( '1 customer will receive this email', '%s customers will receive this email', $recipients, 'edd-pup' ), $recipients ); ?></p> -->

@@ -13,6 +13,7 @@ $email     = get_post( $email_id );
 $emailmeta = get_post_custom( $email_id );
 $filters = unserialize( $emailmeta['_edd_pup_filters'][0] );
 $updated_products = get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
+$unique_client = get_post_meta( $email_id, '_edd_pup_unique_client', TRUE );
 $recipients = edd_pup_customer_count( $email_id, $updated_products );
 $products = edd_pup_get_all_downloads();
 $tags = edd_get_email_tags();
@@ -133,6 +134,10 @@ if ( $status != 'draft' ) {
 								<strong>Send only to bundle customers:</strong>
 								<input type="checkbox" name="bundle_2" id="bundle_2" value="<?php echo $filters['bundle_2'];?>" <?php checked( $filters['bundle_2'], 1 ); ?>/>
 								<p class="description">Only send this email to customers who have purchased a bundle selected above.</p>
+								<!-- Send update to the one customer user once option -->
+								<strong><?php _e( 'Send email to unique user once', 'edd-pup' ); ?>:</strong>
+								<input type="checkbox" name="edd_pup_unique_client" id="edd_pup_unique_client" value="<?php echo $unique_client;?>" <?php checked( $unique_client, 1 ); ?>/>
+								<p class="description"><?php _e ( 'Send update to the one customer user once, if user purchase the products multiple times, he will receive only one email from thins update.', 'edd-pup' ); ?></p>
 							</div>
 						</div>
 					</div>
