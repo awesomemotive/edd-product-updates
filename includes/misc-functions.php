@@ -238,6 +238,7 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
     $licensing = edd_get_option( 'edd_pup_license' );
 	$products = !empty( $products ) ? $products : get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
 	$filters = isset( $filters ) ? $filters : get_post_meta( $email_id, '_edd_pup_filters', true );
+	$unique_client = get_post_meta( $email_id, '_edd_pup_unique_client', TRUE );
 	
 	// Filter bundle customers only
 	if ( $filters['bundle_2'] ) {
@@ -256,55 +257,131 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
         
     // Active EDD Software Licensing integration
 	if ( ( $licensing != false ) && is_plugin_active('edd-software-licensing/edd-software-licenses.php' ) ) {
-	
-		// Get customers who have a completed payment and are subscribed for updates
-		$customers = $wpdb->get_results(
-	    	"
-	    	SELECT post_id, meta_value
-	    	FROM $wpdb->posts, $wpdb->postmeta
-	    	WHERE $wpdb->posts.ID = $wpdb->postmeta.post_id
-	    		AND post_type = 'edd_payment'
-	    		AND post_status = 'publish'
-	    		AND meta_key = '_edd_payment_meta'
-				AND meta_value NOT LIKE '%%\"edd_send_prod_updates\";b:0%%'
-			", OBJECT_K);
-											
-		// Get updated products with EDD software licensing enabled
-		$products_imp = implode( ',' , array_keys( $products ) );
-		$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1 AND post_id IN ( $products_imp )", OBJECT_K );
-		
-		foreach ( $customers as $customer ) {
-
-			$paymentmeta = unserialize( $customer->meta_value );
-			$cart_details = is_array( $paymentmeta['cart_details'] ) ? $paymentmeta['cart_details'] : array( $paymentmeta['cart_details'] );
-
-			foreach ( $cart_details as $item ) {
+		if( $unique_client ){
+			$query = 
+			"SELECT
+				payment_users.meta_value AS payment_user,
+				payments.post_id AS post_id,   
+				payments.meta_value AS meta_value 
+			FROM (
+				(	
+					SELECT post_id, meta_value
+					FROM $wpdb->posts, $wpdb->postmeta
+					WHERE $wpdb->posts.ID = $wpdb->postmeta.post_id
+						AND post_type = 'edd_payment'
+						AND post_status = 'publish'
+						AND meta_key = '_edd_payment_meta'
+						AND meta_value NOT LIKE '%%\"edd_send_prod_updates\";b:0%%' 
+				) payments
+				INNER JOIN 
+				$wpdb->postmeta AS payment_users
+				ON payments.post_id = payment_users.post_id
+				AND payment_users.meta_key = '_edd_payment_user_id'
+			);";
 				
-				// Skip $item if it is not a product being updated
-				if ( !isset( $products[ $item['id'] ] ) ){
-					continue;
-				}
-			
-				// Check if they have purchased any non-licensed products which would send them the email anyway
-				if ( !isset( $licenseditems[ $item['id'] ] ) && isset( $products[ $item['id'] ] ) ) {
-					
-					$count++;
-					break;
-					
-				// Finally check to make sure customer has licenses then check that it is valid for that item.						
-				} else {
-				
-					$licenses = edd_pup_get_license_keys( $customer->post_id );
-					$enabled  = get_post_status( $licenses[$item['id']]['license_id'] ) == 'publish' ? true : false;
-										
-					if ( !empty( $licenses ) && $enabled && in_array( edd_software_licensing()->get_license_status( $licenses[$item['id']]['license_id'] ), apply_filters( 'edd_pup_valid_license_statuses', array( 'active', 'inactive' ) ) ) ) {
-						
-						$count++;
-						break;
-					}
-					
+			$results = $wpdb->get_results( $query );
+			$payments = array();
+			if( is_array( $results ) ){
+				foreach ( $results as $result ){
+					if( isset( $result->payment_user ) ){
+						$payments[ $result->payment_user ][] = array(
+							'post_id'		=> $result->post_id,
+							'meta_value'	=> $result->meta_value,
+						);
+					}				
 				}
 			}
+			$unique_count = array();
+			// Get updated products with EDD software licensing enabled
+			$products_imp = implode( ',' , array_keys( $products ) );
+			$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1 AND post_id IN ( $products_imp )", OBJECT_K );
+			
+			foreach ( $payments as $payment_user => $payments_item ){
+				foreach ( $payments_item as $user_payment_items ){
+					$paymentmeta = unserialize( $user_payment_items['meta_value'] );
+					$cart_details = is_array( $paymentmeta['cart_details'] ) ? $paymentmeta['cart_details'] : array( $paymentmeta['cart_details'] );
+
+					foreach ( $cart_details as $item ) {
+
+						// Skip $item if it is not a product being updated
+						if ( !isset( $products[ $item['id'] ] ) ){
+							continue;
+						}
+
+						// Check if they have purchased any non-licensed products which would send them the email anyway
+						if ( !isset( $licenseditems[ $item['id'] ] ) && isset( $products[ $item['id'] ] ) ) {
+
+							$unique_count[ $payment_user ] = true;
+							break;
+
+						// Finally check to make sure customer has licenses then check that it is valid for that item.						
+						} else {
+
+							$licenses = edd_pup_get_license_keys( $user_payment_items['post_id'] );
+							$enabled  = get_post_status( $licenses[$item['id']]['license_id'] ) == 'publish' ? true : false;
+
+							if ( !empty( $licenses ) && $enabled && in_array( edd_software_licensing()->get_license_status( $licenses[$item['id']]['license_id'] ), apply_filters( 'edd_pup_valid_license_statuses', array( 'active', 'inactive' ) ) ) ) {
+
+								$unique_count[ $payment_user ] = true;
+								break;
+							}
+
+						}
+					}					
+				}
+			}
+			$count = count( $unique_count );
+		} else {
+			// Get customers who have a completed payment and are subscribed for updates
+			$customers = $wpdb->get_results(
+				"
+				SELECT post_id, meta_value
+				FROM $wpdb->posts, $wpdb->postmeta
+				WHERE $wpdb->posts.ID = $wpdb->postmeta.post_id
+					AND post_type = 'edd_payment'
+					AND post_status = 'publish'
+					AND meta_key = '_edd_payment_meta'
+					AND meta_value NOT LIKE '%%\"edd_send_prod_updates\";b:0%%'
+				", OBJECT_K);
+
+			// Get updated products with EDD software licensing enabled
+			$products_imp = implode( ',' , array_keys( $products ) );
+			$licenseditems = $wpdb->get_results( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_edd_sl_enabled' AND meta_value = 1 AND post_id IN ( $products_imp )", OBJECT_K );
+
+			foreach ( $customers as $customer ) {
+
+				$paymentmeta = unserialize( $customer->meta_value );
+				$cart_details = is_array( $paymentmeta['cart_details'] ) ? $paymentmeta['cart_details'] : array( $paymentmeta['cart_details'] );
+
+				foreach ( $cart_details as $item ) {
+
+					// Skip $item if it is not a product being updated
+					if ( !isset( $products[ $item['id'] ] ) ){
+						continue;
+					}
+
+					// Check if they have purchased any non-licensed products which would send them the email anyway
+					if ( !isset( $licenseditems[ $item['id'] ] ) && isset( $products[ $item['id'] ] ) ) {
+
+						$count++;
+						break;
+
+					// Finally check to make sure customer has licenses then check that it is valid for that item.						
+					} else {
+
+						$licenses = edd_pup_get_license_keys( $customer->post_id );
+						$enabled  = get_post_status( $licenses[$item['id']]['license_id'] ) == 'publish' ? true : false;
+
+						if ( !empty( $licenses ) && $enabled && in_array( edd_software_licensing()->get_license_status( $licenses[$item['id']]['license_id'] ), apply_filters( 'edd_pup_valid_license_statuses', array( 'active', 'inactive' ) ) ) ) {
+
+							$count++;
+							break;
+						}
+
+					}
+				}
+			}
+
 		}
 
 	// Inactive EDD Software Licensing integration
@@ -329,9 +406,7 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 			}
 			$i++;
 		}
-	
-		$customers = $wpdb->get_results(
-	    	"
+		$query = "
 	    	SELECT post_id, meta_value
 	    	FROM $wpdb->posts, $wpdb->postmeta
 	    	WHERE $wpdb->posts.ID = $wpdb->postmeta.post_id
@@ -340,7 +415,34 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 	    		AND meta_key = '_edd_payment_meta'
 				AND (meta_value NOT LIKE '%%\"edd_send_prod_updates\";b:$b%%'
 					AND ($q )
-			", OBJECT );
+			";
+		
+		if( $unique_client ){
+			$query = 
+			"SELECT
+				payment_users.meta_value AS payment_user,
+				payments.post_id AS post_id    
+			FROM (
+				( $query ) payments
+				INNER JOIN 
+				$wpdb->postmeta AS payment_users
+				ON payments.post_id = payment_users.post_id
+				AND payment_users.meta_key = '_edd_payment_user_id'
+			);";
+			$payments = array();
+			$results = $wpdb->get_results( $query );
+			if( is_array( $results ) ){
+				foreach ( $results as $result ){
+					if( isset( $result->payment_user ) ){
+						$payments[ $result->payment_user ][] = array(
+							'post_id'	=> $result->post_id,
+						);
+					}				
+				}
+			}
+			return count( $payments );
+		}
+		$customers = $wpdb->get_results( $query, OBJECT );
 	
 		$count = $wpdb->num_rows;
 	}
