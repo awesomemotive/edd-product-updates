@@ -18,9 +18,7 @@ require_once $_tests_dir . '/includes/functions.php';
  */
 function _manually_load_plugin() {
 	global $argv;
-	
 	require dirname( dirname( __FILE__ ) ) . '/edd-product-updates.php';
-	
 	if( is_array( $argv ) &&  in_array( 'edd_2' , $argv ) ){
 		if( !defined( 'WP_CLI' ) ){
 			define( 'WP_CLI', true );

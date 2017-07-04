@@ -273,8 +273,8 @@ class TestSettings extends WP_UnitTestCase {
 				$this->assertTrue( $this->is_all_links( $payment_id, $products, $licenseditems, $email_id , $links) );
 				if( is_array( $payment_id ) ){
 					foreach ( $payment_id as $payment_id_item ){
-						$this->assertTrue( !in_array( $payment_id_item, $payment_ids ) );
-						$payment_ids[] = $payment_id_item;
+						$this->assertTrue( !in_array( $payment_id, $payment_ids ) );
+						$payment_ids[] = $payment_id;
 					}
 				} else {
 					$this->assertTrue( !in_array( $payment_id, $payment_ids ) );
@@ -345,15 +345,12 @@ class TestSettings extends WP_UnitTestCase {
 	}
 	
 	public function is_all_links( $client, $products, $licenseditems, $email_id , $links ) {
-		$client_prods = $updates =  array();
+		$client_prods = array();
 		if( is_array( $client ) ){
 			foreach ( $client as $client_item ){
-				$_updates = edd_pup_eligible_updates( $client_item, $products, true, $licenseditems, $email_id );					
-				$updates = array_merge( $updates, $_updates );
-			}
-			$updates = $this->filter_customer_update( $updates );
-			foreach ( $client as $client_item ){
-				$client_prods = $this->get_download_links( $client, $updates );		
+				$updates = edd_pup_eligible_updates( $client_item, $products, true, $licenseditems, $email_id );
+				$_client_prods = $this->get_download_links( $client_item, $updates );		
+				$client_prods = array_merge( $client_prods, $_client_prods );
 			}
 		} else {
 			$updates = edd_pup_eligible_updates( $client, $products, true, $licenseditems, $email_id );
@@ -363,20 +360,6 @@ class TestSettings extends WP_UnitTestCase {
 			return true;
 		}
 		return false;
-	}
-	
-	public function filter_customer_update( $customer_updates ) {    
-		$has_updates = $_customer_updates = array();
-		foreach ( $customer_updates as $item ) {
-			if( 
-				array_key_exists( 'id', $item ) 
-				&& !in_array( $item['id'] , $has_updates )
-			){
-				$_customer_updates[] = $item;
-				$has_updates[] = $item['id'];
-			}
-		}
-		return $_customer_updates;	
 	}
 	
 	public function get_download_links( $payment_id, $updates ) {
@@ -546,15 +529,15 @@ class TestSettings extends WP_UnitTestCase {
 					'test-email'	=>	"",
 					'recipients'	=>	"5",
 					'title'	=>	"bundle update",
-					'products' =>	array( 
-						'493','488'
-					),		
-					//'products' =>array('152', '488', '11'),
 //					'products' =>	array( 
-//						'43','93','67','327','22',
-//						'480', '27','152','134',
-//						'493','488', '11','56',
+//						'493','488'
 //					),		
+					//'products' =>array('152', '488', '11'),
+					'products' =>	array( 
+						'43','93','67','327','22',
+						'480', '27','152','134',
+						'493','488', '11','56',
+					),		
 					'bundle_1'	=>	"all",					
 					//'bundle_2'	=>	"0"	,
 					'from_name'	=>	"Edd email updates",	
@@ -583,15 +566,15 @@ class TestSettings extends WP_UnitTestCase {
 					'test-email'	=>	"",
 					'recipients'	=>	"5",
 					'title'	=>	"bundle update",
-					'products' =>	array( 
-						'493','488'
-					),		
-					//'products' =>array('152', '488', '11'),
 //					'products' =>	array( 
-//						'43','93','67','327','22',
-//						'480', '27','152','134',
-//						'493','488', '11','56',
-//					),	
+//						'493','488'
+//					),		
+					//'products' =>array('152', '488', '11'),
+					'products' =>	array( 
+						'43','93','67','327','22',
+						'480', '27','152','134',
+						'493','488', '11','56',
+					),	
 					'bundle_1'	=>	"all",					
 					'edd_pup_unique_client'			=> '1',
 					//'bundle_2'	=>	"0"	,

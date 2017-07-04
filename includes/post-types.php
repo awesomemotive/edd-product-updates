@@ -57,4 +57,4 @@ function edd_pup_post_types() {
 	register_post_type( 'edd_pup_email', $edd_pup_email_args );
 }
 
-add_action( 'init', 'edd_pup_post_types' );
+add_action( 'init', 'edd_pup_post_types', 9 );

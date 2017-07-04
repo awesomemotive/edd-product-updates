@@ -22,14 +22,21 @@ jQuery(document).ready(function ($) {
 				if ( $(this).data('message') == 'preview' ) {
 					$('#message-preview').show();
 					$('#message-original' ).hide();
+					$('#send-status' ).hide();
 				} else if ( $(this).data('message') == 'original' ) {
 					$('#message-original' ).show();		
+					$('#message-preview').hide();			
+					$('#send-status' ).hide();
+				} else if ( $(this).data('message') == 'send-status' ) {
+					$('#send-status' ).show();
+					$('#message-original' ).hide();		
 					$('#message-preview').hide();			
 				} else {
 					return false;
 				}
-				$('#message-preview','#message-original' ).toggle();
-				$('.message-toggle').toggleClass('active');
+				$('#message-preview','#message-original', '#send-status' ).toggle();
+				$('.message-toggle').removeClass('active');
+				$(this).addClass('active');
 				return false;
 			}
 		});

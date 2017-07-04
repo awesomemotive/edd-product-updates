@@ -169,9 +169,10 @@ function edd_pup_products_tag( $payment_id, $email = null, $email_id = null, $pa
 				if( is_array( $customer_update ) ){				
 					foreach( $customer_update as $customer_update_payment_items ){
 						foreach( $customer_update_payment_items as $customer_update_item ){
-							$customer_updates = array_merge( $customer_updates, $customer_update_item );	
+							$customer_updates = array_merge( $customer_updates, $customer_update_item );							
 						}
 					}
+					$customer_updates = edd_pup_filter_customer_update( $customer_updates );
 				}
 			}
 		} else {
@@ -347,9 +348,10 @@ function edd_pup_products_links_tag( $payment_id, $email = null, $email_id = nul
 				if( is_array( $customer_update ) ){				
 					foreach( $customer_update as $customer_update_payment_items ){
 						foreach( $customer_update_payment_items as $customer_update_item ){
-							$customer_updates = array_merge( $customer_updates, $customer_update_item );	
+							$customer_updates = array_merge( $customer_updates, $customer_update_item );							
 						}
 					}
+					$customer_updates = edd_pup_filter_customer_update( $customer_updates );
 				}
 			}
 		} else {
@@ -460,6 +462,26 @@ function edd_pup_products_links_tag( $payment_id, $email = null, $email_id = nul
 		return $download_list;
 	}
 	return false;
+}
+
+/**
+ * Filter user products update to remove duplicate products
+ * 
+ * @param array $customer_updates
+ * @return array
+ */
+function edd_pup_filter_customer_update( $customer_updates ){
+	$has_updates = $_customer_updates = array();
+	foreach ( $customer_updates as $item ) {
+		if( 
+			array_key_exists( 'id', $item ) 
+			&& !in_array( $item['id'] , $has_updates )
+		){
+			$_customer_updates[] = $item;
+			$has_updates[] = $item['id'];
+		}
+	}
+	return $_customer_updates;
 }
 
 /**

@@ -27,6 +27,7 @@ $dateformat 		= get_option( 'date_format' ). ' ' . get_option( 'time_format' );
 $baseurl			= admin_url( 'edit.php?post_type=download&page=edd-prod-updates' );
 $restarturl 		= add_query_arg( array( 'view' => 'send_pup_ajax', 'id' => $email_id, 'restart' => 1 ), admin_url( 'edit.php?post_type=download&page=edd-prod-updates' ) );
 $duplicateurl		= wp_nonce_url( add_query_arg( array( 'edd_action' => 'pup_duplicate_email', 'id' => $email_id, 'redirect' => 1 ), $baseurl ), 'edd-pup-duplicate-nonce' );
+$email_send_status	= get_post_meta( $email_id, 'edd_pup_send_status' );
 
 // Find if any products were bundles
 foreach ( $updated_products as $prod_id => $prod_name ) {
@@ -155,6 +156,9 @@ switch ( strtolower( $email->post_status ) ){
 							<div class="message-toggle-wrap">
 								<button class="message-toggle active" data-message="preview"><?php _e( 'Preview', 'edd-pup' ); ?></button> 
 								<button class="message-toggle" data-message="original"><?php _e( 'Original', 'edd-pup' );?></button>
+								<?php if( !empty( $email_send_status ) && is_array( $email_send_status ) ): ?>
+								<button class="message-toggle" data-message="send-status"><?php _e( 'Send Status', 'edd-pup' );?></button>
+								<?php endif; ?>
 							</div>
 							<div id="message-preview">
 								<?php echo $emailmeta['_edd_pup_message'][0]; ?>
@@ -162,6 +166,35 @@ switch ( strtolower( $email->post_status ) ){
 							<div id="message-original" style="display:none;">
 								<?php echo wpautop( $email->post_content ); ?>	
 							</div>
+							<?php if( !empty( $email_send_status ) && is_array( $email_send_status ) ): ?>
+							<div id="send-status" style="display:none;">								
+								<?php  
+									foreach( $email_send_status as $email_send_status_item ){
+										echo '<div>';
+										if( isset( $email_send_status_item->send_status ) ){
+											$send_status = '';
+											if( is_string( $email_send_status_item->send_status ) && 'nothing' == $email_send_status_item->send_status ){
+												$send_status = __( 'Not sended! Nothing to send.', 'edd-pup' );
+											} else {
+												$_send_status = ( $email_send_status_item->send_status );
+												$send_status = $_send_status ? __( 'Send!', 'edd-pup'  ): __( 'Not Send!', 'edd-pup'  );
+											}
+											echo sprintf( '<div>%s: <strong>%s</strong></div>',__( 'Status', 'edd-pup' ), $send_status );
+											echo '<hr />';
+										}
+										if( isset( $email_send_status_item->to ) ){
+											echo sprintf( '<div>%s: <strong>%s</strong></div>',__( 'Email to', 'edd-pup' ), $email_send_status_item->to );
+											echo '<hr />';
+										}
+										if( isset( $email_send_status_item->message ) ){
+											echo sprintf( '<div><strong>%s</strong></div><div>%s</div>',__( 'Email Message', 'edd-pup' ), $email_send_status_item->message );
+											echo '<hr />';
+										}											
+										echo '</div><br><br>';
+									}
+								?>	
+							</div>
+							<?php endif; ?>
 						</div>
 					</div>
 				</div>

@@ -176,7 +176,7 @@ function edd_pup_create_duplicate_email( $post_id = 0 ) {
 	  'post_name'      => '',
 	  'post_title'     => $post->post_title .' '. __( 'Copy', 'edd-pup' ),
 	  'post_status'    => 'draft',
-	  'post_type'      => 'edd_pup_email',
+	  'post_type'      => $post->post_type,
 	  'post_author'    => '',
 	  'ping_status'    => 'closed',
 	  'post_parent'    => 0,
@@ -214,6 +214,16 @@ function edd_pup_create_duplicate_email( $post_id = 0 ) {
 	}
 }
 
+function edd_pup_unique_client( $email_id ){
+	if( isset( $_POST[ 'form' ]  ) ){
+		parse_str( $_POST['form'], $form );
+		if( isset( $form['edd_pup_unique_client'] ) ){
+			return true;
+		}
+	}
+	return get_post_meta( $email_id, '_edd_pup_unique_client', TRUE );
+}
+
 /**
  * Count number of customers who will receive product update emails
  *
@@ -238,7 +248,7 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
     $licensing = edd_get_option( 'edd_pup_license' );
 	$products = !empty( $products ) ? $products : get_post_meta( $email_id, '_edd_pup_updated_products', TRUE );
 	$filters = isset( $filters ) ? $filters : get_post_meta( $email_id, '_edd_pup_filters', true );
-	$unique_client = get_post_meta( $email_id, '_edd_pup_unique_client', TRUE );
+	$unique_client = edd_pup_unique_client( $email_id );
 	
 	// Filter bundle customers only
 	if ( $filters['bundle_2'] ) {
@@ -284,10 +294,39 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 			if( is_array( $results ) ){
 				foreach ( $results as $result ){
 					if( isset( $result->payment_user ) ){
-						$payments[ $result->payment_user ][] = array(
-							'post_id'		=> $result->post_id,
-							'meta_value'	=> $result->meta_value,
-						);
+						// separate users that are not logged/signup
+						//  (has id == 0) in edd_customers table					
+						if( 0 == $result->payment_user  ){
+							$payment_meta = maybe_unserialize( $result->meta_value );
+							if( !empty( $payment_meta ) ){
+								$email = isset( $payment_meta['user_info']['email'] ) ? $payment_meta['user_info']['email'] : $payment_meta['email'];
+								if( isset( $payments[ $email ] ) ){ // not set yet
+									$has_payment = false;
+									foreach ( (array)$payments[ $email ] as $payments_email ){
+										if( isset( $payments_email['post_id'] ) && $payments_email['post_id'] == $result->post_id ){
+											$has_payment = true;
+										}
+									}
+									if( !$has_payment ){// no such payment (avoid dublicate)
+										$payments[ $email ][] = array(
+											'post_id'	=> $result->post_id,
+										);
+									}
+								} else {
+									$payments[ $email ][] = array(
+										'post_id'	=> $result->post_id,
+									);								
+								}
+							} else {// at least send the something wrong with payment meta
+								$payments[ $result->post_id ][] = array(
+									'post_id'	=> $result->post_id,
+								);							
+							}
+						} else {
+							$payments[ $result->payment_user ][] = array(
+								'post_id'	=> $result->post_id,
+							);						
+						}
 					}				
 				}
 			}
@@ -421,7 +460,8 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 			$query = 
 			"SELECT
 				payment_users.meta_value AS payment_user,
-				payments.post_id AS post_id    
+				payments.post_id AS post_id,
+				payments.meta_value AS meta_value
 			FROM (
 				( $query ) payments
 				INNER JOIN 
@@ -434,9 +474,39 @@ function edd_pup_customer_count( $email_id = null, $products = null, $subscribed
 			if( is_array( $results ) ){
 				foreach ( $results as $result ){
 					if( isset( $result->payment_user ) ){
-						$payments[ $result->payment_user ][] = array(
-							'post_id'	=> $result->post_id,
-						);
+						// separate users that are not logged/signup
+						//  (has id == 0) in edd_customers table					
+						if( 0 == $result->payment_user  ){
+							$payment_meta = maybe_unserialize( $result->meta_value );
+							if( !empty( $payment_meta ) ){
+								$email = isset( $payment_meta['user_info']['email'] ) ? $payment_meta['user_info']['email'] : $payment_meta['email'];
+								if( isset( $payments[ $email ] ) ){ // not set yet
+									$has_payment = false;
+									foreach ( (array)$payments[ $email ] as $payments_email ){
+										if( isset( $payments_email['post_id'] ) && $payments_email['post_id'] == $result->post_id ){
+											$has_payment = true;
+										}
+									}
+									if( !$has_payment ){// no such payment (avoid dublicate)
+										$payments[ $email ][] = array(
+											'post_id'	=> $result->post_id,
+										);
+									}
+								} else {
+									$payments[ $email ][] = array(
+										'post_id'	=> $result->post_id,
+									);								
+								}
+							} else {// at least send the something wrong with payment meta
+								$payments[ $result->post_id ][] = array(
+									'post_id'	=> $result->post_id,
+								);							
+							}
+						} else {
+							$payments[ $result->payment_user ][] = array(
+								'post_id'	=> $result->post_id,
+							);						
+						}
 					}				
 				}
 			}
@@ -775,7 +845,7 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
 	}
 	
 	$query = 
-	"SELECT m.post_id 
+	"SELECT m.post_id, m.meta_value 
     	FROM $wpdb->postmeta m, $wpdb->posts p
     	WHERE m.meta_key = '_edd_payment_meta'
     		AND m.meta_value NOT LIKE '%\"edd_send_prod_updates\";b:$bool%'
@@ -789,22 +859,53 @@ function edd_pup_user_send_updates( $products = null, $subscribed = true, $limit
 		$query = 
 		"SELECT
 			payment_users.meta_value AS payment_user,
+			payments.meta_value AS payment_meta,
 			payments.post_id AS post_id    
 		FROM (
 			( $query ) payments
 			INNER JOIN 
 			$wpdb->postmeta AS payment_users
 			ON payments.post_id = payment_users.post_id
-			AND payment_users.meta_key = '_edd_payment_user_id'
+			AND payment_users.meta_key = '_edd_payment_user_id'	
 		);";
 		$payments = array();
 		$results = $wpdb->get_results( $query );
 		if( is_array( $results ) ){
 			foreach ( $results as $result ){
 				if( isset( $result->payment_user ) ){
-					$payments[ $result->payment_user ][] = array(
-						'post_id'	=> $result->post_id,
-					);
+					// separate users that are not logged/signup
+					//  (has id == 0) in edd_customers table					
+					if( 0 == $result->payment_user  ){
+						$payment_meta = maybe_unserialize( $result->payment_meta );
+						if( !empty( $payment_meta ) ){
+							$email = isset( $payment_meta['user_info']['email'] ) ? $payment_meta['user_info']['email'] : $payment_meta['email'];
+							if( isset( $payments[ $email ] ) ){ // not set yet
+								$has_payment = false;
+								foreach ( (array)$payments[ $email ] as $payments_email ){
+									if( isset( $payments_email['post_id'] ) && $payments_email['post_id'] == $result->post_id ){
+										$has_payment = true;
+									}
+								}
+								if( !$has_payment ){// no such payment (avoid dublicate)
+									$payments[ $email ][] = array(
+										'post_id'	=> $result->post_id,
+									);
+								}
+							} else {
+								$payments[ $email ][] = array(
+									'post_id'	=> $result->post_id,
+								);								
+							}
+						} else {// at least send the something wrong with payment meta
+							$payments[ $result->post_id ][] = array(
+								'post_id'	=> $result->post_id,
+							);							
+						}
+					} else {
+						$payments[ $result->payment_user ][] = array(
+							'post_id'	=> $result->post_id,
+						);						
+					}
 				}				
 			}
 		}

@@ -390,7 +390,7 @@ function edd_pup_ajax_trigger( $test_mode = false ){
 		exit;
 	}
 	$unique_users = get_post_meta( $email_id, '_edd_pup_unique_client', TRUE );
-	
+		
 	foreach ( $customers as $customer ) {
 			$payment_ids = array();
 			$payment_id = 0;
@@ -404,7 +404,7 @@ function edd_pup_ajax_trigger( $test_mode = false ){
 			} else {				
 				$payment_id = $customer['customer_id'];
 			}
-			$trigger = edd_pup_ajax_send_email( $payment_id, $email_id, $testmode, $payment_ids );
+			$trigger = edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode, $payment_ids );
 				
 			if( !$testmode && ( $trigger && 'nothig' !== $trigger )  ){
 				if( is_array( $payment_ids ) ){
@@ -519,6 +519,7 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null, $pa
 		}
 	}
 	
+	
 	if ( version_compare( get_option( 'edd_version' ), '2.1' ) >= 0 ) {
 	
 		$edd_emails = new EDD_emails();
@@ -526,10 +527,11 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null, $pa
 		$updated_links    = edd_pup_products_links_tag( $payment_id, null, $email_id, $payment_ids );
 		$updated_products = edd_pup_products_tag( $payment_id, null, $email_id, $payment_ids );
 		
-		$_updated_links = strip_tags( $updated_links, '<a>' );
-		$_updated_products = strip_tags( $updated_products, '<a>' );
+		$_updated_links = strip_tags( "<div>$updated_links</div>", '<a>' );		
 		
-		if( $_updated_links || $_updated_products ){
+		$stripped_message = $updated_links . $updated_products;
+		
+		if( $_updated_links ){
 			$message = str_replace( '{updated_products_links}', $updated_links, $emailpost->post_content );
 			$replaced_products = str_replace( '{updated_products}', $updated_products, $message );
 			$message = edd_do_email_tags( $replaced_products, $payment_id );
@@ -546,10 +548,12 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null, $pa
 		$updated_links    = edd_pup_products_links_tag( $payment_id, null, $email_id , $payment_ids );
 		$updated_products = edd_pup_products_tag( $payment_id, null, $email_id, $payment_ids );
 
-		$_updated_links = strip_tags( $updated_links, '<a>' );
+		$_updated_links = strip_tags( "<div>$updated_links</div>", '<a>' );	
 		$_updated_products = strip_tags( $updated_products, '<a>' );
 		
-		if( $_updated_links || $_updated_products ){
+		$stripped_message = $updated_links . $updated_products;
+		
+		if( $_updated_links ){
 			
 			$email_body_header = get_transient( 'edd_pup_email_body_header_'. $userid );
 
@@ -591,9 +595,35 @@ function edd_pup_ajax_send_email( $payment_id, $email_id, $test_mode = null, $pa
 	
 	// Update payment notes to log this email being sent
 	if ( !isset( $lognotes['sent'] ) ) {
-		edd_insert_payment_note( $payment_id, 'Sent product update email "'. $subject .'" <a href="'.admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=view_pup_email&id='.$email_id ).'">View Email</a>' );
+		if( $test_mode ){
+			$customer_updates = array();
+			if( !empty( $payment_ids ) ){
+				foreach ( $payment_ids as $payment_ids_item ){
+					$customer_update = edd_pup_get_customer_updates( $payment_ids_item, $email_id );
+					if( is_array( $customer_update ) ){				
+						foreach( $customer_update as $customer_update_payment_items ){
+							foreach( $customer_update_payment_items as $customer_update_item ){
+								$customer_updates = array_merge( $customer_updates, $customer_update_item );							
+							}
+						}
+						$customer_updates = edd_pup_filter_customer_update( $customer_updates );
+					}
+				}
+			} else {
+				$customer_updates = edd_pup_get_customer_updates( $payment_id, $email_id );							
+			}
+			edd_insert_payment_note( $payment_id, 'Customer updates for :' .$email . ' -- ' . print_r( $customer_updates, true ) );
+		} else {
+			edd_insert_payment_note( $payment_id, 'Sent product update email "'. $subject .'" <a href="'.admin_url( 'edit.php?post_type=download&page=edd-prod-updates&view=view_pup_email&id='.$email_id ).'">View Email</a>' );			
+		}
 	}
     
+	$send_status = (object)array(
+		'send_status'	=> $mailresult,
+		'to'			=> $email,
+		'message'		=> $stripped_message
+	);
+	add_post_meta( $email_id, 'edd_pup_send_status', $send_status );
 	
     return $mailresult;
 }
