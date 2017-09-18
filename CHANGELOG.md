@@ -1,3 +1,6 @@
+## Version 1.2.7, May 31, 2017
+* Fix: Links to file downloads were not always being displayed in emails sent to customers.
+
 ## 1.2.6 (April 10th, 2017)
 * Tweak: Change the default option for bundle update - `Show links for all products` instead of `Show links for updated products only`.
 
