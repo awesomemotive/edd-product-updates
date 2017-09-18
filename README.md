@@ -66,4 +66,4 @@ This extension allows you to send specialized product update emails to your cust
 * **PHP:** 4.3 (depending on WP version)
 
 ## Questions?
-Email contact [at] devrix.com
+Email contact [at] EDD Team.com

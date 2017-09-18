@@ -4,9 +4,9 @@
  *
  * Add unsubscribe option on payment history page for customers
  *
- * 
+ *
  * @package    EDD_PUP
- * @author     DevriX
+ * @author     EDD Team
  * @copyright  Copyright (c) 2014-2017
  * @since      0.9
  */
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Add the "Send Product Updates?" option to payment history page
- * 
+ *
  * @access public
  * @param mixed $payment_id
  * @return void
@@ -45,9 +45,9 @@ add_action('edd_view_order_details_update_inner','edd_pup_order_history');
 /**
  * Store the unsubscribe custom field into EDD's payment meta
  *
- * This filter is commented for now because its causing problem since 
+ * This filter is commented for now because its causing problem since
  * $_POST['edd-send-product-updates'] doesn't exist here
- * 
+ *
  * @access public
  * @param mixed $payment_meta
  * @return void
@@ -62,7 +62,7 @@ function edd_pup_store_field( $payment_meta ) {
 
 /**
  * Check "Send Product Updates?" option by default on payment completion
- * 
+ *
  * @access public
  * @param mixed $payment_id
  * @return void
@@ -71,11 +71,11 @@ function edd_pup_send_updates_default( $payment_id ) {
 
     // get the payment meta
     $payment_meta = get_post_meta( $payment_id, '_edd_payment_meta', true );
- 
+
     // update our checkbox
     $payment_meta['edd_send_prod_updates'] = true;
- 
-    // update the payment meta with the new array 
+
+    // update the payment meta with the new array
     update_post_meta( $payment_id, '_edd_payment_meta', $payment_meta );
 
 }
@@ -84,20 +84,20 @@ add_action( 'edd_insert_payment', 'edd_pup_send_updates_default' );
 
 /**
  * Save unsubscribe field when modified on payment history page
- * 
+ *
  * @access public
  * @param mixed $payment_id
  * @return void
  */
 function edd_pup_updated_edited_purchase( $payment_id ) {
- 
+
     // get the payment meta
     $payment_meta = get_post_meta( $payment_id, '_edd_payment_meta', true );
- 
+
     // update our checkbox
     $payment_meta['edd_send_prod_updates'] = isset( $_POST['edd-send-product-updates'] ) ? true : false;
- 
-    // update the payment meta with the new array 
+
+    // update the payment meta with the new array
     update_post_meta( $payment_id, '_edd_payment_meta', $payment_meta );
 }
 add_action( 'edd_updated_edited_purchase', 'edd_pup_updated_edited_purchase' );

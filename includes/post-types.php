@@ -6,7 +6,7 @@
  *
  *
  * @package    EDD_PUP
- * @author     DevriX
+ * @author     EDD Team
  * @copyright  Copyright (c) 2014-2017
  * @since      0.9.2
  */
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Register custom edd_pup_email post type for storing sent updates
- * 
+ *
  * @access public
  * @return void
  */
@@ -53,7 +53,7 @@ function edd_pup_post_types() {
 		'supports' 			=> array( 'title', 'editor', 'thumbnail', 'excerpt', 'revisions' ),
 		'can_export'		=> true
 	);
-	
+
 	register_post_type( 'edd_pup_email', $edd_pup_email_args );
 }
 
