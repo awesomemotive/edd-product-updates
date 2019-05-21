@@ -1,3 +1,6 @@
+# This extension is no longer maintained
+In January 2018, this extension stopped getting mainteance and feature realeases. You are more than welcome to fork this repository if you wish to continue using it, however support is no longer provided, and bug fixes are no longer pushed.
+
 ![Alt text](/assets/img/edd_pup_banner.png?raw=true "EDD Product Updates Extension")
 
 EDD Product Updates Extension
